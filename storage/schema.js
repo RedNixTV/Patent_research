@@ -1,29 +1,32 @@
 export function createPatent() {
 
-    return {
-
-        patentNumber: "",
-
-        title: "",
-
-        url: "",
-
-        relevance: "",
-
-        abstract: "",
-
-        imageCount: 0,
-
-        assignee: "",
-
-        cpc: [],
-
-        primaryCpc: [],
-
-        uspc: [],
-
-        classifications: [],
-
-        savedDate: ""
-    };
+   return {
+	
+		patentNumber: "",
+		title: "",
+		url: "",
+		relevance: "",
+	
+		abstract: "",
+	
+		inventorName: "",
+		assignee: "",
+	
+		applicationNumber: "",
+		filingDate: "",
+		publicationDate: "",
+	
+		primaryClass: "",
+		otherClasses: [],
+	
+		imageCount: 0,
+	
+		cpc: [],
+		primaryCpc: [],
+		uspc: [],
+	
+		classifications: [],
+	
+		savedDate: ""
+	};
 }

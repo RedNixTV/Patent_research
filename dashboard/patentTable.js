@@ -1,3 +1,24 @@
+function truncate(
+    text,
+    maxLength
+) {
+
+    if (!text) {
+
+        return "";
+    }
+
+    return text.length >
+        maxLength
+
+        ? text.slice(
+            0,
+            maxLength
+          ) + "..."
+
+        : text;
+}
+
 export function renderPatentTable(
     patents
 ) {
@@ -21,32 +42,81 @@ export function renderPatentTable(
                 );
 
             row.innerHTML = `
-                <td>
+					<td>
 				
-					<span
-						class="editPatent"
-						data-index="${index}"
-						title="Edit Patent"
-						style="
-							cursor:pointer;
-							margin-right:8px;
-						"
+						<span
+							class="editPatent"
+							data-index="${index}"
+							title="Edit Patent"
+							style="
+								cursor:pointer;
+								margin-right:8px;
+							"
+						>
+							✏️
+						</span>
+				
+						${patent.referenceId}
+				
+					</td>
+				
+					<td>
+						${patent.patentNumber || ""}
+					</td>
+				
+					<td title="${patent.title || ""}">
+						${truncate(
+							patent.title,
+							60
+						)}
+					</td>
+					
+					<td title="${patent.abstract || ""}">
+						${truncate(
+							patent.abstract,
+							120
+						)}
+					</td>
+				
+					<td>
+						${patent.inventorName || ""}
+					</td>
+				
+					<td>
+						${patent.assignee || ""}
+					</td>
+				
+					<td>
+						${patent.applicationNumber || ""}
+					</td>
+				
+					<td>
+						${patent.filingDate || ""}
+					</td>
+				
+					<td>
+						${patent.publicationDate || ""}
+					</td>
+				
+					<td>
+						${patent.primaryClass || ""}
+					</td>
+				
+					<td
+						title="${(patent.otherClasses || []).join(", ")}"
 					>
-						✏️
-					</span>
+						${(patent.otherClasses || [])
+							.slice(0, 3)
+							.join(", ")}
+						${(patent.otherClasses || []).length > 3
+							? "..."
+							: ""}
+					</td>
 				
-					${patent.referenceId}
-				
-				</td>
-				
-				<td>
-					${patent.patentNumber || "(blank)"}
-				</td>
-
-                <td>
-                    ${patent.relevance}
-                </td>
-            `;
+					<td>
+						${patent.relevance || ""}
+					</td>
+				`;
 
             tbody.appendChild(
                 row

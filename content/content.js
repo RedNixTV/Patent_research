@@ -59,6 +59,18 @@ function extractPatent() {
 
         assignee:
             extractAssignee(),
+            
+        inventorName:
+			extractInventorName(),
+		
+		applicationNumber:
+			extractApplicationNumber(),
+		
+		filingDate:
+			extractFilingDate(),
+		
+		publicationDate:
+			extractPublicationDate(),
 
         imageCount:
             document.images.length,
@@ -68,6 +80,16 @@ function extractPatent() {
         primaryCpc: [],
 
         uspc,
+        
+        primaryClass:
+			uspc?.[0] ||
+			"",
+		
+		otherClasses:
+			[
+				...uspc.slice(1),
+				...cpc.slice(1)
+			],
 
         classifications:
             buildClassifications(
@@ -179,6 +201,66 @@ function extractAssignee() {
     const match =
         text.match(
             /Assignee:\s*([^\n]+)/i
+        );
+
+    return match
+        ? match[1].trim()
+        : "";
+}
+
+function extractInventorName() {
+
+    const text =
+        document.body.innerText;
+
+    const match =
+        text.match(
+            /Inventor[s]?:\s*([^\n]+)/i
+        );
+
+    return match
+        ? match[1].trim()
+        : "";
+}
+
+function extractApplicationNumber() {
+
+    const text =
+        document.body.innerText;
+
+    const match =
+        text.match(
+            /App Num:\s*([^\n]+)/i
+        );
+
+    return match
+        ? match[1].trim()
+        : "";
+}
+
+function extractFilingDate() {
+
+    const text =
+        document.body.innerText;
+
+    const match =
+        text.match(
+            /File Date:\s*([^\n]+)/i
+        );
+
+    return match
+        ? match[1].trim()
+        : "";
+}
+
+function extractPublicationDate() {
+
+    const text =
+        document.body.innerText;
+
+    const match =
+        text.match(
+            /Pub Date:\s*([^\n]+)/i
         );
 
     return match

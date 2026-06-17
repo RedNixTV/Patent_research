@@ -38,21 +38,46 @@
 			
 			<div id="content"></div>
 			
-			<pre id="histogramOutput"></pre>
-			
-			<table id="patentTable">
-			
-				<thead>
-					<tr>
-						<th>#</th>
-						<th>Patent</th>
-						<th>Relevance</th>
-					</tr>
-				</thead>
-			
-				<tbody></tbody>
-			
-			</table>	
+				<pre id="histogramOutput"></pre>
+				<div id="tableContainer">
+					<table id="patentTable">
+					
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Document Number</th>
+								<th>Title</th>
+								<th>Abstract</th>
+								<th>Inventor</th>
+								<th>Assignee</th>
+								<th>Application</th>
+								<th>Filing Date</th>
+								<th>Publication Date</th>
+								<th>Primary Class</th>
+								<th>Other Classes</th>
+								<th>Relevance</th>
+							</tr>
+						</thead>
+					
+						<tbody></tbody>
+					
+					</table>	
+				</div>
+				<style>
+				
+				#tableContainer {
+				
+					overflow-x: auto;
+				
+					width: 100%;
+				}
+				
+				#patentTable {
+				
+					min-width: 1800px;
+				}
+				
+				</style>
 			<div
 				id="editPatentDialog"
 				style="
@@ -115,6 +140,31 @@
 				>
 			
 				<br><br>
+				
+				<label>Application Number</label>
+						<input
+							id="editApplicationNumber"
+							style="width:100%;"
+							readonly
+						>
+						
+						<br><br>
+						
+						<label>Filing Date</label>
+						<input
+							id="editFilingDate"
+							style="width:100%;"
+							readonly
+						>
+						
+						<br><br>
+						
+						<label>Publication Date</label>
+						<input
+							id="editPublicationDate"
+							style="width:100%;"
+							readonly
+						>
 			
 				<label>URL</label>
 			

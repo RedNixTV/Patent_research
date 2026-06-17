@@ -342,6 +342,27 @@ function setupEditButtons() {
                             )
                             .value =
                             patent.assignee || "";
+                            
+                        document
+							.getElementById(
+								"editApplicationNumber"
+							)
+							.value =
+							patent.applicationNumber || "";
+						
+						document
+							.getElementById(
+								"editFilingDate"
+							)
+							.value =
+							patent.filingDate || "";
+						
+						document
+							.getElementById(
+								"editPublicationDate"
+							)
+							.value =
+							patent.publicationDate || "";
 
                         document
                             .getElementById(
