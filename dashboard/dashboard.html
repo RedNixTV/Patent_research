@@ -9,22 +9,37 @@
 	</head>
 	
 		<body>
+			<div id="histogramControls">
+			
+				<label>
+					<input
+						type="checkbox"
+						id="showFullClasses"
+						checked
+					>
+					Show Full Classes
+				</label>
+			
+			</div>
 		
 			<div id="summary"></div>
 			
-				<button id="referencesTab">
+			<button id="referencesTab">
 				References
-				</button>
-				
-				<button id="cpcTab">
+			</button>
+			
+			<button id="cpcTab">
 				CPC Histogram
-				</button>
-				
-				<button id="uspcTab">
+			</button>
+			
+			<button id="uspcTab">
 				USPC Histogram
-				</button>
+			</button>
 			
 			<div id="content"></div>
+			
+			<pre id="histogramOutput"></pre>
+			
 			<table id="patentTable">
 			
 				<thead>
@@ -36,8 +51,7 @@
 			
 				<tbody></tbody>
 			
-			</table>
-		
+			</table>		
 		
 			<script
 				type="module"

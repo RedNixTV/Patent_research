@@ -3,31 +3,198 @@ import {
 }
 from "../storage/storage.js";
 
+import {
+    buildHistogram,
+    buildSubclassHistogram
+}
+from "./histogram.js";
+
+import {
+    renderPatentTable
+}
+from "./patentTable.js";
+
+let patents = [];
+let currentView =
+    "references";
+
 async function init() {
 
-    const patents =
+    patents =
         await getPatents();
 
-    const tbody =
-        document.querySelector(
-            "#patentTable tbody"
-        );
+    renderPatentTable(
+        patents
+    );
 
-    for (const patent of patents) {
+    document
+		.getElementById(
+			"cpcTab"
+		)
+		.onclick =
+		() => {
+	
+			currentView =
+				"cpc";
+	
+			renderCpcHistogram();
+		};
 
-        const row =
-            document.createElement("tr");
+    document
+		.getElementById(
+			"uspcTab"
+		)
+		.onclick =
+		() => {
+	
+			currentView =
+				"uspc";
+	
+			renderUspcHistogram();
+		};
 
-        row.innerHTML = `
-            <td>${patent.patentNumber}</td>
-            <td>${patent.relevance}</td>
-            <td>${patent.title}</td>
-        `;
+    document
+		.getElementById(
+			"referencesTab"
+		)
+		.onclick =
+		() => {
+	
+			currentView =
+				"references";
+	
+			showReferences();
+		};
+		
+	document
+		.getElementById(
+			"showFullClasses"
+		)
+		.addEventListener(
+			"change",
+			updateCurrentHistogram
+		);
+}
 
-        tbody.appendChild(
-            row
-        );
+function updateCurrentHistogram() {
+
+    if (
+        currentView ===
+        "cpc"
+    ) {
+
+        renderCpcHistogram();
     }
+
+    else if (
+        currentView ===
+        "uspc"
+    ) {
+
+        renderUspcHistogram();
+    }
+}
+
+function showReferences() {
+
+    document
+        .getElementById(
+            "histogramOutput"
+        )
+        .textContent = "";
+}
+
+function renderCpcHistogram() {
+
+    const showFull =
+        document
+            .getElementById(
+                "showFullClasses"
+            )
+            .checked;
+
+    const histogram =
+        showFull
+            ? buildHistogram(
+                patents,
+                "allCpc"
+            )
+            : buildSubclassHistogram(
+                patents,
+                "cpc"
+            );
+
+    renderHistogram(
+        histogram,
+        showFull
+            ? "Top CPC Classes"
+            : "Top CPC Subclasses"
+    );
+}
+
+function renderUspcHistogram() {
+
+    const showFull =
+        document
+            .getElementById(
+                "showFullClasses"
+            )
+            .checked;
+
+    const histogram =
+        showFull
+            ? buildHistogram(
+                patents,
+                "uspc"
+            )
+            : buildSubclassHistogram(
+                patents,
+                "uspc"
+            );
+
+    renderHistogram(
+        histogram,
+        showFull
+            ? "Top USPC Classes"
+            : "Top USPC Main Classes"
+    );
+}
+
+function renderHistogram(
+    histogram,
+    title
+) {
+
+    const sorted =
+        Object.entries(
+            histogram
+        )
+        .sort(
+            (a, b) =>
+                b[1] - a[1]
+        );
+
+    let output =
+        `${title}\n\n`;
+
+    for (
+        const [code, count]
+        of sorted
+    ) {
+
+        output +=
+            `${code.padEnd(
+                20,
+                "."
+            )} ${count}\n`;
+    }
+
+    document
+        .getElementById(
+            "histogramOutput"
+        )
+        .textContent =
+        output;
 }
 
 init();

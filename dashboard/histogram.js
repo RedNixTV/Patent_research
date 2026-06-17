@@ -43,3 +43,54 @@ export function buildHistogram(
 
     return histogram;
 }
+
+export function getCpcSubclass(
+    code
+) {
+
+    const match =
+        code.match(
+            /^([A-HY]\d{2}[A-Z]\d+)/
+        );
+
+    return match
+        ? match[1]
+        : code;
+}
+
+export function buildSubclassHistogram(
+    patents,
+    mode
+) {
+
+    const histogram = {};
+
+    for (const patent of patents) {
+
+        const classes =
+            mode === "cpc"
+                ? patent.cpc || []
+                : patent.uspc || [];
+
+        for (const code of classes) {
+
+            const bucket =
+                mode === "cpc"
+                    ? getCpcSubclass(
+                        code
+                    )
+                    : code.split(
+                        "/"
+                    )[0];
+
+            histogram[bucket] =
+                (
+                    histogram[
+                        bucket
+                    ] || 0
+                ) + 1;
+        }
+    }
+
+    return histogram;
+}
