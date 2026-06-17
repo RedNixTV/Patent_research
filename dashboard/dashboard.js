@@ -349,6 +349,22 @@ function setupEditButtons() {
                             )
                             .value =
                             patent.url || "";
+                            
+                        document
+							.getElementById(
+								"editCpc"
+							)
+							.value =
+							(patent.cpc || [])
+								.join("\n");
+						
+						document
+							.getElementById(
+								"editUspc"
+							)
+							.value =
+							(patent.uspc || [])
+								.join("\n");
 
                         document
                             .getElementById(
