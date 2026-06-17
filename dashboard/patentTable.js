@@ -21,6 +21,9 @@ export function renderPatentTable(
 
         row.innerHTML = `
             <td>
+				${patent.referenceId}
+			</td>
+			<td>
                 ${patent.patentNumber}
             </td>
 

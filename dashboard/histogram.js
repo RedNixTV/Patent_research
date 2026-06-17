@@ -94,3 +94,128 @@ export function buildSubclassHistogram(
 
     return histogram;
 }
+
+export function buildHistogramWithReferences(
+    patents,
+    mode
+) {
+
+    const histogram = {};
+
+    for (
+        const patent
+        of patents
+    ) {
+
+        let classes = [];
+
+        if (
+            mode === "allCpc"
+        ) {
+
+            classes =
+                patent.cpc || [];
+        }
+
+        else if (
+            mode === "primaryCpc"
+        ) {
+
+            classes =
+                patent.primaryCpc || [];
+        }
+
+        else if (
+            mode === "uspc"
+        ) {
+
+            classes =
+                patent.uspc || [];
+        }
+
+        for (
+            const code
+            of classes
+        ) {
+
+            histogram[code] ??= {
+
+                count: 0,
+
+                references: []
+            };
+
+            histogram[code].count++;
+
+            histogram[
+                code
+            ].references.push(
+                patent.referenceId
+            );
+        }
+    }
+
+    return histogram;
+}
+
+export function buildSubclassHistogramWithReferences(
+    patents,
+    mode
+) {
+
+    const histogram = {};
+
+    for (
+        const patent
+        of patents
+    ) {
+
+        const classes =
+            mode === "cpc"
+                ? patent.cpc || []
+                : patent.uspc || [];
+
+        for (
+            const code
+            of classes
+        ) {
+
+            const bucket =
+                mode === "cpc"
+                    ? getCpcSubclass(
+                        code
+                    )
+                    : code.split(
+                        "/"
+                    )[0];
+
+            histogram[bucket] ??= {
+
+                count: 0,
+
+                references: []
+            };
+
+            histogram[
+                bucket
+            ].count++;
+
+            if (
+                !histogram[
+                    bucket
+                ].references.includes(
+                    patent.referenceId
+                )
+            ) {
+
+                histogram[
+                    bucket
+                ].references.push(
+                    patent.referenceId
+                );
+            }
+        }
+    }
+
+    return histogram;
+}

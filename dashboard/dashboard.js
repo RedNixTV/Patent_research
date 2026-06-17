@@ -4,8 +4,8 @@ import {
 from "../storage/storage.js";
 
 import {
-    buildHistogram,
-    buildSubclassHistogram
+    buildHistogramWithReferences,
+    buildSubclassHistogramWithReferences
 }
 from "./histogram.js";
 
@@ -22,6 +22,17 @@ async function init() {
 
     patents =
         await getPatents();
+        
+    patents.forEach(
+		(
+			patent,
+			index
+		) => {
+	
+			patent.referenceId =
+				index + 1;
+		}
+	);
 
     renderPatentTable(
         patents
@@ -114,15 +125,15 @@ function renderCpcHistogram() {
             .checked;
 
     const histogram =
-        showFull
-            ? buildHistogram(
-                patents,
-                "allCpc"
-            )
-            : buildSubclassHistogram(
-                patents,
-                "cpc"
-            );
+		showFull
+			? buildHistogramWithReferences(
+				patents,
+				"allCpc"
+			)
+			: buildSubclassHistogramWithReferences(
+				patents,
+				"cpc"
+			);
 
     renderHistogram(
         histogram,
@@ -142,15 +153,15 @@ function renderUspcHistogram() {
             .checked;
 
     const histogram =
-        showFull
-            ? buildHistogram(
-                patents,
-                "uspc"
-            )
-            : buildSubclassHistogram(
-                patents,
-                "uspc"
-            );
+		showFull
+			? buildHistogramWithReferences(
+				patents,
+				"uspc"
+			)
+			: buildSubclassHistogramWithReferences(
+				patents,
+				"uspc"
+			);
 
     renderHistogram(
         histogram,
@@ -166,27 +177,39 @@ function renderHistogram(
 ) {
 
     const sorted =
-        Object.entries(
-            histogram
-        )
-        .sort(
-            (a, b) =>
-                b[1] - a[1]
-        );
+    Object.entries(
+        histogram
+    )
+    .sort(
+        (a,b) =>
+            b[1].count -
+            a[1].count
+    );
 
     let output =
         `${title}\n\n`;
 
     for (
-        const [code, count]
-        of sorted
-    ) {
+			const [
+				code,
+				data
+			]
+			of sorted
+		) {
 
-        output +=
-            `${code.padEnd(
-                20,
-                "."
-            )} ${count}\n`;
+        const refs =
+				data.references
+					.sort(
+						(a,b) =>
+							a - b
+					)
+					.join(",");
+			
+			output +=
+				`${code.padEnd(
+					20,
+					"."
+				)} ${data.count} [${refs}]\n`;
     }
 
     document
