@@ -5,7 +5,9 @@ from "../storage/storage.js";
 
 import {
     buildHistogramWithReferences,
-    buildSubclassHistogramWithReferences
+    buildSubclassHistogramWithReferences,
+    buildFamilyTotals,
+    getClassificationFamily
 }
 from "./histogram.js";
 
@@ -176,15 +178,80 @@ function renderHistogram(
     title
 ) {
 
+    const familyTotals =
+    buildFamilyTotals(
+        histogram
+    );
+    
     const sorted =
     Object.entries(
         histogram
     )
-    .sort(
-        (a,b) =>
-            b[1].count -
-            a[1].count
-    );
+		.sort(
+		(
+			[codeA, dataA],
+			[codeB, dataB]
+		) => {
+	
+			const familyA =
+				getClassificationFamily(
+					codeA
+				);
+	
+			const familyB =
+				getClassificationFamily(
+					codeB
+				);
+	
+			const familyTotalA =
+				familyTotals[
+					familyA
+				];
+	
+			const familyTotalB =
+				familyTotals[
+					familyB
+				];
+	
+			if (
+				familyTotalA !==
+				familyTotalB
+			) {
+	
+				return (
+					familyTotalB -
+					familyTotalA
+				);
+			}
+	
+			if (
+				familyA !==
+				familyB
+			) {
+	
+				return familyA
+					.localeCompare(
+						familyB
+					);
+			}
+	
+			if (
+				dataA.count !==
+				dataB.count
+			) {
+	
+				return (
+					dataB.count -
+					dataA.count
+				);
+			}
+	
+			return codeA
+				.localeCompare(
+					codeB
+				);
+		}
+	);
 
     let output =
         `${title}\n\n`;

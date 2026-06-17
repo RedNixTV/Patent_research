@@ -58,6 +58,55 @@ export function getCpcSubclass(
         : code;
 }
 
+export function getClassificationFamily(
+    code
+) {
+
+    const match =
+        code.match(
+            /^([A-HY]\d{2}[A-Z]\d+)/
+        );
+
+    if (match) {
+
+        return match[1];
+    }
+
+    return code.split(
+        "/"
+    )[0];
+}
+
+export function buildFamilyTotals(
+    histogram
+) {
+
+    const totals = {};
+
+    for (
+        const [
+            code,
+            data
+        ]
+        of Object.entries(
+            histogram
+        )
+    ) {
+
+        const family =
+            getClassificationFamily(
+                code
+            );
+
+        totals[family] =
+            (
+                totals[family] || 0
+            ) + data.count;
+    }
+
+    return totals;
+}
+
 export function buildSubclassHistogram(
     patents,
     mode
