@@ -13,7 +13,9 @@ import {
 from "./histogram.js";
 
 import {
-    renderPatentTable
+    renderPatentTable,
+    renderHeaders,
+    DEFAULT_COLUMNS
 }
 from "./patentTable.js";
 
@@ -22,6 +24,119 @@ let currentPatentIndex =
     null;
 let currentView =
     "references";
+    
+async function getColumnOrder() {
+
+    const result =
+        await chrome.storage.local.get(
+            "columnOrder"
+        );
+
+    return (
+        result.columnOrder ||
+        DEFAULT_COLUMNS
+    );
+}
+
+async function saveColumnOrder(
+    order
+) {
+
+    await chrome.storage.local.set({
+
+        columnOrder:
+            order
+    });
+}
+
+function enableColumnDragDrop() {
+
+    const headers =
+        document.querySelectorAll(
+            "#headerRow th[data-column]"
+        );
+
+    let draggedHeader =
+        null;
+
+    headers.forEach(
+        header => {
+
+            header.addEventListener(
+                "dragstart",
+                () => {
+
+                    draggedHeader =
+                        header;
+                }
+            );
+
+            header.addEventListener(
+                "dragover",
+                e => {
+
+                    e.preventDefault();
+                }
+            );
+
+            header.addEventListener(
+                "drop",
+                async () => {
+
+                    if (
+                        draggedHeader ===
+                        header
+                    ) {
+
+                        return;
+                    }
+
+                    const order =
+                        await getColumnOrder();
+
+                    const from =
+                        order.indexOf(
+                            draggedHeader.dataset.column
+                        );
+
+                    const to =
+                        order.indexOf(
+                            header.dataset.column
+                        );
+
+                    const moved =
+                        order.splice(
+                            from,
+                            1
+                        )[0];
+
+                    order.splice(
+                        to,
+                        0,
+                        moved
+                    );
+
+                    await saveColumnOrder(
+                        order
+                    );
+
+                    renderHeaders(
+                        order
+                    );
+
+                    renderPatentTable(
+                        patents,
+                        order
+                    );
+
+                    setupEditButtons();
+
+                    enableColumnDragDrop();
+                }
+            );
+        }
+    );
+}
 
 async function init() {
 
@@ -39,11 +154,20 @@ async function init() {
 		}
 	);
 
-    renderPatentTable(
-        patents
-    );
+    const columnOrder =
+		await getColumnOrder();
+	
+	renderHeaders(
+		columnOrder
+	);
+	
+	renderPatentTable(
+		patents,
+		columnOrder
+	);
     
     setupEditButtons();
+    enableColumnDragDrop();
 	setupEditDialog();
 
     document
