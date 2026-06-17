@@ -21,16 +21,23 @@ function extractPatentNumber() {
 
 function extractTitle() {
 
-    const h1 =
+    const titleElement =
         document.querySelector(
-            "h1"
+            ".page-header h4"
         );
 
-    return h1
-        ? h1.textContent.trim()
+    if (!titleElement) {
+
+        return "";
+    }
+
+    const title =
+        titleElement.childNodes[0];
+
+    return title
+        ? title.textContent.trim()
         : "";
 }
-
 // ====================================
 // Patent Builder
 // ====================================
