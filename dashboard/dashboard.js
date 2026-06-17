@@ -1,5 +1,6 @@
 import {
-    getPatents
+    getPatents,
+    savePatents
 }
 from "../storage/storage.js";
 
@@ -17,6 +18,8 @@ import {
 from "./patentTable.js";
 
 let patents = [];
+let currentPatentIndex =
+    null;
 let currentView =
     "references";
 
@@ -39,6 +42,9 @@ async function init() {
     renderPatentTable(
         patents
     );
+    
+    setupEditButtons();
+	setupEditDialog();
 
     document
 		.getElementById(
@@ -285,6 +291,192 @@ function renderHistogram(
         )
         .textContent =
         output;
+}
+
+function setupEditButtons() {
+
+    document
+        .querySelectorAll(
+            ".editPatent"
+        )
+        .forEach(
+            button => {
+
+                button.onclick =
+                    () => {
+
+                        currentPatentIndex =
+                            Number(
+                                button.dataset.index
+                            );
+
+                        const patent =
+                            patents[
+                                currentPatentIndex
+                            ];
+
+                        document
+                            .getElementById(
+                                "editPatentNumber"
+                            )
+                            .value =
+                            patent.patentNumber || "";
+
+                        document
+                            .getElementById(
+                                "editTitle"
+                            )
+                            .value =
+                            patent.title || "";
+
+                        document
+                            .getElementById(
+                                "editRelevance"
+                            )
+                            .value =
+                            patent.relevance || "";
+
+                        document
+                            .getElementById(
+                                "editAssignee"
+                            )
+                            .value =
+                            patent.assignee || "";
+
+                        document
+                            .getElementById(
+                                "editUrl"
+                            )
+                            .value =
+                            patent.url || "";
+
+                        document
+                            .getElementById(
+                                "editPatentDialog"
+                            )
+                            .style.display =
+                            "block";
+                    };
+            }
+        );
+}
+
+function setupEditDialog() {
+
+    document
+        .getElementById(
+            "cancelPatentEdit"
+        )
+        .onclick =
+        () => {
+
+            document
+                .getElementById(
+                    "editPatentDialog"
+                )
+                .style.display =
+                "none";
+        };
+
+    document
+        .getElementById(
+            "savePatentChanges"
+        )
+        .onclick =
+        async () => {
+
+            const patent =
+                patents[
+                    currentPatentIndex
+                ];
+
+            patent.patentNumber =
+                document
+                    .getElementById(
+                        "editPatentNumber"
+                    )
+                    .value
+                    .trim();
+
+            patent.title =
+                document
+                    .getElementById(
+                        "editTitle"
+                    )
+                    .value
+                    .trim();
+
+            patent.relevance =
+                document
+                    .getElementById(
+                        "editRelevance"
+                    )
+                    .value;
+
+            patent.assignee =
+                document
+                    .getElementById(
+                        "editAssignee"
+                    )
+                    .value
+                    .trim();
+                    
+            patents.forEach(
+					(
+						patent,
+						index
+					) => {
+				
+						patent.referenceId =
+							index + 1;
+					}
+				);
+
+            await savePatents(
+                patents
+            );
+
+            location.reload();
+        };
+
+    document
+        .getElementById(
+            "deletePatentRecord"
+        )
+        .onclick =
+        async () => {
+
+            if (
+                !confirm(
+                    "Delete this patent?"
+                )
+            ) {
+
+                return;
+            }
+
+            patents.splice(
+			currentPatentIndex,
+			1
+		);
+		
+		patents.forEach(
+			(
+				patent,
+				index
+			) => {
+		
+				patent.referenceId =
+					index + 1;
+			}
+		);
+		
+		await savePatents(
+			patents
+		);
+
+            location.reload();
+        };
 }
 
 init();

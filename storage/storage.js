@@ -35,3 +35,29 @@ export async function savePatent(
         patents
     });
 }
+
+export async function savePatents(
+    patents
+) {
+
+    await chrome.storage.local.set({
+        patents
+    });
+}
+
+export async function deletePatentByIndex(
+    index
+) {
+
+    const patents =
+        await getPatents();
+
+    patents.splice(
+        index,
+        1
+    );
+
+    await chrome.storage.local.set({
+        patents
+    });
+}

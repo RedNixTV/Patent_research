@@ -52,7 +52,93 @@
 			
 				<tbody></tbody>
 			
-			</table>		
+			</table>	
+			<div
+				id="editPatentDialog"
+				style="
+					display:none;
+					position:fixed;
+					top:50%;
+					left:50%;
+					transform:translate(-50%,-50%);
+					background:white;
+					border:1px solid #ccc;
+					padding:20px;
+					z-index:999999;
+					width:600px;
+				"
+			>
+			
+				<h3>Edit Patent</h3>
+			
+				<label>Patent Number</label>
+				<input
+					id="editPatentNumber"
+					style="width:100%;"
+				>
+			
+				<br><br>
+			
+				<label>Title</label>
+				<input
+					id="editTitle"
+					style="width:100%;"
+				>
+			
+				<br><br>
+			
+				<label>Relevance</label>
+			
+				<select id="editRelevance">
+			
+					<option value="strong">
+						Strong
+					</option>
+			
+					<option value="partial">
+						Partial
+					</option>
+			
+					<option value="weak">
+						Weak
+					</option>
+			
+				</select>
+			
+				<br><br>
+			
+				<label>Assignee</label>
+			
+				<input
+					id="editAssignee"
+					style="width:100%;"
+				>
+			
+				<br><br>
+			
+				<label>URL</label>
+			
+				<input
+					id="editUrl"
+					style="width:100%;"
+					readonly
+				>
+			
+				<br><br>
+			
+				<button id="savePatentChanges">
+					Save Changes
+				</button>
+			
+				<button id="deletePatentRecord">
+					Delete Patent
+				</button>
+			
+				<button id="cancelPatentEdit">
+					Cancel
+				</button>
+			
+			</div>	
 		
 			<script
 				type="module"

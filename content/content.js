@@ -9,11 +9,10 @@ console.log(
 
 function extractPatentNumber() {
 
-    const url =
-        location.pathname;
-
     const match =
-        url.match(/\/(\d+)\.html/i);
+        location.pathname.match(
+            /\/([^\/]+)\.html$/i
+        );
 
     return match
         ? match[1]

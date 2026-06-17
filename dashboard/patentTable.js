@@ -9,31 +9,48 @@ export function renderPatentTable(
 
     tbody.innerHTML = "";
 
-    for (
-        const patent
-        of patents
-    ) {
+    patents.forEach(
+        (
+            patent,
+            index
+        ) => {
 
-        const row =
-            document.createElement(
-                "tr"
+            const row =
+                document.createElement(
+                    "tr"
+                );
+
+            row.innerHTML = `
+                <td>
+				
+					<span
+						class="editPatent"
+						data-index="${index}"
+						title="Edit Patent"
+						style="
+							cursor:pointer;
+							margin-right:8px;
+						"
+					>
+						✏️
+					</span>
+				
+					${patent.referenceId}
+				
+				</td>
+				
+				<td>
+					${patent.patentNumber || "(blank)"}
+				</td>
+
+                <td>
+                    ${patent.relevance}
+                </td>
+            `;
+
+            tbody.appendChild(
+                row
             );
-
-        row.innerHTML = `
-            <td>
-				${patent.referenceId}
-			</td>
-			<td>
-                ${patent.patentNumber}
-            </td>
-
-            <td>
-                ${patent.relevance}
-            </td>
-        `;
-
-        tbody.appendChild(
-            row
-        );
-    }
+        }
+    );
 }
