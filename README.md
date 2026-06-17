@@ -1,8 +1,39 @@
+
 Classification Discovery Tool
 
 A Chrome Extension for building a patent reference universe while performing prior art and classification research on FreePatentsOnline (FPO).
 
 The extension allows researchers to quickly save patents as Strong, Partial, or Weak references, automatically extract classification data, and analyze the resulting patent collection through a dashboard with CPC and USPC histograms.
+
+Research Workflow
+1. Search patents on FreePatentsOnline.
+
+2. Save relevant patents as:
+
+   Strong
+   Partial
+   Weak
+
+3. Build a patent universe around the invention.
+
+4. Open the dashboard.
+
+5. Analyze:
+
+   • CPC classes
+   • CPC subclasses
+   • USPC classes
+   • USPC main classes
+
+6. Identify:
+
+   • Dominant technologies
+   • Emerging technologies
+   • Search gaps
+   • Additional classes to investigate
+
+7. Expand the search using newly discovered classifications.
+
 
 Features
 Patent Capture
@@ -46,7 +77,40 @@ Example:
 
 All classifications are stored with each saved patent for later analysis.
 
-Patent Universe Dashboard
+Patent Universe Analysis Dashboard
+
+Classification Aggregation
+The dashboard can aggregate classifications into broader
+technology groupings.
+
+Example:
+
+G06F30/13
+G06F30/20
+G06F30/00
+
+becomes
+
+G06F30
+
+This allows researchers to identify technology clusters
+instead of focusing only on individual CPC leaf classes.
+
+Reference Traceability
+Every histogram entry displays the references that contributed
+to that classification.
+
+Example:
+
+G06F30.............. 4 [1,2,5,8]
+
+Meaning:
+
+• G06F30 appears four times
+• References 1, 2, 5, and 8 contain the classification
+
+This allows researchers to move directly from a technology
+cluster back to the underlying patents.
 
 The dashboard provides:
 
@@ -206,6 +270,16 @@ storage	Save patent references
 downloads	Export patent universe
 host_permissions	Access FreePatentsOnline pages
 
+Storage
+Patent data is stored locally using:
+
+chrome.storage.local
+
+No patent information is transmitted to external servers.
+
+Saved references remain available across browser sessions
+until manually deleted or exported.
+
 Current Version
 
 Version: 1.0.0
@@ -223,19 +297,21 @@ JSON export
 
 Future Enhancements
 
-Planned improvements:
+Future Enhancements
 
-Advanced filtering
-Patent notes
-Tagging system
-Duplicate detection
-CPC hierarchy exploration
-USPC hierarchy exploration
-Import support
-Classification trend analytics
-Search within patent universe
-Dashboard statistics cards
-License
+• Histogram filtering by relevance
+• Strong-only classification analysis
+• CPC hierarchy drill-down
+• USPC hierarchy drill-down
+• Interactive histogram navigation
+• Clickable reference links
+• Patent notes
+• Tagging
+• Duplicate detection
+• Search within patent universe
+• Export histogram reports
+• Classification trend analytics
+• Dashboard summary cards
 
 MIT License
 
