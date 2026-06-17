@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+
+  "name": "Classification Discovery Tool",
+
+  "version": "1.0.0",
+
+  "permissions": [
+    "storage",
+    "downloads"
+  ],
+
+  "host_permissions": [
+    "https://www.freepatentsonline.com/*"
+  ],
+
+  "action": {  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.freepatentsonline.com/*"
+      ],
+      "js": [
+        "content/content.js"
+      ]
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "dashboard/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}
