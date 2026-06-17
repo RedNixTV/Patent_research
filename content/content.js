@@ -192,11 +192,21 @@ function extractAbstract() {
 
     const abstractNode =
         document.querySelector(
-            "#abstract"
+            "#abstract_content [p-id]"
         );
 
-    return abstractNode
-        ? abstractNode.textContent.trim()
+    if (abstractNode) {
+
+        return abstractNode.textContent.trim();
+    }
+
+    const abstractContainer =
+        document.querySelector(
+            "#abstract_content"
+        );
+
+    return abstractContainer
+        ? abstractContainer.innerText.trim()
         : "";
 }
 
