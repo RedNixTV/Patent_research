@@ -63,8 +63,20 @@ export const COLUMN_DEFINITIONS = {
 const COLUMN_RENDERERS = {
 
     patentNumber:
-        patent =>
-            patent.patentNumber || "",
+		patent =>
+			patent.url
+	
+				? `
+					<a
+						href="${patent.url}"
+						target="_blank"
+						title="Open patent"
+					>
+						${patent.patentNumber || ""}
+					</a>
+				  `
+	
+				: (patent.patentNumber || ""),
 
     title:
         patent =>
@@ -236,9 +248,7 @@ export function renderPatentTable(
 				
 					html += `
 				
-						<td
-							title="${value}"
-						>
+						<td>
 							${value}
 						</td>
 					`;
