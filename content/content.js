@@ -327,10 +327,30 @@ async function getPatents() {
 
     const result =
         await chrome.storage.local.get(
-            "patents"
-        );
+			["patents", "projects"]
+		);
+        
+    if (
+		!result.projects &&
+		result.patents
+	) {
+		await chrome.storage.local.set({
+			projects: [
+				{
+					id: "default",
+					name: "Default Project",
+					landscapeScan: result.patents
+				}
+			]
+		});
+	
+		return result.patents;
+	}
 
-    return result.patents || [];
+    return (
+		result.projects?.[0]
+			?.landscapeScan || []
+	);
 }
 
 async function savePatent(
@@ -357,8 +377,16 @@ async function savePatent(
     }
 
     await chrome.storage.local.set({
-        patents
-    });
+	
+		projects: [
+	
+			{
+				id: "default",
+				name: "Default Project",
+				landscapeScan: patents
+			}
+		]
+	});
 }
 
 async function deletePatent(
@@ -376,8 +404,16 @@ async function deletePatent(
         );
 
     await chrome.storage.local.set({
-        patents: filtered
-    });
+	
+		projects: [
+	
+			{
+				id: "default",
+				name: "Default Project",
+				landscapeScan: filtered
+			}
+		]
+	});
 }
 
 // ====================================

@@ -1,5 +1,13 @@
 # Classification Discovery Tool
 
+## v1.1.0
+Project Centered Architecture
+
+- projects[]
+- landscapeScan stage
+- project dashboard
+- project storage model
+
 ## v1.0.0
 Released
 

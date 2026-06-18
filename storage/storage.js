@@ -1,11 +1,42 @@
 export async function getPatents() {
 
     const result =
-        await chrome.storage.local.get(
-            "patents"
-        );
+		await chrome.storage.local.get(
+			["patents", "projects"]
+		);
+	
+	if (
+		!result.projects &&
+		result.patents
+	) {
+	
+		await chrome.storage.local.set({
+	
+			projects: [
+				{
+					id: "default",
+					name: "Default Project",
+					landscapeScan:
+						result.patents
+				}
+			]
+		});
+	
+		return result.patents;
+	}
 
-    return result.patents || [];
+    if (
+        !result.projects ||
+        result.projects.length === 0
+    ) {
+
+        return [];
+    }
+
+    return (
+        result.projects[0]
+            .landscapeScan || []
+    );
 }
 
 export async function savePatent(
@@ -32,7 +63,15 @@ export async function savePatent(
     }
 
     await chrome.storage.local.set({
-        patents
+
+        projects: [
+
+            {
+                id: "default",
+                name: "Default Project",
+                landscapeScan: patents
+            }
+        ]
     });
 }
 
@@ -41,7 +80,15 @@ export async function savePatents(
 ) {
 
     await chrome.storage.local.set({
-        patents
+
+        projects: [
+
+            {
+                id: "default",
+                name: "Default Project",
+                landscapeScan: patents
+            }
+        ]
     });
 }
 
@@ -58,6 +105,12 @@ export async function deletePatentByIndex(
     );
 
     await chrome.storage.local.set({
-        patents
+        projects: [
+			{
+				id: "default",
+				name: "Default Project",
+				landscapeScan: patents
+			}
+		]
     });
 }
