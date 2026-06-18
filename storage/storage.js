@@ -43,12 +43,33 @@ export async function createProject(
         crypto.randomUUID();
 
     projects.push({
-
-        id,
-        name,
-
-        landscapeScan: []
-    });
+	
+		id,
+		name,
+	
+		stages: {
+	
+			landscapeScan: [],
+	
+			referenceList: [],
+	
+			classificationAnalysis: {
+	
+				selectedClasses: [],
+				selectedSubclasses: []
+			},
+	
+			universe: [],
+	
+			universeReview: {
+	
+				excludedPatentIds: [],
+				notes: ""
+			},
+	
+			finalReferences: []
+		}
+	});
 
     await chrome.storage.local.set({
 
@@ -88,13 +109,35 @@ export async function deleteProject(
         filtered.length === 0
     ) {
 
-        filtered.push({
-
-            id: "default",
-            name: "Default Project",
-
-            landscapeScan: []
-        });
+        filtered.push(
+        	{
+				id: "default",
+				name: "Default Project",
+			
+				stages: {
+			
+					landscapeScan: [],
+			
+					referenceList: [],
+			
+					classificationAnalysis: {
+			
+						selectedClasses: [],
+						selectedSubclasses: []
+					},
+			
+					universe: [],
+			
+					universeReview: {
+			
+						excludedPatentIds: [],
+						notes: ""
+					},
+			
+					finalReferences: []
+				}
+			}
+        );
     }
 
     await chrome.storage.local.set({
@@ -122,18 +165,39 @@ export async function getPatents() {
 		
 			currentProjectId: "default",
 			
-			projects: [
-				{
-					id: "default",
-					name: "Default Project",
-					landscapeScan:
-						result.patents
-				}
+			projects: [{
+								id: "default",
+								name: "Default Project",
+							
+								stages: {
+							
+									landscapeScan: result.patents,
+							
+									referenceList: [],
+							
+									classificationAnalysis: {
+							
+										selectedClasses: [],
+										selectedSubclasses: []
+									},
+							
+									universe: [],
+							
+									universeReview: {
+							
+										excludedPatentIds: [],
+										notes: ""
+									},
+							
+									finalReferences: []
+								}
+							}
 			]
 		});
 	
 		return result.patents;
 	}
+	
 
     if (
 		!result.projects ||
@@ -149,7 +213,29 @@ export async function getPatents() {
 				{
 					id: "default",
 					name: "Default Project",
-					landscapeScan: []
+				
+					stages: {
+				
+						landscapeScan: [],
+				
+						referenceList: [],
+				
+						classificationAnalysis: {
+				
+							selectedClasses: [],
+							selectedSubclasses: []
+						},
+				
+						universe: [],
+				
+						universeReview: {
+				
+							excludedPatentIds: [],
+							notes: ""
+						},
+				
+						finalReferences: []
+					}
 				}
 			]
 		};
@@ -160,12 +246,55 @@ export async function getPatents() {
 	
 		return [];
 	}
+	
+	const project = await getCurrentProject();
 
-    const project =
-		await getCurrentProject();
+    if (
+		project &&
+		!project.stages
+	) {
+	
+		project.stages = {
+	
+			landscapeScan:
+				project.landscapeScan || [],
+	
+			referenceList: [],
+	
+			classificationAnalysis: {
+	
+				selectedClasses: [],
+				selectedSubclasses: []
+			},
+	
+			universe: [],
+	
+			universeReview: {
+	
+				excludedPatentIds: [],
+				notes: ""
+			},
+	
+			finalReferences: []
+		};
+	
+		delete project.landscapeScan;
+	
+		const result =
+			await chrome.storage.local.get(
+				"projects"
+			);
+	
+		await chrome.storage.local.set({
+	
+			projects:
+				result.projects
+		});
+	}
 	
 	return (
-		project?.landscapeScan || []
+		project?.stages
+			?.landscapeScan || []
 	);
 }
 
@@ -193,7 +322,7 @@ async function saveToCurrentProject(
         return;
     }
 
-    project.landscapeScan =
+   project.stages.landscapeScan =
         patents;
 
     await chrome.storage.local.set({

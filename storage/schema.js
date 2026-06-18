@@ -30,3 +30,38 @@ export function createPatent() {
 		savedDate: ""
 	};
 }
+
+export function createProject(
+    id,
+    name
+) {
+
+    return {
+
+        id,
+        name,
+
+        stages: {
+
+            landscapeScan: [],
+
+            referenceList: [],
+
+            classificationAnalysis: {
+
+                selectedClasses: [],
+                selectedSubclasses: []
+            },
+
+            universe: [],
+
+            universeReview: {
+
+                excludedPatentIds: [],
+                notes: ""
+            },
+
+            finalReferences: []
+        }
+    };
+}

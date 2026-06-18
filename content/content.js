@@ -339,7 +339,30 @@ async function getPatents() {
 				{
 					id: "default",
 					name: "Default Project",
-					landscapeScan: result.patents
+			
+					stages: {
+			
+						landscapeScan:
+							result.patents,
+			
+						referenceList: [],
+			
+						classificationAnalysis: {
+			
+							selectedClasses: [],
+							selectedSubclasses: []
+						},
+			
+						universe: [],
+			
+						universeReview: {
+			
+							excludedPatentIds: [],
+							notes: ""
+						},
+			
+						finalReferences: []
+					}
 				}
 			]
 		});
@@ -349,6 +372,7 @@ async function getPatents() {
 
     return (
 		result.projects?.[0]
+			?.stages
 			?.landscapeScan || []
 	);
 }
@@ -377,16 +401,38 @@ async function savePatent(
     }
 
     await chrome.storage.local.set({
-	
-		projects: [
-	
-			{
-				id: "default",
-				name: "Default Project",
-				landscapeScan: patents
-			}
-		]
-	});
+		
+			projects: [
+		
+				{
+					id: "default",
+					name: "Default Project",
+		
+					stages: {
+		
+						landscapeScan: patents,
+		
+						referenceList: [],
+		
+						classificationAnalysis: {
+		
+							selectedClasses: [],
+							selectedSubclasses: []
+						},
+		
+						universe: [],
+		
+						universeReview: {
+		
+							excludedPatentIds: [],
+							notes: ""
+						},
+		
+						finalReferences: []
+					}
+				}
+			]
+		});
 }
 
 async function deletePatent(
@@ -406,11 +452,32 @@ async function deletePatent(
     await chrome.storage.local.set({
 	
 		projects: [
-	
 			{
 				id: "default",
 				name: "Default Project",
-				landscapeScan: filtered
+			
+				stages: {
+			
+					landscapeScan: filtered,
+			
+					referenceList: [],
+			
+					classificationAnalysis: {
+			
+						selectedClasses: [],
+						selectedSubclasses: []
+					},
+			
+					universe: [],
+			
+					universeReview: {
+			
+						excludedPatentIds: [],
+						notes: ""
+					},
+			
+					finalReferences: []
+				}
 			}
 		]
 	});
