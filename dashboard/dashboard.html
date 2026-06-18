@@ -144,7 +144,12 @@
 					border:1px solid #ccc;
 					padding:20px;
 					z-index:999999;
-					width:600px;
+					width:700px;
+			
+					max-height:90vh;
+					overflow-y:auto;
+			
+					box-sizing:border-box;
 				"
 			>
 			
@@ -164,6 +169,27 @@
 					style="width:100%;"
 				>
 			
+				<br><br>
+				
+				<label>Abstract</label>
+				
+				<textarea
+					id="editAbstract"
+					style="
+						width:100%;
+						height:120px;
+					"
+				></textarea>
+				
+				<br><br>
+				
+				<label>Inventor Name</label>
+				
+				<input
+					id="editInventorName"
+					style="width:100%;"
+				>
+				
 				<br><br>
 			
 				<label>Relevance</label>
@@ -196,29 +222,53 @@
 				<br><br>
 				
 				<label>Application Number</label>
-						<input
-							id="editApplicationNumber"
-							style="width:100%;"
-							readonly
-						>
-						
-						<br><br>
-						
-						<label>Filing Date</label>
-						<input
-							id="editFilingDate"
-							style="width:100%;"
-							readonly
-						>
-						
-						<br><br>
-						
-						<label>Publication Date</label>
-						<input
-							id="editPublicationDate"
-							style="width:100%;"
-							readonly
-						>
+				<input
+					id="editApplicationNumber"
+					style="width:100%;"
+					readonly
+				>
+				
+				<br><br>
+				
+				<label>Filing Date</label>
+				<input
+					id="editFilingDate"
+					style="width:100%;"
+					readonly
+				>
+				
+				<br><br>
+				
+				<label>Publication Date</label>
+				<input
+					id="editPublicationDate"
+					style="width:100%;"
+					readonly
+				>
+				<br><br>
+				
+				<label>Primary Class</label>
+				
+				<input
+					id="editPrimaryClass"
+					style="width:100%;"
+					readonly
+				>
+				
+				<br><br>
+				
+				<label>Other Classes</label>
+				
+				<textarea
+					id="editOtherClasses"
+					style="
+						width:100%;
+						height:80px;
+					"
+					readonly
+				></textarea>
+				
+				<br><br>
 			
 				<label>URL</label>
 			

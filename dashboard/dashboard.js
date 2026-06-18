@@ -452,6 +452,20 @@ function setupEditButtons() {
                             )
                             .value =
                             patent.title || "";
+                            
+                        document
+							.getElementById(
+								"editAbstract"
+							)
+							.value =
+							patent.abstract || "";
+						
+						document
+							.getElementById(
+								"editInventorName"
+							)
+							.value =
+							patent.inventorName || "";
 
                         document
                             .getElementById(
@@ -487,6 +501,21 @@ function setupEditButtons() {
 							)
 							.value =
 							patent.publicationDate || "";
+							
+						document
+							.getElementById(
+								"editPrimaryClass"
+							)
+							.value =
+							patent.primaryClass || "";
+						
+						document
+							.getElementById(
+								"editOtherClasses"
+							)
+							.value =
+							(patent.otherClasses || [])
+								.join("\n");
 
                         document
                             .getElementById(
@@ -581,6 +610,22 @@ function setupEditDialog() {
                     )
                     .value
                     .trim();
+                    
+            patent.abstract =
+				document
+					.getElementById(
+						"editAbstract"
+					)
+					.value
+					.trim();
+			
+			patent.inventorName =
+				document
+					.getElementById(
+						"editInventorName"
+					)
+					.value
+					.trim();
                     
             patents.forEach(
 					(
