@@ -1,292 +1,50 @@
-
-Classification Discovery Tool
-
-A Chrome Extension for building a patent reference universe while performing prior art and classification research on FreePatentsOnline (FPO).
-
-The extension allows researchers to quickly save patents as Strong, Partial, or Weak references, automatically extract classification data, and analyze the resulting patent collection through a dashboard with CPC and USPC histograms.
-
-Research Workflow
-1. Search patents on FreePatentsOnline.
-
-2. Save relevant patents as:
-
-   Strong
-   Partial
-   Weak
-
-3. Build a patent universe around the invention.
-
-4. Open the dashboard.
-
-5. Analyze:
-
-   • CPC classes
-   • CPC subclasses
-   • USPC classes
-   • USPC main classes
-
-6. Identify:
-
-   • Dominant technologies
-   • Emerging technologies
-   • Search gaps
-   • Additional classes to investigate
-
-7. Expand the search using newly discovered classifications.
-
-
-Features
-Patent Capture
-
-While viewing a patent on FreePatentsOnline, the extension can automatically extract:
-
-Patent Number
-Title
-URL
-Abstract
-Inventor Name
-Assignee
-Application Number
-Filing Date
-Publication Date
-Primary Class
-Other Classes
-CPC Classifications
-USPC Classifications
-Image Count
-Save Date
-
-The patent can then be saved as:
-
-Strong
-Partial
-Weak
-
-references directly from the patent page.
-
-Classification Discovery
-
-The extension automatically extracts:
-
-CPC Codes
-
-Example:
-
-G06F30/13
-G06K9/00
-G06T7/33
-USPC Codes
-
-Example:
-
-703/1
-
-All classifications are stored with each saved patent for later analysis.
-
-Histogram Options
-
-The dashboard supports two classification views:
-
-Show Full Classes
-
-Examples:
-
-G06F30/13
-G06T7/33
-703/1
-
-Classification Families
-
-Examples:
-
-G06F30
-G06T7
-703
-
-This allows researchers to switch between detailed
-classifications and broader technology families.
-
-Patent Universe Analysis Dashboard
-
-Classification Aggregation
-The dashboard can aggregate classifications into broader
-technology groupings.
-
-Example:
-
-G06F30/13
-G06F30/20
-G06F30/00
-
-becomes
-
-G06F30
-
-This allows researchers to identify technology clusters
-instead of focusing only on individual CPC leaf classes.
-
-Reference Traceability
-Every histogram entry displays the references that contributed
-to that classification.
-
-Example:
-
-G06F30.............. 4 [1,2,5,8]
-
-Meaning:
-
-• G06F30 appears four times
-• References 1, 2, 5, and 8 contain the classification
-
-This allows researchers to move directly from a technology
-cluster back to the underlying patents.
-
-Interactive Classification Filtering
-
-Histogram entries are clickable.
-
-Selecting a CPC or USPC classification automatically filters
-the patent table to only references that contributed to that
-classification.
-
-Example:
-
-G06F30/13    4 [1,2,5,8]
-
-Clicking the classification displays only references:
-
-1
-2
-5
-8
-
-The filter can be cleared using:
-
-Show All References
-
-The dashboard provides:
-
-Saved patent list
-Patent editing
-Column reordering
-Reference management
-Relevance tracking
-CPC histogram analysis
-USPC histogram analysis
-Classification family aggregation
-Reference traceability
-
-Dashboard tabs:
-
-References
-CPC Histogram
-USPC Histogram
-
-The dashboard can generate frequency distributions for:
-
-All CPC classes
-Primary CPC classes
-USPC classes
-
-This helps identify:
-
-Technology clusters
-Dominant classifications
-Patent landscape trends
-Search gaps
-
-within a patent universe.
-
-Column Management
-
-The patent table supports:
-
-• Drag and drop column reordering
-• Persistent column layouts
-• Horizontal scrolling for large patent datasets
-• Synchronized edit dialog layout
-
-Column order is stored in Chrome local storage and is automatically reused when opening the patent edit dialog.
-
-Patent Editing
-
-Patents can be reviewed and edited directly from the dashboard.
-
-Editable Fields
-
-• Document Number
-• Title
-• Abstract
-• Inventor Name
-• Assignee
-• Relevance
-
-Read Only Reference Data
-
-• Application Number
-• Filing Date
-• Publication Date
-• URL
-• Primary Class
-• Other Classes
-• CPC Codes
-• USPC Codes
-
-Additional Features
-
-• Delete patents
-• Automatic reference renumbering
-• Dynamic field ordering
-• Dialog synchronized with table layout
-
-Export Capability
-
-Patent collections can be exported as JSON files for:
-
-Backup
-Sharing
-Offline analysis
-Future imports
-
-Exports are downloaded as:
-
-patent-universe.json
-
-Project Structure
-classification-discovery-tool/
-│
-├── manifest.json
-│
-├── content/
-│   ├── content.js
-│   ├── extractor.js
-│   ├── fpoExtractor.js
-│   └── saveButtons.js
-│
-├── dashboard/
-│   ├── dashboard.html
-│   ├── dashboard.js
-│   ├── dashboard.css
-│   ├── histogram.js
-│   ├── filters.js
-│   └── patentTable.js
-│
-├── storage/
-│   ├── storage.js
-│   ├── exportImport.js
-│   └── schema.js
-│
-├── popup/
-│   ├── popup.html
-│   └── popup.js
-│
-├── assets/
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-│
-└── README.md
-Installation
+# Classification Discovery Tool
+## Installation
+## Usage
+### Saving a Patent
+### Opening the Dashboard
+### Patent Record Schema
+### Current Version
+## Research Workflow
+## Features
+### Patent Capture
+## Classification Discovery
+### CPC Examples
+### USPC Examples
+## Dashboard
+## Dashboard Tabs
+### References
+### CPC Histogram
+### USPC Histogram
+## Histogram Analysis
+### Classification Aggregation
+### Reference Traceability
+### Interactive Classification Filtering
+## Patent Table Management
+## Patent Editing
+### Editable Fields
+### Read Only Fields
+## Additional Features
+## Export
+## Project Structure
+## Storage
+## Future Enhancements
+## MIT License
+
+
+Build and analyze a patent reference universe directly from
+FreePatentsOnline (FPO).
+
+The extension allows patent researchers to:
+
+* Save references as Strong, Partial, or Weak
+* Automatically extract patent metadata
+* Discover CPC and USPC classifications
+* Build classification histograms
+* Trace classifications back to supporting references
+* Organize and edit a growing patent universe
+
+## Installation
 1. Download the Repository
 git clone https://github.com/your-repository/classification-discovery-tool.git
 2. Open Chrome Extensions
@@ -314,32 +72,30 @@ classification-discovery-tool
 
 folder.
 
-Usage
-Saving References
-Open a patent on FreePatentsOnline.
-Use the floating toolbar in the bottom right corner.
-Click:
-Strong
+## Usage
 
-or
+### Saving a Patent
 
-Partial
+1. Open a patent page
+2. Click:
 
-or
+[Strong]
+[Partial]
+[Weak]
 
-Weak
-The patent is automatically stored in Chrome local storage.
-Opening the Dashboard
+3. Patent is saved
 
-Click:
+### Opening the Dashboard
 
-Dashboard
+1. Click:
 
-from the floating toolbar.
+[Dashboard]
 
-A new tab opens with the patent universe dashboard.
+2. Dashboard opens in a new tab
 
-Patent Record Schema
+---
+
+### Patent Record Schema
 
 Each saved patent follows the structure:
 
@@ -379,26 +135,9 @@ Each saved patent follows the structure:
   "savedDate": "2026-06-16T16:35:00Z"
 }
 
-Permissions
+---
 
-The extension requires:
-
-Permission	Purpose
-storage	Save patent references
-downloads	Export patent universe
-host_permissions	Access FreePatentsOnline pages
-
-Storage
-Patent data is stored locally using:
-
-chrome.storage.local
-
-No patent information is transmitted to external servers.
-
-Saved references remain available across browser sessions
-until manually deleted or exported.
-
-Current Version
+### Current Version
 
 Version: 1.0.0
 
@@ -431,8 +170,223 @@ Local storage persistence
 JSON export
 Reference renumbering
 
+---
 
-Future Enhancements
+## Research Workflow
+
+1. Search patents on FreePatentsOnline
+2. Save relevant patents
+3. Build a patent universe
+4. Open the dashboard
+5. Analyze classification trends
+6. Discover additional search areas
+7. Expand the search universe
+
+---
+
+
+## Features
+## Patent Capture
+
+Automatically extracts:
+
+* Patent Number
+* Title
+* URL
+* Abstract
+* Inventor Name
+* Assignee
+* Application Number
+* Filing Date
+* Publication Date
+* Primary Class
+* Other Classes
+* CPC Classifications
+* USPC Classifications
+* Image Count
+* Save Date
+
+## Classification Discovery
+
+Automatically extracts:
+
+### CPC Examples
+
+G06F30/13
+G06K9/00
+G06T7/33
+
+### USPC Examples
+
+703/1
+
+## Dashboard
+
+The dashboard provides:
+
+* Reference Management
+* Patent Editing
+* CPC Histograms
+* USPC Histograms
+* Classification Filtering
+* Classification Family Aggregation
+* Reference Traceability
+
+## Dashboard Tabs
+
+References
+CPC Histogram
+USPC Histogram
+
+The dashboard can generate frequency distributions for:
+
+All CPC classes and USPC classes
+
+This helps identify:
+
+Technology clusters
+Dominant classifications
+Patent landscape trends
+Search gaps
+
+within a patent universe.
+
+### References
+
+View and edit saved patents.
+
+### CPC Histogram
+
+Analyze CPC classifications and technology families.
+
+### USPC Histogram
+
+Analyze USPC classifications and technology families.
+
+
+## Histogram Analysis
+
+### Classification Aggregation
+
+G06F30/13
+G06F30/20
+G06F30/00
+
+↓
+
+G06F30
+
+### Reference Traceability
+
+G06F30 .............. 4 [1,2,5,8]
+
+Meaning:
+
+* Appears 4 times
+* References 1, 2, 5, and 8 contain the classification
+
+### Interactive Classification Filtering
+
+Clicking a classification automatically filters the patent table.
+
+Example:
+
+G06F30/13    4 [1,2,5,8]
+
+↓
+
+Only references:
+
+1
+2
+5
+8
+
+remain visible. The filter can be cleared using:
+
+Show All References
+
+
+## Patent Table Management
+
+Features:
+
+* Drag and drop column reordering
+* Persistent column layouts
+* Horizontal scrolling
+* Dynamic edit dialog synchronization
+
+## Patent Editing
+
+### Editable Fields
+
+| Field |
+|---------|
+| Document Number |
+| Title |
+| Abstract |
+| Inventor Name |
+| Assignee |
+| Relevance |
+
+### Read Only Fields
+
+| Field |
+|---------|
+| Application Number |
+| Filing Date |
+| Publication Date |
+| URL |
+| Primary Class |
+| Other Classes |
+| CPC Codes |
+| USPC Codes |
+
+## Additional Features
+
+• Delete patents
+• Automatic reference renumbering
+• Dynamic field ordering
+• Dialog synchronized with table layout
+
+## Export
+
+Export patent collections as JSON for backup, sharing, and future analysis.
+
+## Project Structure
+classification-discovery-tool/
+│
+├── manifest.json
+│
+├── content/
+│   ├── content.js
+│
+├── dashboard/
+│   ├── dashboard.html
+│   ├── dashboard.js
+│   ├── dashboard.css
+│   ├── histogram.js
+│   └── patentTable.js
+│
+├── storage/
+│   ├── storage.js
+│   ├── exportImport.js
+│   └── schema.js
+│
+└── README.md
+
+## Storage
+Patent data is stored locally using:
+
+chrome.storage.local
+
+No patent information is transmitted to external servers.
+
+Saved references remain available across browser sessions
+until manually deleted or exported.
+
+
+## Future Enhancements
 
 • Histogram filtering by relevance
 • Strong-only classification analysis
@@ -447,6 +401,6 @@ Future Enhancements
 • Classification trend analytics
 • Dashboard summary cards
 
-MIT License
+## MIT License
 
 Classification Discovery Tool is designed to help patent researchers build, organize, and analyze a structured patent universe during novelty, patentability, and prior art searches.
