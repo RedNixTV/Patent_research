@@ -595,11 +595,21 @@ function renderHistogram(
 				)
 				.join(",");
 	
-		const widthPercent =
-			(
-				data.count /
-				maxCount
-			) * 100;
+		const barLength =
+			Math.round(
+				(
+					data.count /
+					maxCount
+				) * 20
+			);
+		
+		const bar =
+			"▉".repeat(
+				Math.max(
+					1,
+					barLength
+				)
+			);
 	
 		container.innerHTML +=
 			`
@@ -615,16 +625,11 @@ function renderHistogram(
 					${code}
 				</a>
 	
-				<div
-					class="histogramBarContainer"
+				<span
+					class="histogramBarText"
 				>
-					<div
-						class="histogramBar"
-						style="
-							width:${widthPercent}%;
-						"
-					></div>
-				</div>
+					${bar}
+				</span>
 	
 				<span
 					class="histogramCount"
