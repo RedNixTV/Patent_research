@@ -25,6 +25,115 @@ let currentPatentIndex =
 let currentView =
     "references";
     
+const EDIT_FIELD_MAP = {
+
+    patentNumber: {
+
+        label: "Document Number",
+        id: "editPatentNumber",
+        type: "input"
+    },
+
+    title: {
+
+        label: "Title",
+        id: "editTitle",
+        type: "input"
+    },
+
+    abstract: {
+
+        label: "Abstract",
+        id: "editAbstract",
+        type: "textarea"
+    },
+
+    inventorName: {
+
+        label: "Inventor Name",
+        id: "editInventorName",
+        type: "input"
+    },
+
+    assignee: {
+
+        label: "Assignee",
+        id: "editAssignee",
+        type: "input"
+    },
+
+    applicationNumber: {
+
+        label: "Application Number",
+        id: "editApplicationNumber",
+        type: "input",
+        readonly: true
+    },
+
+    filingDate: {
+
+        label: "Filing Date",
+        id: "editFilingDate",
+        type: "input",
+        readonly: true
+    },
+
+    publicationDate: {
+
+        label: "Publication Date",
+        id: "editPublicationDate",
+        type: "input",
+        readonly: true
+    },
+
+    primaryClass: {
+
+        label: "Primary Class",
+        id: "editPrimaryClass",
+        type: "input",
+        readonly: true
+    },
+
+    otherClasses: {
+
+        label: "Other Classes",
+        id: "editOtherClasses",
+        type: "textarea",
+        readonly: true
+    },
+
+    relevance: {
+
+        label: "Relevance",
+        id: "editRelevance",
+        type: "select"
+    },
+    
+    url: {
+	
+		label: "URL",
+		id: "editUrl",
+		type: "input",
+		readonly: true
+	},
+	
+	cpc: {
+	
+		label: "CPC",
+		id: "editCpc",
+		type: "textarea",
+		readonly: true
+	},
+	
+	uspc: {
+	
+		label: "USPC",
+		id: "editUspc",
+		type: "textarea",
+		readonly: true
+	}
+};
+    
 async function getColumnOrder() {
 
     const result =
@@ -128,6 +237,8 @@ function enableColumnDragDrop() {
                         patents,
                         order
                     );
+                    
+                    await renderEditFields();
 
                     setupEditButtons();
 
@@ -165,6 +276,8 @@ async function init() {
 		patents,
 		columnOrder
 	);
+	
+	await renderEditFields();
     
     setupEditButtons();
     enableColumnDragDrop();
@@ -549,6 +662,163 @@ function setupEditButtons() {
                     };
             }
         );
+}
+
+async function renderEditFields() {
+
+    const container =
+        document.getElementById(
+            "editPatentFields"
+        );
+
+    container.innerHTML = "";
+
+    const columnOrder =
+        await getColumnOrder();
+
+    for (
+        const column
+        of columnOrder
+    ) {
+
+        const field =
+            EDIT_FIELD_MAP[column];
+
+        if (!field) {
+
+            continue;
+        }
+
+        let control = "";
+
+        if (
+            field.type ===
+            "textarea"
+        ) {
+
+            control = `
+                <textarea
+                    id="${field.id}"
+                    style="
+                        width:100%;
+                        height:120px;
+                    "
+                    ${
+                        field.readonly
+                            ? "readonly"
+                            : ""
+                    }
+                ></textarea>
+            `;
+        }
+
+        else if (
+            field.type ===
+            "select"
+        ) {
+
+            control = `
+                <select
+                    id="${field.id}"
+                >
+                    <option value="strong">
+                        Strong
+                    </option>
+
+                    <option value="partial">
+                        Partial
+                    </option>
+
+                    <option value="weak">
+                        Weak
+                    </option>
+                </select>
+            `;
+        }
+
+        else {
+
+            control = `
+                <input
+                    id="${field.id}"
+                    style="width:100%;"
+                    ${
+                        field.readonly
+                            ? "readonly"
+                            : ""
+                    }
+                >
+            `;
+        }
+    
+        container.innerHTML += `
+
+            <label>
+                ${field.label}
+            </label>
+
+            ${control}
+
+            <br><br>
+        `;
+    }
+    
+    const extraFields = [
+		
+			"url",
+			"cpc",
+			"uspc"
+		];
+		
+		for (
+			const column
+			of extraFields
+		)
+		{
+			const field =
+				EDIT_FIELD_MAP[column];
+		
+			let control = "";
+		
+			if (
+				field.type ===
+				"textarea"
+			) {
+		
+				control = `
+					<textarea
+						id="${field.id}"
+						style="
+							width:100%;
+							height:120px;
+						"
+						readonly
+					></textarea>
+				`;
+			}
+		
+			else {
+		
+				control = `
+					<input
+						id="${field.id}"
+						style="width:100%;"
+						readonly
+					>
+				`;
+			}
+		
+			container.innerHTML += `
+		
+				<label>
+					${field.label}
+				</label>
+		
+				${control}
+		
+				<br><br>
+			`;
+		}
 }
 
 function setupEditDialog() {
