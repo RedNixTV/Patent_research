@@ -44,7 +44,13 @@ Patent Number
 Title
 URL
 Abstract
+Inventor Name
 Assignee
+Application Number
+Filing Date
+Publication Date
+Primary Class
+Other Classes
 CPC Classifications
 USPC Classifications
 Image Count
@@ -115,10 +121,14 @@ cluster back to the underlying patents.
 The dashboard provides:
 
 Saved patent list
-Relevance tracking
+Patent editing
+Column reordering
 Reference management
+Relevance tracking
 CPC histogram analysis
 USPC histogram analysis
+Classification family aggregation
+Reference traceability
 
 Dashboard tabs:
 
@@ -141,6 +151,34 @@ Patent landscape trends
 Search gaps
 
 within a patent universe.
+
+Column Management
+
+The patent table supports:
+
+• Drag and drop column reordering
+• Persistent column layouts
+• Horizontal scrolling for large patent datasets
+• Synchronized edit dialog layout
+
+Column order is stored in Chrome local storage and is automatically reused when opening the patent edit dialog.
+
+Patent Editing
+
+Patents can be edited directly from the dashboard.
+
+Features:
+
+• Edit patent number
+• Edit title
+• Edit abstract
+• Edit inventor name
+• Edit assignee
+• Change relevance
+• Delete patents
+• Automatic reference renumbering
+
+The edit dialog dynamically follows the current table column order.
 
 Export Capability
 
@@ -251,13 +289,34 @@ Each saved patent follows the structure:
   "title": "System and method for construction estimation using aerial images",
   "url": "https://www.freepatentsonline.com/11210433.html",
   "relevance": "partial",
-  "abstract": "",
-  "imageCount": 18,
+
+  "abstract": "...",
+
+  "inventorName": "John Smith",
+
   "assignee": "Example Company",
+
+  "applicationNumber": "16/709112",
+
+  "filingDate": "2020-01-10",
+
+  "publicationDate": "2022-01-04",
+
+  "primaryClass": "703/1",
+
+  "otherClasses": [
+    "703/2",
+    "G06F30/13"
+  ],
+
+  "imageCount": 18,
+
   "cpc": [],
   "primaryCpc": [],
   "uspc": [],
+
   "classifications": [],
+
   "savedDate": "2026-06-16T16:35:00Z"
 }
 
@@ -295,7 +354,15 @@ Histogram generation
 Local storage persistence
 JSON export
 
-Future Enhancements
+Patent edit dialog
+Dynamic column ordering
+Persistent column layouts
+Inventor extraction
+Application number extraction
+Filing date extraction
+Publication date extraction
+Primary and secondary class support
+Reference renumbering
 
 Future Enhancements
 
@@ -304,7 +371,6 @@ Future Enhancements
 • CPC hierarchy drill-down
 • USPC hierarchy drill-down
 • Interactive histogram navigation
-• Clickable reference links
 • Patent notes
 • Tagging
 • Duplicate detection
