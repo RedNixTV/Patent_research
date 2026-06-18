@@ -204,7 +204,10 @@ export function renderPatentTable(
 			
 					<span
 						class="editPatent"
-						data-index="${index}"
+						data-index="${
+							patent.originalIndex ??
+							index
+						}"
 						title="Edit Patent"
 						style="
 							cursor:pointer;

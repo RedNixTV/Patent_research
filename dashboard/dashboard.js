@@ -22,8 +22,12 @@ from "./patentTable.js";
 let patents = [];
 let currentPatentIndex =
     null;
+let activeClassificationFilter =
+    null;
 let currentView =
     "references";
+let currentHistogram =
+    {};
     
 const EDIT_FIELD_MAP = {
 
@@ -133,7 +137,60 @@ const EDIT_FIELD_MAP = {
 		readonly: true
 	}
 };
-    
+
+async function filterByClassification(
+    code,
+    references
+) {
+
+    activeClassificationFilter =
+        code;
+
+    const filteredPatents =
+		patents
+			.filter(
+				patent =>
+					references.includes(
+						patent.referenceId
+					)
+			)
+			.map(
+				patent => ({
+					...patent,
+					originalIndex:
+						patents.indexOf(
+							patent
+						)
+				})
+			);
+
+    const columnOrder =
+        await getColumnOrder();
+
+    renderPatentTable(
+        filteredPatents,
+        columnOrder
+    );
+
+    setupEditButtons();
+}
+
+async function clearClassificationFilter() {
+
+    activeClassificationFilter =
+        null;
+
+    const columnOrder =
+        await getColumnOrder();
+
+    renderPatentTable(
+        patents,
+        columnOrder
+    );
+
+    setupEditButtons();
+}
+
 async function getColumnOrder() {
 
     const result =
@@ -330,6 +387,13 @@ async function init() {
 			"change",
 			updateCurrentHistogram
 		);
+		
+	document
+		.getElementById(
+			"clearClassificationFilter"
+		)
+		.onclick =
+		clearClassificationFilter;
 }
 
 function updateCurrentHistogram() {
@@ -416,10 +480,18 @@ function renderUspcHistogram() {
     );
 }
 
+    
 function renderHistogram(
     histogram,
     title
 ) {
+	currentHistogram =
+    histogram;
+    
+    const container =
+			document.getElementById(
+				"histogramOutput"
+			);
 
     const familyTotals =
     buildFamilyTotals(
@@ -495,10 +567,10 @@ function renderHistogram(
 				);
 		}
 	);
-
-    let output =
-        `${title}\n\n`;
-
+	
+	container.innerHTML =
+    `${title}\n\n`;
+    
     for (
 			const [
 				code,
@@ -515,19 +587,41 @@ function renderHistogram(
 					)
 					.join(",");
 			
-			output +=
-				`${code.padEnd(
-					20,
-					"."
-				)} ${data.count} [${refs}]\n`;
+		container.innerHTML +=
+			`<a
+				href="#"
+				class="classificationFilter"
+				data-code="${code}"
+			>${code}</a>${code.padEnd(
+				20,
+				"."
+			).slice(code.length)} ${data.count} [${refs}]\n`;
     }
-
+        
     document
-        .getElementById(
-            "histogramOutput"
-        )
-        .textContent =
-        output;
+		.querySelectorAll(
+			".classificationFilter"
+		)
+		.forEach(
+			element => {
+	
+				element.onclick =
+					event => {
+	
+						event.preventDefault();
+	
+						const code =
+							element.dataset.code;
+	
+						filterByClassification(
+							code,
+							currentHistogram[
+								code
+							].references
+						);
+					};
+			}
+		);
 }
 
 function setupEditButtons() {
