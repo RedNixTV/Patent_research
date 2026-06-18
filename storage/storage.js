@@ -1,3 +1,34 @@
+export async function getPatentById(
+    patentNumber
+) {
+
+    const library =
+        await getPatentLibrary();
+
+    return library[
+        patentNumber
+    ];
+}
+
+export async function getPatentLibrary() {
+
+    const result =
+        await chrome.storage.local.get(
+            "patents"
+        );
+
+    return result.patents || {};
+}
+
+export async function savePatentLibrary(
+    patents
+) {
+
+    await chrome.storage.local.set({
+        patents
+    });
+}
+
 export async function getCurrentProject() {
 
     const result =
@@ -152,150 +183,175 @@ export async function deleteProject(
 export async function getPatents() {
 
     const result =
-		await chrome.storage.local.get(
-			["patents", "projects"]
-		);
-	
-	if (
-		!result.projects &&
-		result.patents
-	) {
-	
-		await chrome.storage.local.set({
-		
-			currentProjectId: "default",
-			
-			projects: [{
-								id: "default",
-								name: "Default Project",
-							
-								stages: {
-							
-									landscapeScan: result.patents,
-							
-									referenceList: [],
-							
-									classificationAnalysis: {
-							
-										selectedClasses: [],
-										selectedSubclasses: []
-									},
-							
-									universe: [],
-							
-									universeReview: {
-							
-										excludedPatentIds: [],
-										notes: ""
-									},
-							
-									finalReferences: []
-								}
-							}
-			]
-		});
-	
-		return result.patents;
-	}
-	
+        await chrome.storage.local.get(
+            ["patents", "projects"]
+        );
+
+    // Legacy migration:
+    // patents: []
+    // ->
+    // projects + patent library
 
     if (
-		!result.projects ||
-		result.projects.length === 0
-	) {
-	
-		const defaultProject = {
-	
-			currentProjectId:
-				"default",
-	
-			projects: [
-				{
-					id: "default",
-					name: "Default Project",
-				
-					stages: {
-				
-						landscapeScan: [],
-				
-						referenceList: [],
-				
-						classificationAnalysis: {
-				
-							selectedClasses: [],
-							selectedSubclasses: []
-						},
-				
-						universe: [],
-				
-						universeReview: {
-				
-							excludedPatentIds: [],
-							notes: ""
-						},
-				
-						finalReferences: []
-					}
-				}
-			]
-		};
-	
-		await chrome.storage.local.set(
-			defaultProject
-		);
-	
-		return [];
-	}
-	
-	const project = await getCurrentProject();
+        !result.projects &&
+        result.patents
+    ) {
+
+        const patentLibrary = {};
+
+        for (
+            const patent
+            of result.patents
+        ) {
+
+            patentLibrary[
+                patent.patentNumber
+            ] = patent;
+        }
+
+        await chrome.storage.local.set({
+
+            currentProjectId:
+                "default",
+
+            projects: [
+                {
+                    id: "default",
+                    name: "Default Project",
+
+                    stages: {
+
+                        landscapeScan:
+                            result.patents,
+
+                        referenceList: [],
+
+                        classificationAnalysis: {
+
+                            selectedClasses: [],
+                            selectedSubclasses: []
+                        },
+
+                        universe: [],
+
+                        universeReview: {
+
+                            excludedPatentIds: [],
+                            notes: ""
+                        },
+
+                        finalReferences: []
+                    }
+                }
+            ],
+
+            patents:
+                patentLibrary
+        });
+
+        return result.patents;
+    }
 
     if (
-		project &&
-		!project.stages
-	) {
-	
-		project.stages = {
-	
-			landscapeScan:
-				project.landscapeScan || [],
-	
-			referenceList: [],
-	
-			classificationAnalysis: {
-	
-				selectedClasses: [],
-				selectedSubclasses: []
-			},
-	
-			universe: [],
-	
-			universeReview: {
-	
-				excludedPatentIds: [],
-				notes: ""
-			},
-	
-			finalReferences: []
-		};
-	
-		delete project.landscapeScan;
-	
-		const result =
-			await chrome.storage.local.get(
-				"projects"
-			);
-	
-		await chrome.storage.local.set({
-	
-			projects:
-				result.projects
-		});
-	}
-	
-	return (
-		project?.stages
-			?.landscapeScan || []
-	);
+        !result.projects ||
+        result.projects.length === 0
+    ) {
+
+        const defaultProject = {
+
+            currentProjectId:
+                "default",
+
+            projects: [
+                {
+                    id: "default",
+                    name: "Default Project",
+
+                    stages: {
+
+                        landscapeScan: [],
+
+                        referenceList: [],
+
+                        classificationAnalysis: {
+
+                            selectedClasses: [],
+                            selectedSubclasses: []
+                        },
+
+                        universe: [],
+
+                        universeReview: {
+
+                            excludedPatentIds: [],
+                            notes: ""
+                        },
+
+                        finalReferences: []
+                    }
+                }
+            ],
+
+            patents: {}
+        };
+
+        await chrome.storage.local.set(
+            defaultProject
+        );
+
+        return [];
+    }
+
+    const project =
+        await getCurrentProject();
+
+    if (
+        project &&
+        !project.stages
+    ) {
+
+        project.stages = {
+
+            landscapeScan:
+                project.landscapeScan || [],
+
+            referenceList: [],
+
+            classificationAnalysis: {
+
+                selectedClasses: [],
+                selectedSubclasses: []
+            },
+
+            universe: [],
+
+            universeReview: {
+
+                excludedPatentIds: [],
+                notes: ""
+            },
+
+            finalReferences: []
+        };
+
+        delete project.landscapeScan;
+
+        const storage =
+            await chrome.storage.local.get(
+                "projects"
+            );
+
+        await chrome.storage.local.set({
+
+            projects:
+                storage.projects
+        });
+    }
+
+    return (
+        project?.stages
+            ?.landscapeScan || []
+    );
 }
 
 async function saveToCurrentProject(
@@ -356,6 +412,17 @@ export async function savePatent(
     await saveToCurrentProject(
 		patents
 	);
+	
+	const library =
+		await getPatentLibrary();
+	
+	library[
+		patent.patentNumber
+	] = patent;
+	
+	await savePatentLibrary(
+		library
+	);
 }
 
 export async function savePatents(
@@ -364,6 +431,23 @@ export async function savePatents(
 
     await saveToCurrentProject(
 		patents
+	);
+	
+	const library =
+		await getPatentLibrary();
+	
+	for (
+		const patent
+		of patents
+	) {
+	
+		library[
+			patent.patentNumber
+		] = patent;
+	}
+	
+	await savePatentLibrary(
+		library
 	);
 }
 
@@ -374,6 +458,9 @@ export async function deletePatentByIndex(
     const patents =
         await getPatents();
 
+    const removedPatent =
+    patents[index];
+    
     patents.splice(
         index,
         1
@@ -381,5 +468,16 @@ export async function deletePatentByIndex(
 
     await saveToCurrentProject(
 		patents
+	);
+	
+	const library =
+		await getPatentLibrary();
+	
+	delete library[
+		removedPatent.patentNumber
+	];
+	
+	await savePatentLibrary(
+		library
 	);
 }
