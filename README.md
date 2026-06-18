@@ -83,6 +83,29 @@ Example:
 
 All classifications are stored with each saved patent for later analysis.
 
+Histogram Options
+
+The dashboard supports two classification views:
+
+Show Full Classes
+
+Examples:
+
+G06F30/13
+G06T7/33
+703/1
+
+Classification Families
+
+Examples:
+
+G06F30
+G06T7
+703
+
+This allows researchers to switch between detailed
+classifications and broader technology families.
+
 Patent Universe Analysis Dashboard
 
 Classification Aggregation
@@ -118,6 +141,29 @@ Meaning:
 This allows researchers to move directly from a technology
 cluster back to the underlying patents.
 
+Interactive Classification Filtering
+
+Histogram entries are clickable.
+
+Selecting a CPC or USPC classification automatically filters
+the patent table to only references that contributed to that
+classification.
+
+Example:
+
+G06F30/13    4 [1,2,5,8]
+
+Clicking the classification displays only references:
+
+1
+2
+5
+8
+
+The filter can be cleared using:
+
+Show All References
+
 The dashboard provides:
 
 Saved patent list
@@ -135,7 +181,6 @@ Dashboard tabs:
 References
 CPC Histogram
 USPC Histogram
-Histogram Analysis
 
 The dashboard can generate frequency distributions for:
 
@@ -165,20 +210,34 @@ Column order is stored in Chrome local storage and is automatically reused when 
 
 Patent Editing
 
-Patents can be edited directly from the dashboard.
+Patents can be reviewed and edited directly from the dashboard.
 
-Features:
+Editable Fields
 
-• Edit patent number
-• Edit title
-• Edit abstract
-• Edit inventor name
-• Edit assignee
-• Change relevance
+• Document Number
+• Title
+• Abstract
+• Inventor Name
+• Assignee
+• Relevance
+
+Read Only Reference Data
+
+• Application Number
+• Filing Date
+• Publication Date
+• URL
+• Primary Class
+• Other Classes
+• CPC Codes
+• USPC Codes
+
+Additional Features
+
 • Delete patents
 • Automatic reference renumbering
-
-The edit dialog dynamically follows the current table column order.
+• Dynamic field ordering
+• Dialog synchronized with table layout
 
 Export Capability
 
@@ -344,25 +403,34 @@ Current Version
 Version: 1.0.0
 
 Included
+
 Patent extraction
 Strong / Partial / Weak relevance tracking
 CPC extraction
 USPC extraction
+
 Dashboard view
 Patent table
-Histogram generation
-Local storage persistence
-JSON export
-
-Patent edit dialog
-Dynamic column ordering
+Patent editing
+Column reordering
 Persistent column layouts
+
+Classification filtering
+CPC histogram generation
+USPC histogram generation
+
+Classification family aggregation
+Reference traceability
+
 Inventor extraction
 Application number extraction
 Filing date extraction
 Publication date extraction
-Primary and secondary class support
+
+Local storage persistence
+JSON export
 Reference renumbering
+
 
 Future Enhancements
 
