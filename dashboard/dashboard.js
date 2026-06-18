@@ -569,34 +569,78 @@ function renderHistogram(
 	);
 	
 	container.innerHTML =
-    `${title}\n\n`;
+    `<h3>${title}</h3>`;
     
-    for (
-			const [
-				code,
-				data
-			]
-			of sorted
-		) {
-
-        const refs =
-				data.references
-					.sort(
-						(a,b) =>
-							a - b
-					)
-					.join(",");
-			
+    const maxCount =
+		Math.max(
+			...sorted.map(
+				([, data]) =>
+					data.count
+			)
+		);
+	
+	for (
+		const [
+			code,
+			data
+		]
+		of sorted
+	)
+	{
+		const refs =
+			data.references
+				.sort(
+					(a,b) =>
+						a - b
+				)
+				.join(",");
+	
+		const widthPercent =
+			(
+				data.count /
+				maxCount
+			) * 100;
+	
 		container.innerHTML +=
-			`<a
-				href="#"
-				class="classificationFilter"
-				data-code="${code}"
-			>${code}</a>${code.padEnd(
-				20,
-				"."
-			).slice(code.length)} ${data.count} [${refs}]\n`;
-    }
+			`
+			<div
+				class="histogramRow"
+			>
+	
+				<a
+					href="#"
+					class="classificationFilter histogramCode"
+					data-code="${code}"
+				>
+					${code}
+				</a>
+	
+				<div
+					class="histogramBarContainer"
+				>
+					<div
+						class="histogramBar"
+						style="
+							width:${widthPercent}%;
+						"
+					></div>
+				</div>
+	
+				<span
+					class="histogramCount"
+				>
+					${data.count}
+				</span>
+	
+				<span
+					class="histogramRefs"
+				>
+					[${refs}]
+				</span>
+	
+			</div>
+			`;
+	}
         
     document
 		.querySelectorAll(

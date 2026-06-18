@@ -42,7 +42,7 @@
 					Show All References
 				</button>
 			
-				<pre id="histogramOutput"></pre>
+				<div id="histogramOutput"></div>
 				<div id="tableContainer">
 					<table id="patentTable">
 					
@@ -55,6 +55,49 @@
 					</table>	
 				</div>
 				<style>
+				.histogramRow {
+				
+					display:flex;
+					align-items:center;
+					gap:10px;
+					margin:4px 0;
+				
+					font-family:monospace;
+				}
+				
+				.histogramCode {
+				
+					width:140px;
+					flex-shrink:0;
+				}
+				
+				.histogramBarContainer {
+				
+					width:300px;
+					height:18px;
+				
+					border:1px solid #ccc;
+					background:#f5f5f5;
+				
+					flex-shrink:0;
+				}
+				
+				.histogramBar {
+				
+					height:100%;
+					background:#4a90e2;
+				}
+				
+				.histogramCount {
+				
+					width:30px;
+					text-align:right;
+				}
+				
+				.histogramRefs {
+				
+					white-space:nowrap;
+				}
 				
 				#tableContainer {
 				
