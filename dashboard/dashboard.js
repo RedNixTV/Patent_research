@@ -1,6 +1,10 @@
 import {
     getPatents,
-    savePatents
+    savePatents,
+    getProjects,
+    switchProject,
+    createProject,
+    deleteProject
 }
 from "../storage/storage.js";
 
@@ -308,6 +312,8 @@ function enableColumnDragDrop() {
 
 async function init() {
 
+    await renderProjectSelector();
+    
     patents =
         await getPatents();
         
@@ -339,6 +345,72 @@ async function init() {
     setupEditButtons();
     enableColumnDragDrop();
 	setupEditDialog();
+	
+	document
+		.getElementById(
+			"projectSelector"
+		)
+		.onchange =
+		async e => {
+	
+			await switchProject(
+				e.target.value
+			);
+	
+			location.reload();
+		};
+		
+	document
+		.getElementById(
+			"newProject"
+		)
+		.onclick =
+		async () => {
+	
+			const name =
+				prompt(
+					"Project name"
+				);
+	
+			if (!name) {
+	
+				return;
+			}
+	
+			await createProject(
+				name
+			);
+	
+			location.reload();
+		};
+		
+	document
+		.getElementById(
+			"deleteProject"
+		)
+		.onclick =
+		async () => {
+	
+			if (
+				!confirm(
+					"Delete project?"
+				)
+			) {
+	
+				return;
+			}
+	
+			const result =
+				await chrome.storage.local.get(
+					"currentProjectId"
+				);
+	
+			await deleteProject(
+				result.currentProjectId
+			);
+	
+			location.reload();
+		};
 
     document
 		.getElementById(
@@ -394,6 +466,40 @@ async function init() {
 		)
 		.onclick =
 		clearClassificationFilter;
+}
+
+async function renderProjectSelector() {
+
+    const result =
+        await chrome.storage.local.get([
+            "projects",
+            "currentProjectId"
+        ]);
+
+    const selector =
+        document.getElementById(
+            "projectSelector"
+        );
+
+    selector.innerHTML = "";
+
+    for (
+        const project
+        of result.projects
+    ) {
+
+        selector.innerHTML += `
+
+            <option
+                value="${project.id}"
+            >
+                ${project.name}
+            </option>
+        `;
+    }
+
+    selector.value =
+        result.currentProjectId;
 }
 
 function updateCurrentHistogram() {
