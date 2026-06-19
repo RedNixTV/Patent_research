@@ -322,166 +322,192 @@ function extractUspc() {
 // ====================================
 // storage
 // ====================================
-
-async function getPatents() {
-
-    const result =
-        await chrome.storage.local.get(
-			["patents", "projects"]
-		);
-        
-    if (
-		!result.projects &&
-		result.patents
-	) {
-		await chrome.storage.local.set({
-			projects: [
-				{
-					id: "default",
-					name: "Default Project",
-			
-					stages: {
-			
-						landscapeScan:
-							result.patents,
-			
-						referenceList: [],
-			
-						classificationAnalysis: {
-			
-							selectedClasses: [],
-							selectedSubclasses: []
-						},
-			
-						universe: [],
-			
-						universeReview: {
-			
-							excludedPatentIds: [],
-							notes: ""
-						},
-			
-						finalReferences: []
-					}
-				}
-			]
-		});
-	
-		return result.patents;
-	}
-
-    return (
-		result.projects?.[0]
-			?.stages
-			?.landscapeScan || []
-	);
-}
-
 async function savePatent(
     patent
 ) {
 
-    const patents =
-        await getPatents();
+    const result =
+        await chrome.storage.local.get([
+            "patents",
+            "projects",
+            "currentProjectId"
+        ]);
 
-    const existing =
-        patents.findIndex(
+    const patentLibrary =
+        result.patents || {};
+
+    patentLibrary[
+        patent.patentNumber
+    ] = patent;
+
+    const projects =
+        result.projects || [];
+        
+    if (
+		projects.length === 0
+	) {
+	
+		projects.push({
+	
+			id: "default",
+	
+			name:
+				"Default Project",
+	
+			stages: {
+	
+				landscapeScan: [],
+	
+				referenceList: [],
+	
+				classificationAnalysis: {
+	
+					selectedClasses: [],
+					selectedSubclasses: []
+				},
+	
+				universe: [],
+	
+				universeReview: {
+	
+					excludedPatentIds: [],
+					notes: ""
+				},
+	
+				finalReferences: []
+			}
+		});
+	
+		result.currentProjectId =
+			"default";
+	}
+
+    const project =
+        projects.find(
             p =>
-                p.patentNumber ===
-                patent.patentNumber
+                p.id ===
+                result.currentProjectId
         );
 
-    if (existing >= 0) {
+    if (!project) {
 
-        patents[existing] = patent;
+        return;
     }
-    else {
 
-        patents.push(patent);
+    if (
+        !project.stages
+            .landscapeScan
+            .includes(
+                patent.patentNumber
+            )
+    ) {
+
+        project.stages
+            .landscapeScan
+            .push(
+                patent.patentNumber
+            );
     }
 
     await chrome.storage.local.set({
-		
-			projects: [
-		
-				{
-					id: "default",
-					name: "Default Project",
-		
-					stages: {
-		
-						landscapeScan: patents,
-		
-						referenceList: [],
-		
-						classificationAnalysis: {
-		
-							selectedClasses: [],
-							selectedSubclasses: []
-						},
-		
-						universe: [],
-		
-						universeReview: {
-		
-							excludedPatentIds: [],
-							notes: ""
-						},
-		
-						finalReferences: []
-					}
-				}
-			]
-		});
+
+        patents:
+            patentLibrary,
+
+        projects
+    });
+}
+
+async function getPatents() {
+
+    const result =
+        await chrome.storage.local.get([
+            "patents",
+            "projects",
+            "currentProjectId"
+        ]);
+
+    const patentLibrary =
+        result.patents || {};
+
+    const currentProject =
+        (
+            result.projects || []
+        ).find(
+            project =>
+                project.id ===
+                result.currentProjectId
+        );
+
+    if (!currentProject) {
+
+        return [];
+    }
+
+    return (
+        currentProject.stages
+            .landscapeScan || []
+    )
+        .map(
+            patentNumber =>
+                patentLibrary[
+                    patentNumber
+                ]
+        )
+        .filter(Boolean);
 }
 
 async function deletePatent(
     patentNumber
 ) {
 
-    const patents =
-        await getPatents();
+    const result =
+        await chrome.storage.local.get([
+            "patents",
+            "projects",
+            "currentProjectId"
+        ]);
 
-    const filtered =
-        patents.filter(
-            patent =>
-                patent.patentNumber !==
-                patentNumber
+    const patentLibrary =
+        result.patents || {};
+
+    delete patentLibrary[
+        patentNumber
+    ];
+
+    const currentProject =
+        (
+            result.projects || []
+        ).find(
+            project =>
+                project.id ===
+                result.currentProjectId
         );
 
+    if (currentProject) {
+
+        currentProject.stages
+            .landscapeScan =
+            currentProject.stages
+                .landscapeScan
+                .filter(
+                    id =>
+                        id !==
+                        patentNumber
+                );
+    }
+
     await chrome.storage.local.set({
-	
-		projects: [
-			{
-				id: "default",
-				name: "Default Project",
-			
-				stages: {
-			
-					landscapeScan: filtered,
-			
-					referenceList: [],
-			
-					classificationAnalysis: {
-			
-						selectedClasses: [],
-						selectedSubclasses: []
-					},
-			
-					universe: [],
-			
-					universeReview: {
-			
-						excludedPatentIds: [],
-						notes: ""
-					},
-			
-					finalReferences: []
-				}
-			}
-		]
-	});
+
+        patents:
+            patentLibrary,
+
+        projects:
+            result.projects
+    });
 }
+
+
 
 // ====================================
 // Main
