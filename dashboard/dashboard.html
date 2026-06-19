@@ -88,47 +88,62 @@
 					</table>	
 				</div>
 				<style>
+				#histogramTable {
+				
+					border-collapse: collapse;
+				
+					width: auto;
+				
+					margin-top: 10px;
+				}
+				
+				#histogramTable th,
+				#histogramTable td {
+				
+					padding: 4px 10px;
+				
+					white-space: nowrap;
+				
+					text-align: left;
+				}
+				
+				#histogramTable th {
+				
+					font-weight: bold;
+				}
+				
+				#histogramTable th:nth-child(1),
+				#histogramTable td:nth-child(1) {
+				
+					width: 120px;
+				}
+				
+				#histogramTable th:nth-child(2),
+				#histogramTable td:nth-child(2) {
+				
+					width: 40px;
+				}
+				
+				#histogramTable th:nth-child(3),
+				#histogramTable td:nth-child(3) {
+				
+					width: 260px;
+				}
+				
+				#histogramTable th:nth-child(4),
+				#histogramTable td:nth-child(4) {
+				
+					width: 180px;
+				}
+				
+				.histogramBarCell {
+				
+					font-family: monospace;
+				}
+
 				#workflowBar {
 				
 					margin:10px 0;
-				}
-
-				.histogramBarText {
-				
-					display:inline-block;
-				
-					width:20ch;
-				
-					font-family:monospace;
-				
-					white-space:nowrap;
-				}
-				
-				.histogramRow {
-				
-					display:flex;
-					align-items:center;
-					gap:10px;
-					margin:4px 0;
-				
-					font-family:monospace;
-				}
-				
-				.histogramCode {
-				
-					width:140px;
-					flex-shrink:0;
-				}
-				
-				.histogramCount {
-				
-					width:30px;
-					text-align:right;
-				}
-				
-				.histogramRefs {
-				
-					white-space:nowrap;
 				}
 				
 				#tableContainer {

@@ -814,10 +814,52 @@ function renderHistogram(
 		}
 	);
 	
-	container.innerHTML =
-    `<h3>${title}</h3>`;
-    
-    const maxCount =
+	container.innerHTML = `
+	
+		<h3>${title}</h3>
+	
+		<table
+			id="histogramTable"
+		>
+	
+			<thead>
+	
+				<tr>
+	
+					<th>
+						Cls
+					</th>
+	
+					<th>
+						#
+					</th>
+	
+					<th>
+						Histogram
+					</th>
+	
+					<th>
+						Refs
+					</th>
+	
+				</tr>
+	
+			</thead>
+	
+			<tbody
+				id="histogramTableBody"
+			>
+			</tbody>
+	
+		</table>
+	`;
+	
+	const tableBody =
+		document.getElementById(
+			"histogramTableBody"
+		);
+	
+	const maxCount =
 		Math.max(
 			...sorted.map(
 				([, data]) =>
@@ -831,8 +873,8 @@ function renderHistogram(
 			data
 		]
 		of sorted
-	)
-	{
+	) {
+	
 		const refs =
 			data.references
 				.sort(
@@ -848,7 +890,7 @@ function renderHistogram(
 					maxCount
 				) * 20
 			);
-		
+	
 		const bar =
 			"▉".repeat(
 				Math.max(
@@ -857,40 +899,38 @@ function renderHistogram(
 				)
 			);
 	
-		container.innerHTML +=
-			`
-			<div
-				class="histogramRow"
-			>
+		tableBody.innerHTML += `
 	
-				<a
-					href="#"
-					class="classificationFilter histogramCode"
-					data-code="${code}"
-				>
-					${code}
-				</a>
+			<tr>
 	
-				<span
-					class="histogramBarText"
+				<td>
+	
+					<a
+						href="#"
+						class="classificationFilter"
+						data-code="${code}"
+					>
+						${code}
+					</a>
+	
+				</td>
+	
+				<td>
+					${data.count}
+				</td>
+	
+				<td
+					class="histogramBarCell"
 				>
 					${bar}
-				</span>
+				</td>
 	
-				<span
-					class="histogramCount"
-				>
-					${data.count}
-				</span>
-	
-				<span
-					class="histogramRefs"
-				>
+				<td>
 					[${refs}]
-				</span>
+				</td>
 	
-			</div>
-			`;
+			</tr>
+		`;
 	}
         
     document
