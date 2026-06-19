@@ -4,7 +4,8 @@ import {
     getProjects,
     switchProject,
     createProject,
-    deleteProject
+    deleteProject,
+    getCurrentProject
 }
 from "../storage/storage.js";
 
@@ -22,6 +23,11 @@ import {
     DEFAULT_COLUMNS
 }
 from "./patentTable.js";
+
+import {
+    WORKFLOW_STAGES
+}
+from "./workflow.js";
 
 let patents = [];
 let currentPatentIndex =
@@ -141,6 +147,122 @@ const EDIT_FIELD_MAP = {
 		readonly: true
 	}
 };
+
+async function renderCurrentStage() {
+
+    const project =
+        await getCurrentProject();
+
+    const container =
+        document.getElementById(
+            "workflowContent"
+        );
+
+    switch (
+        project.workflow
+            ?.currentStage
+    ) {
+
+        case "landscapeScan":
+
+            container.innerHTML = "";
+
+            break;
+
+        case "referenceList":
+
+            container.innerHTML = `
+                <p>
+                    Coming Soon
+                </p>
+            `;
+
+            break;
+
+        case "universe":
+
+            container.innerHTML = `
+
+                <p>
+                    Coming Soon
+                </p>
+            `;
+
+            break;
+
+        default:
+
+            container.innerHTML = "";
+    }
+}
+
+async function saveCurrentStage(
+    stageId
+) {
+
+    const result =
+        await chrome.storage.local.get([
+            "projects",
+            "currentProjectId"
+        ]);
+
+    const project =
+        result.projects.find(
+            p =>
+                p.id ===
+                result.currentProjectId
+        );
+
+    if (!project) {
+
+        return;
+    }
+
+    project.workflow ??= {};
+
+    project.workflow.currentStage =
+        stageId;
+
+    await chrome.storage.local.set({
+
+        projects:
+            result.projects
+    });
+}
+
+async function renderWorkflowSelector() {
+
+    const project =
+        await getCurrentProject();
+
+    const selector =
+        document.getElementById(
+            "workflowSelector"
+        );
+
+    selector.innerHTML = "";
+
+    for (
+        const stage
+        of WORKFLOW_STAGES
+    ) {
+
+        selector.innerHTML += `
+
+            <option
+                value="${stage.id}"
+            >
+                ${stage.title}
+            </option>
+        `;
+    }
+
+    selector.value =
+        project.workflow
+            ?.currentStage
+        ||
+        "landscapeScan";
+}
 
 async function filterByClassification(
     code,
@@ -314,6 +436,10 @@ async function init() {
 
     await renderProjectSelector();
     
+    await renderWorkflowSelector();
+	
+	await renderCurrentStage();
+    
     patents =
         await getPatents();
         
@@ -345,6 +471,20 @@ async function init() {
     setupEditButtons();
     enableColumnDragDrop();
 	setupEditDialog();
+	
+	document
+    .getElementById(
+        "workflowSelector"
+    )
+    .onchange =
+    async e => {
+
+        await saveCurrentStage(
+            e.target.value
+        );
+
+        await renderCurrentStage();
+    };
 	
 	document
 		.getElementById(

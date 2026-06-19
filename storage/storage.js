@@ -77,6 +77,12 @@ export async function createProject(
 	
 		id,
 		name,
+		
+		workflow: {
+		
+			currentStage:
+				"landscapeScan"
+		},
 	
 		stages: {
 	

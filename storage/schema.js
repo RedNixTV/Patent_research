@@ -40,6 +40,12 @@ export function createProject(
 
         id,
         name,
+        
+        workflow: {
+		
+			currentStage:
+				"landscapeScan"
+		},
 
         stages: {
 
