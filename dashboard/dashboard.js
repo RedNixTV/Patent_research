@@ -634,6 +634,20 @@ async function init() {
         );
 
         await renderCurrentStage();
+        
+        if (
+            currentView === "cpc"
+        ) {
+
+            await renderCpcHistogram();
+        }
+
+        else if (
+            currentView === "uspc"
+        ) {
+
+            await renderUspcHistogram();
+        }
     };
 	
 	document
