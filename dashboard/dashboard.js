@@ -47,10 +47,26 @@ const DEFAULT_HISTOGRAM_COLUMNS = [
     "references"
 ];
 
+const DEFAULT_REFERENCE_LIST_COLUMNS = [
+
+    "class",
+    "classTitle",
+    "subclassTitle",
+    "count",
+    "histogram",
+    "references"
+];
+
 const HISTOGRAM_HEADER_MAP = {
 
     class:
         "Cls",
+
+    classTitle:
+        "Class Title",
+
+    subclassTitle:
+        "Subclass Title",
 
     count:
         "#",
@@ -973,8 +989,19 @@ async function renderHistogram(
 		</table>
 	`;
 	
+	const project =
+		await getCurrentProject();
+	
+	const isReferenceList =
+		project.workflow?.currentStage ===
+		"referenceList";
+	
 	const histogramColumnOrder =
-		await getHistogramColumnOrder();
+		isReferenceList
+	
+			? DEFAULT_REFERENCE_LIST_COLUMNS
+	
+			: await getHistogramColumnOrder();
 	
 	const headerRow =
 		document.getElementById(
@@ -1011,7 +1038,14 @@ async function renderHistogram(
 					data.count
 			)
 		);
+	const storage =
+		await chrome.storage.local.get(
+			"classifications"
+		);
 	
+	const classifications =
+		storage.classifications || {};
+		
 	for (
 		const [
 			code,
@@ -1048,11 +1082,35 @@ async function renderHistogram(
 			histogramColumnOrder
 				.map(
 					column => {
-		
+					
+						const classification = classifications[code];
+							
 						switch (
 							column
 						) {
 		
+							case "classTitle":
+							
+								return `
+									<td>
+										${
+											classification?.classTitle
+											|| ""
+										}
+									</td>
+								`;
+							
+							case "subclassTitle":
+							
+								return `
+									<td>
+										${
+											classification?.subclassTitle
+											|| ""
+										}
+									</td>
+								`;
+								
 							case "class":
 		
 								return `
