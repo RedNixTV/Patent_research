@@ -39,6 +39,29 @@ let currentView =
 let currentHistogram =
     {};
     
+const DEFAULT_HISTOGRAM_COLUMNS = [
+
+    "class",
+    "count",
+    "histogram",
+    "references"
+];
+
+const HISTOGRAM_HEADER_MAP = {
+
+    class:
+        "Cls",
+
+    count:
+        "#",
+
+    histogram:
+        "Histogram",
+
+    references:
+        "Refs"
+};
+    
 const EDIT_FIELD_MAP = {
 
     patentNumber: {
@@ -341,6 +364,32 @@ async function saveColumnOrder(
     });
 }
 
+async function getHistogramColumnOrder() {
+
+    const result =
+        await chrome.storage.local.get(
+            "histogramColumnOrder"
+        );
+
+    return (
+        result.histogramColumnOrder
+        ||
+        DEFAULT_HISTOGRAM_COLUMNS
+    );
+}
+
+async function saveHistogramColumnOrder(
+    order
+) {
+
+    await chrome.storage.local.set({
+
+        histogramColumnOrder:
+            order
+    });
+}
+
+
 function enableColumnDragDrop() {
 
     const headers =
@@ -426,6 +475,91 @@ function enableColumnDragDrop() {
                     setupEditButtons();
 
                     enableColumnDragDrop();
+                }
+            );
+        }
+    );
+}
+
+function enableHistogramDragDrop() {
+
+    const headers =
+        document.querySelectorAll(
+            "#histogramHeaderRow th"
+        );
+
+    let dragged =
+        null;
+
+    headers.forEach(
+        header => {
+
+            header.addEventListener(
+                "dragstart",
+                () => {
+
+                    dragged =
+                        header;
+                }
+            );
+
+            header.addEventListener(
+                "dragover",
+                e => {
+
+                    e.preventDefault();
+                }
+            );
+
+            header.addEventListener(
+                "drop",
+                async () => {
+
+                    if (
+                        dragged ===
+                        header
+                    ) {
+
+                        return;
+                    }
+
+                    const order =
+                        await getHistogramColumnOrder();
+
+                    const from =
+                        order.indexOf(
+                            dragged.dataset.column
+                        );
+
+                    const to =
+                        order.indexOf(
+                            header.dataset.column
+                        );
+
+                    const moved =
+                        order.splice(
+                            from,
+                            1
+                        )[0];
+
+                    order.splice(
+                        to,
+                        0,
+                        moved
+                    );
+
+                    await saveHistogramColumnOrder(
+                        order
+                    );
+
+                    await renderHistogram(
+                        currentHistogram,
+                        document
+                            .querySelector(
+                                "#histogramOutput h3"
+                            )
+                            .textContent
+                    );
                 }
             );
         }
@@ -557,12 +691,12 @@ async function init() {
 			"cpcTab"
 		)
 		.onclick =
-		() => {
-	
+		async () => {
+		
 			currentView =
 				"cpc";
-	
-			renderCpcHistogram();
+		
+			await renderCpcHistogram();
 		};
 
     document
@@ -570,12 +704,12 @@ async function init() {
 			"uspcTab"
 		)
 		.onclick =
-		() => {
-	
+		async () => {
+		
 			currentView =
 				"uspc";
-	
-			renderUspcHistogram();
+		
+			await renderUspcHistogram();
 		};
 
     document
@@ -642,14 +776,14 @@ async function renderProjectSelector() {
         result.currentProjectId;
 }
 
-function updateCurrentHistogram() {
+async function updateCurrentHistogram() {
 
     if (
         currentView ===
         "cpc"
     ) {
 
-        renderCpcHistogram();
+        await renderCpcHistogram();
     }
 
     else if (
@@ -657,7 +791,7 @@ function updateCurrentHistogram() {
         "uspc"
     ) {
 
-        renderUspcHistogram();
+        await renderUspcHistogram();
     }
 }
 
@@ -670,7 +804,7 @@ function showReferences() {
         .textContent = "";
 }
 
-function renderCpcHistogram() {
+async function renderCpcHistogram() {
 
     const showFull =
         document
@@ -690,7 +824,7 @@ function renderCpcHistogram() {
 				"cpc"
 			);
 
-    renderHistogram(
+    await renderHistogram(
         histogram,
         showFull
             ? "Top CPC Classes"
@@ -698,7 +832,7 @@ function renderCpcHistogram() {
     );
 }
 
-function renderUspcHistogram() {
+async function renderUspcHistogram() {
 
     const showFull =
         document
@@ -718,7 +852,7 @@ function renderUspcHistogram() {
 				"uspc"
 			);
 
-    renderHistogram(
+    await renderHistogram(
         histogram,
         showFull
             ? "Top USPC Classes"
@@ -727,7 +861,7 @@ function renderUspcHistogram() {
 }
 
     
-function renderHistogram(
+async function renderHistogram(
     histogram,
     title
 ) {
@@ -823,27 +957,12 @@ function renderHistogram(
 		>
 	
 			<thead>
-	
-				<tr>
-	
-					<th>
-						Cls
-					</th>
-	
-					<th>
-						#
-					</th>
-	
-					<th>
-						Histogram
-					</th>
-	
-					<th>
-						Refs
-					</th>
-	
+			
+				<tr
+					id="histogramHeaderRow"
+				>
 				</tr>
-	
+			
 			</thead>
 	
 			<tbody
@@ -853,6 +972,32 @@ function renderHistogram(
 	
 		</table>
 	`;
+	
+	const histogramColumnOrder =
+		await getHistogramColumnOrder();
+	
+	const headerRow =
+		document.getElementById(
+			"histogramHeaderRow"
+		);
+	
+	headerRow.innerHTML =
+		histogramColumnOrder
+			.map(
+				column => `
+					<th
+						draggable="true"
+						data-column="${column}"
+					>
+						${
+							HISTOGRAM_HEADER_MAP[
+								column
+							]
+						}
+					</th>
+				`
+			)
+			.join("");
 	
 	const tableBody =
 		document.getElementById(
@@ -898,37 +1043,68 @@ function renderHistogram(
 					barLength
 				)
 			);
+			
+		const cells =
+			histogramColumnOrder
+				.map(
+					column => {
+		
+						switch (
+							column
+						) {
+		
+							case "class":
+		
+								return `
+									<td>
+		
+										<a
+											href="#"
+											class="classificationFilter"
+											data-code="${code}"
+										>
+											${code}
+										</a>
+		
+									</td>
+								`;
+		
+							case "count":
+		
+								return `
+									<td>
+										${data.count}
+									</td>
+								`;
+		
+							case "histogram":
+		
+								return `
+									<td
+										class="histogramBarCell"
+									>
+										${bar}
+									</td>
+								`;
+		
+							case "references":
+		
+								return `
+									<td>
+										[${refs}]
+									</td>
+								`;
+						}
+					}
+				)
+				.join("");
 	
 		tableBody.innerHTML += `
-	
+		
 			<tr>
-	
-				<td>
-	
-					<a
-						href="#"
-						class="classificationFilter"
-						data-code="${code}"
-					>
-						${code}
-					</a>
-	
-				</td>
-	
-				<td>
-					${data.count}
-				</td>
-	
-				<td
-					class="histogramBarCell"
-				>
-					${bar}
-				</td>
-	
-				<td>
-					[${refs}]
-				</td>
-	
+		
+				${cells}
+		
 			</tr>
 		`;
 	}
@@ -957,6 +1133,8 @@ function renderHistogram(
 					};
 			}
 		);
+		
+	enableHistogramDragDrop();
 }
 
 function setupEditButtons() {
