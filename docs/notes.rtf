@@ -9,10 +9,8 @@
 {\list\listtemplateid4\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid301\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid4}
 {\list\listtemplateid5\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid401\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid5}
 {\list\listtemplateid6\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid501\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid6}
-{\list\listtemplateid7\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid601\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid7}
-{\list\listtemplateid8\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid701\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid8}
-{\list\listtemplateid9\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid801\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid9}}
-{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}{\listoverride\listid3\listoverridecount0\ls3}{\listoverride\listid4\listoverridecount0\ls4}{\listoverride\listid5\listoverridecount0\ls5}{\listoverride\listid6\listoverridecount0\ls6}{\listoverride\listid7\listoverridecount0\ls7}{\listoverride\listid8\listoverridecount0\ls8}{\listoverride\listid9\listoverridecount0\ls9}}
+{\list\listtemplateid7\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid601\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid7}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}{\listoverride\listid3\listoverridecount0\ls3}{\listoverride\listid4\listoverridecount0\ls4}{\listoverride\listid5\listoverridecount0\ls5}{\listoverride\listid6\listoverridecount0\ls6}{\listoverride\listid7\listoverridecount0\ls7}}
 \margl1440\margr1440\vieww30040\viewh18260\viewkind0
 \deftab720
 \pard\pardeftab720\sa240\partightenfactor0
@@ -211,242 +209,14 @@ Workflow stages reference patents by ID\
     ],\
 \
     patents: \{\}\
-\}\
-\
-\pard\pardeftab720\partightenfactor0
-
-\f0\fs24 \cf2 \
-\pard\pardeftab720\sa280\partightenfactor0
-
-\f1\b\fs28 \cf0 Important Improvement\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\b0\fs24 \cf0 Rather than:\
-\pard\pardeftab720\partightenfactor0
-
-\f2\fs26 \cf0 \
-landscapeScan: \{\
-\
-    classes: [],\
-    subclasses: []\
-\}\
-\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\fs24 \cf0 store the patents that generated those classifications:\
-\pard\pardeftab720\partightenfactor0
-
-\f2\fs26 \cf0 \
-landscapeScan: \{\
-\
-    patents: [\
-        "US11210433",\
-        "US10861247"\
-    ],\
-\
-    classes: [],\
-    subclasses: []\
-\}\
-\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\fs24 \cf0 This allows:\
-\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
-\ls3\ilvl0\cf0 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
-Histogram regeneration\
-\ls3\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
-Auditability\
-\ls3\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
-Reproducibility\
-\pard\pardeftab720\partightenfactor0
-\cf2 \
-\pard\pardeftab720\sa280\partightenfactor0
-
-\f1\b\fs28 \cf0 Patent Storage Strategy\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\b0\fs24 \cf0 Store each patent only once:\
-\pard\pardeftab720\partightenfactor0
-
-\f2\fs26 \cf0 \
-\{\
-    patents: \{\
-\
-        "US11210433": \{\
-            patentNumber: "US11210433",\
-            title: "...",\
-            ...\
-        \}\
-    \}\
-\}\
-\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\fs24 \cf0 Then stages reference IDs:\
-\pard\pardeftab720\partightenfactor0
-
-\f2\fs26 \cf0 \
-referenceList: [\
-    "US11210433"\
-]\
-\
-universe: [\
-    "US11210433"\
-]\
-\
-finalReferences: [\
-    "US11210433"\
-]\
-\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\fs24 \cf0 Benefits:\
-\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
-\ls4\ilvl0\cf0 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
-No duplication\
-\ls4\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
-Easier updates\
-\ls4\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
-Shared patents across stages\
-\ls4\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
-Shared patents across projects\
-\pard\pardeftab720\partightenfactor0
-\cf2 \
-\pard\pardeftab720\sa280\partightenfactor0
-
-\f1\b\fs28 \cf0 Recommended Migration Path\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\b0\fs24 \cf0 \
-\pard\pardeftab720\sa321\partightenfactor0
-
-\f1\b\fs48 \cf0 \outl0\strokewidth0 \strokec3 Target Phase 2 State\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\b0\fs24 \cf0 \strokec3 Move from:\
-\pard\pardeftab720\partightenfactor0
-
-\f2\fs26 \cf0 \
-\{\
-    currentProjectId: "default",\
-\
-    projects: [\
-        \{\
-            id: "default",\
-            stages: \{\
-                landscapeScan: [\
-                    patentObject,\
-                    patentObject\
-                ]\
-            \}\
-        \}\
-    ]\
-\}\
-\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\fs24 \cf0 to:\
-\pard\pardeftab720\partightenfactor0
-
-\f2\fs26 \cf0 \
-\{\
-    currentProjectId: "default",\
-\
-    projects: [\
-        \{\
-            id: "default",\
-\
-            stages: \{\
-                landscapeScan: [\
-                    patentObject,\
-                    patentObject\
-                ]\
-            \}\
-        \}\
-    ],\
-\
-    patents: \{\
-        US11210433: patentObject,\
-        US10861247: patentObject\
-    \}\
-\}\
-\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\fs24 \cf0 Notice:\
-\pard\pardeftab720\partightenfactor0
-
-\f2\fs26 \cf0 \
-stages.landscapeScan\
-\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\fs24 \cf0 remains unchanged.\
-\pard\pardeftab720\partightenfactor0
-\cf0 \strokec3 Dashboard, histogram, edit dialog, export, filtering all continue to work with zero UI changes.\
-\
-\pard\pardeftab720\sa321\partightenfactor0
-
-\f1\b\fs48 \cf0 \strokec3 Phase 3\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\b0\fs24 \cf0 \strokec3 Once Phase 2 is stable, then migrate:\
-\pard\pardeftab720\partightenfactor0
-
-\f2\fs26 \cf0 \
-landscapeScan\
-\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\fs24 \cf0 from:\
-\pard\pardeftab720\partightenfactor0
-
-\f2\fs26 \cf0 \
-[\
-    patentObject,\
-    patentObject\
-]\
-\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\fs24 \cf0 to:\
-\pard\pardeftab720\partightenfactor0
-
-\f2\fs26 \cf0 \
-[\
-    "US11210433",\
-    "US10861247"\
-]\
-\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\fs24 \cf0 At that point:\
-\pard\pardeftab720\partightenfactor0
-
-\f2\fs26 \cf0 \
-getPatents()\
-\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\fs24 \cf0 becomes:\
-\pard\pardeftab720\partightenfactor0
-
-\f2\fs26 \cf0 \
-project.stages.landscapeScan\
-    .map(\
-        id => patentLibrary[id]\
-    )\
-\
-\pard\pardeftab720\sa240\partightenfactor0
-
-\f0\fs24 \cf0 and the rest of the dashboard can continue receiving patent objects without major rewrites.\
-That is the safest migration path for your current codebase.\
+\}
+\f0\fs24 \
 \pard\pardeftab720\partightenfactor0
 
 \f2\fs26 \cf0 \
 \pard\pardeftab720\sa240\partightenfactor0
 
-\f0\fs24 \cf0 \outl0\strokewidth0 \
+\f0\fs24 \cf0 \
 \pard\pardeftab720\partightenfactor0
 \cf2 \
 \pard\pardeftab720\sa298\partightenfactor0
@@ -845,45 +615,45 @@ Final Set\
 
 \f1\b\fs28 \cf0 Project\
 \pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
-\ls5\ilvl0
+\ls3\ilvl0
 \f0\b0\fs24 \cf0 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
 invention baseline\
-\ls5\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\ls3\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
 features\
-\ls5\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\ls3\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
 search concepts\
 \pard\pardeftab720\sa280\partightenfactor0
 
 \f1\b\fs28 \cf0 Landscape\
 \pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
-\ls6\ilvl0
+\ls4\ilvl0
 \f0\b0\fs24 \cf0 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
 references\
-\ls6\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\ls4\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
 strong/partial/weak\
-\ls6\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\ls4\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
 classification histograms\
 \pard\pardeftab720\sa280\partightenfactor0
 
 \f1\b\fs28 \cf0 Universe\
 \pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
-\ls7\ilvl0
+\ls5\ilvl0
 \f0\b0\fs24 \cf0 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
 coverage matrix\
-\ls7\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\ls5\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
 review queue\
-\ls7\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\ls5\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
 feature gaps\
 \pard\pardeftab720\sa280\partightenfactor0
 
 \f1\b\fs28 \cf0 Final Set\
 \pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
-\ls8\ilvl0
+\ls6\ilvl0
 \f0\b0\fs24 \cf0 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
 final 15-20\
-\ls8\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\ls6\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
 comments\
-\ls8\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+\ls6\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
 export\
 \pard\pardeftab720\partightenfactor0
 \cf2 \
@@ -891,17 +661,17 @@ export\
 \cf0 If this were my project, I would actually postpone similarity scoring entirely.\
 Version 1 would focus on:\
 \pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
-\ls9\ilvl0\cf0 \kerning1\expnd0\expndtw0 {\listtext	1	}\expnd0\expndtw0\kerning0
+\ls7\ilvl0\cf0 \kerning1\expnd0\expndtw0 {\listtext	1	}\expnd0\expndtw0\kerning0
 Rapid patent capture\
-\ls9\ilvl0\kerning1\expnd0\expndtw0 {\listtext	2	}\expnd0\expndtw0\kerning0
+\ls7\ilvl0\kerning1\expnd0\expndtw0 {\listtext	2	}\expnd0\expndtw0\kerning0
 Feature tagging\
-\ls9\ilvl0\kerning1\expnd0\expndtw0 {\listtext	3	}\expnd0\expndtw0\kerning0
+\ls7\ilvl0\kerning1\expnd0\expndtw0 {\listtext	3	}\expnd0\expndtw0\kerning0
 CPC/USPC extraction\
-\ls9\ilvl0\kerning1\expnd0\expndtw0 {\listtext	4	}\expnd0\expndtw0\kerning0
+\ls7\ilvl0\kerning1\expnd0\expndtw0 {\listtext	4	}\expnd0\expndtw0\kerning0
 Histogram generation\
-\ls9\ilvl0\kerning1\expnd0\expndtw0 {\listtext	5	}\expnd0\expndtw0\kerning0
+\ls7\ilvl0\kerning1\expnd0\expndtw0 {\listtext	5	}\expnd0\expndtw0\kerning0
 Universe management\
-\ls9\ilvl0\kerning1\expnd0\expndtw0 {\listtext	6	}\expnd0\expndtw0\kerning0
+\ls7\ilvl0\kerning1\expnd0\expndtw0 {\listtext	6	}\expnd0\expndtw0\kerning0
 Final reference selection\
 \pard\pardeftab720\sa240\partightenfactor0
 \cf0 Those six capabilities directly support almost every step in your patent search workflow and would likely provide more value than another percentage-based matching tool.\
