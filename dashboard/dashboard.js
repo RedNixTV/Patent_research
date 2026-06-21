@@ -210,11 +210,7 @@ async function renderCurrentStage() {
 
         case "referenceList":
 
-            container.innerHTML = `
-                <p>
-                    Coming Soon
-                </p>
-            `;
+            container.innerHTML = "";
 
             break;
 

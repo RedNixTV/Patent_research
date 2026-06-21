@@ -24,11 +24,35 @@ export function createPatent() {
 		cpc: [],
 		primaryCpc: [],
 		uspc: [],
-	
-		classifications: [],
-	
+		
 		savedDate: ""
 	};
+}
+
+export function createClassification() {
+
+    return {
+
+        classTitle: "",
+
+        subclassTitle: "",
+
+        keep: false
+    };
+}
+
+export function createStorageSchema() {
+
+    return {
+
+        currentProjectId: "",
+
+        projects: [],
+
+        patents: {},
+
+        classifications: {}
+    };
 }
 
 export function createProject(

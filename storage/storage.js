@@ -29,6 +29,46 @@ export async function savePatentLibrary(
     });
 }
 
+async function ensureClassificationsExist(
+    patent
+) {
+
+    const result =
+        await chrome.storage.local.get(
+            "classifications"
+        );
+
+    const classifications =
+        result.classifications || {};
+
+    const symbols = [
+
+        ...(patent.cpc || []),
+
+        ...(patent.uspc || [])
+    ];
+
+    for (
+        const symbol
+        of new Set(symbols)
+    ) {
+
+        classifications[symbol] ??= {
+
+            classTitle: "",
+
+            subclassTitle: "",
+
+            keep: false
+        };
+    }
+
+    await chrome.storage.local.set({
+
+        classifications
+    });
+}
+
 export async function getCurrentProject() {
 
     const result =
@@ -51,6 +91,56 @@ export async function getCurrentProject() {
 		||
 		projects[0]
 	);
+}
+
+async function rebuildClassificationCatalog() {
+
+    const result =
+        await chrome.storage.local.get([
+            "patents",
+            "classifications"
+        ]);
+
+    const patentLibrary =
+        result.patents || {};
+
+    const classifications =
+        result.classifications || {};
+
+    for (
+        const patent
+        of Object.values(
+            patentLibrary
+        )
+    ) {
+
+        const symbols = [
+
+            ...(patent.cpc || []),
+
+            ...(patent.uspc || [])
+        ];
+
+        for (
+            const symbol
+            of new Set(symbols)
+        ) {
+
+            classifications[symbol] ??= {
+
+                classTitle: "",
+
+                subclassTitle: "",
+
+                keep: false
+            };
+        }
+    }
+
+    await chrome.storage.local.set({
+
+        classifications
+    });
 }
 
 export async function getProjects() {
@@ -190,8 +280,15 @@ export async function getPatents() {
 
     const result =
         await chrome.storage.local.get(
-            ["patents", "projects"]
+            ["patents", "projects", "classifications"]
         );
+        
+    if (
+		!result.classifications
+	) {
+	
+		await rebuildClassificationCatalog();
+	}
         
     if (
 			Array.isArray(
@@ -478,6 +575,10 @@ export async function savePatent(
     patent
 ) {
 
+    await ensureClassificationsExist(
+        patent
+    );
+    
     const library =
         await getPatentLibrary();
 
