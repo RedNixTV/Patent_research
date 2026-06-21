@@ -224,6 +224,15 @@ function createReferenceListPanel() {
         >
             Lookup
         </button>
+        
+        <button
+			id="openDashboard"
+			style="
+				margin-left:8px;
+			"
+		>
+			Dashboard
+		</button>
 
     `;
 
@@ -606,6 +615,138 @@ async function getCurrentStage() {
     );
 }
 
+function extractClassTitle(
+    html
+) {
+
+    const match =
+        html.match(
+            /Class Definition for Class \d+\s*-\s*([^<]+)/i
+        );
+
+    return match
+        ? match[1].trim()
+        : "";
+}
+
+function extractSubclassTitle(
+    html,
+    subclassNumber
+) {
+
+    const anchorId =
+        `C382S${subclassNumber}000`;
+
+    const index =
+        html.indexOf(
+            anchorId
+        );
+
+    if (
+        index === -1
+    ) {
+
+        return "";
+    }
+
+    const chunk =
+        html.slice(
+            index,
+            index + 1000
+        );
+
+    const match =
+        chunk.match(
+            /<b>([^:<]+):<\/b>/i
+        );
+
+    const title =
+		match
+			? match[1]
+			: "";
+	
+	return title
+		.replace(/\*/g, "")
+		.replace(/\s+/g, " ")
+		.trim();
+}
+
+function buildDefinitionUrl(
+    classNumber
+) {
+
+    return `https://www.uspto.gov/web/patents/classification/uspc${classNumber}/defs${classNumber}.htm`;
+}
+	
+async function lookupClassifications() {
+
+    const symbols =
+        document
+            .getElementById(
+                "classificationInput"
+            )
+            .value
+            .split("\n")
+            .map(
+                value =>
+                    value.trim()
+            )
+            .filter(Boolean);
+
+    const classifications =
+        {};
+
+    for (
+        const symbol
+        of symbols
+    ) {
+
+        const [
+            classNumber,
+            subclassNumber
+        ] =
+            symbol.split("/");
+
+        const response =
+            await fetch(
+                buildDefinitionUrl(
+                    classNumber
+                )
+            );
+
+        const html =
+            await response.text();
+
+        classifications[
+            symbol
+        ] = {
+
+            classTitle:
+                extractClassTitle(
+                    html
+                ),
+
+            subclassTitle:
+                extractSubclassTitle(
+                    html,
+                    subclassNumber
+                ),
+
+            keep: false
+        };
+    }
+    
+    await chrome.storage.local.set({
+	
+		classifications
+	});
+	
+	const result =
+		await chrome.storage.local.get(
+			"classifications"
+		);
+}
+
 // ====================================
 // Main
 // ====================================
@@ -660,6 +801,28 @@ async function savePatentWithRelevance(
 		) {
 	
 			createReferenceListPanel();
+			
+			document
+			.getElementById(
+				"lookupClassifications"
+			)
+			.onclick =
+			lookupClassifications;
+			
+			document
+			.getElementById(
+				"openDashboard"
+			)
+			.onclick =
+			() => {
+			
+				window.open(
+					chrome.runtime.getURL(
+						"dashboard/dashboard.html"
+					),
+					"_blank"
+				);
+			};
 	
 			return;
 		}
