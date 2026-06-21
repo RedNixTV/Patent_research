@@ -693,7 +693,16 @@ async function lookupClassifications() {
             )
             .filter(Boolean);
 
+    const result =
+        await chrome.storage.local.get(
+            "classifications"
+        );
+
     const classifications =
+        result.classifications
+        || {};
+
+    const htmlCache =
         {};
 
     for (
@@ -707,15 +716,41 @@ async function lookupClassifications() {
         ] =
             symbol.split("/");
 
-        const response =
-            await fetch(
-                buildDefinitionUrl(
-                    classNumber
-                )
-            );
+        let html =
+            htmlCache[
+                classNumber
+            ];
 
-        const html =
-            await response.text();
+        if (
+            !html
+        ) {
+
+            const response =
+                await fetch(
+                    buildDefinitionUrl(
+                        classNumber
+                    )
+                );
+
+            if (
+                !response.ok
+            ) {
+
+                console.error(
+                    `Failed to load class ${classNumber}`
+                );
+
+                continue;
+            }
+
+            html =
+                await response.text();
+
+            htmlCache[
+                classNumber
+            ] =
+                html;
+        }
 
         classifications[
             symbol
@@ -724,27 +759,26 @@ async function lookupClassifications() {
             classTitle:
                 extractClassTitle(
                     html
-                ),
+                ) || "",
 
             subclassTitle:
                 extractSubclassTitle(
                     html,
                     subclassNumber
-                ),
+                ) || "",
 
-            keep: false
+            keep:
+                classifications[
+                    symbol
+                ]?.keep
+                ?? false
         };
     }
-    
+
     await chrome.storage.local.set({
-	
-		classifications
-	});
-	
-	const result =
-		await chrome.storage.local.get(
-			"classifications"
-		);
+
+        classifications
+    });
 }
 
 // ====================================
