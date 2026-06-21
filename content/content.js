@@ -152,6 +152,8 @@ function createLandscapePanel() {
         document.createElement(
             "div"
         );
+        
+    panel.id = "classificationToolPanel";
 
     panel.innerHTML = `
 
@@ -193,6 +195,8 @@ function createReferenceListPanel() {
         document.createElement(
             "div"
         );
+        
+    panel.id = "classificationToolPanel";
 
     panel.innerHTML = `
 
@@ -624,8 +628,20 @@ async function savePatentWithRelevance(
 			`${relevance} Saved`
 		);
 	}
-	async function init() {
+	async function renderPanel() {
 	
+		const existingPanel =
+			document.getElementById(
+				"classificationToolPanel"
+			);
+		
+		if (
+			existingPanel
+		) {
+		
+			existingPanel.remove();
+		}
+
 		const stage =
 			await getCurrentStage();
 			
@@ -696,4 +712,27 @@ async function savePatentWithRelevance(
 			};
 	}
 	
-	init();
+	renderPanel();
+	
+	chrome.storage.onChanged.addListener(
+	
+		(
+			changes,
+			area
+		) => {
+	
+			if (
+				area !== "local"
+			) {
+	
+				return;
+			}
+	
+			if (
+				changes.projects
+			) {
+	
+				renderPanel();
+			}
+		}
+	);
