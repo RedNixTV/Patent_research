@@ -19,7 +19,8 @@
   "content_scripts": [
     {
       "matches": [
-        "https://www.freepatentsonline.com/*"
+        "https://www.freepatentsonline.com/*",
+        "https://www.uspto.gov/web/patents/classification/*"
       ],
       "js": [
         "content/content.js"

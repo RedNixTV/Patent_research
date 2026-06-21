@@ -146,7 +146,7 @@ function buildClassifications(
 // UI
 // ====================================
 
-function createSaveButtons() {
+function createLandscapePanel() {
 
     const panel =
         document.createElement(
@@ -183,6 +183,70 @@ function createSaveButtons() {
 	document.body.appendChild(
 		panel
 	);
+
+    return panel;
+}
+
+function createReferenceListPanel() {
+
+    const panel =
+        document.createElement(
+            "div"
+        );
+
+    panel.innerHTML = `
+
+        <div
+            style="
+                font-weight:bold;
+                margin-bottom:8px;
+            "
+        >
+            Classification Lookup
+        </div>
+
+        <textarea
+            id="classificationInput"
+            style="
+                width:250px;
+                height:180px;
+            "
+        ></textarea>
+
+        <br><br>
+
+        <button
+            id="lookupClassifications"
+        >
+            Lookup
+        </button>
+
+    `;
+
+    panel.style.position =
+        "fixed";
+
+    panel.style.bottom =
+        "20px";
+
+    panel.style.right =
+        "20px";
+
+    panel.style.zIndex =
+        "999999";
+
+    panel.style.background =
+        "white";
+
+    panel.style.padding =
+        "10px";
+
+    panel.style.border =
+        "1px solid #ccc";
+
+    document.body.appendChild(
+        panel
+    );
 
     return panel;
 }
@@ -353,6 +417,12 @@ async function savePatent(
 	
 			name:
 				"Default Project",
+				
+			workflow: {
+		
+				currentStage:
+					"landscapeScan"
+			},
 	
 			stages: {
 	
@@ -507,7 +577,30 @@ async function deletePatent(
     });
 }
 
+async function getCurrentStage() {
 
+    const result =
+        await chrome.storage.local.get([
+            "projects",
+            "currentProjectId"
+        ]);
+
+    const project =
+        (
+            result.projects || []
+        ).find(
+            project =>
+                project.id ===
+                result.currentProjectId
+        );
+
+    return (
+        project?.workflow
+            ?.currentStage
+        ||
+        "landscapeScan"
+    );
+}
 
 // ====================================
 // Main
@@ -518,60 +611,89 @@ async function savePatentWithRelevance(
 ) {
 
     const patent =
-        extractPatent();
-
-    patent.relevance =
-        relevance;
-
-    await savePatent(
-        patent
-    );
-
-    alert(
-        `${relevance} Saved`
-    );
-}
-
-createSaveButtons();
-
-document
-    .getElementById(
-        "saveStrong"
-    )
-    .onclick =
-    () =>
-        savePatentWithRelevance(
-            "strong"
-        );
-
-document
-    .getElementById(
-        "savePartial"
-    )
-    .onclick =
-    () =>
-        savePatentWithRelevance(
-            "partial"
-        );
-
-document
-    .getElementById(
-        "saveWeak"
-    )
-    .onclick =
-    () =>
-        savePatentWithRelevance(
-            "weak"
-        );
-        
-document
-    .getElementById("openDashboard")
-    .onclick = () => {
-
-        window.open(
-			chrome.runtime.getURL(
-				"dashboard/dashboard.html"
-			),
-			"_blank"
+			extractPatent();
+	
+		patent.relevance =
+			relevance;
+	
+		await savePatent(
+			patent
 		);
-    };
+	
+		alert(
+			`${relevance} Saved`
+		);
+	}
+	async function init() {
+	
+		const stage =
+			await getCurrentStage();
+			
+		const isClassificationPage =
+		location.hostname ===
+			"www.uspto.gov"
+		&&
+		location.pathname.startsWith(
+			"/web/patents/classification"
+		);
+	
+		if (
+			stage === "referenceList"
+			&&
+			isClassificationPage
+		) {
+	
+			createReferenceListPanel();
+	
+			return;
+		}
+	
+		createLandscapePanel();
+	
+		document
+			.getElementById(
+				"saveStrong"
+			)
+			.onclick =
+			() =>
+				savePatentWithRelevance(
+					"strong"
+				);
+	
+		document
+			.getElementById(
+				"savePartial"
+			)
+			.onclick =
+			() =>
+				savePatentWithRelevance(
+					"partial"
+				);
+	
+		document
+			.getElementById(
+				"saveWeak"
+			)
+			.onclick =
+			() =>
+				savePatentWithRelevance(
+					"weak"
+				);
+	
+		document
+			.getElementById(
+				"openDashboard"
+			)
+			.onclick =
+			() => {
+	
+				window.open(
+					chrome.runtime.getURL(
+						"dashboard/dashboard.html"
+					),
+					"_blank"
+				);
+			};
+	}
+	
+	init();
