@@ -384,15 +384,41 @@ function extractUspc() {
     const text =
         document.body.innerText;
 
-    const matches =
+    const classes =
+        [];
+
+    const primaryMatch =
         text.match(
-            /\d{3}\/\d+/g
+            /Primary Class:\s*([^\n]+)/i
         );
 
+    if (primaryMatch) {
+
+        classes.push(
+            primaryMatch[1].trim()
+        );
+    }
+
+    const otherMatch =
+        text.match(
+            /Other Classes:\s*([^\n]+)/i
+        );
+
+    if (otherMatch) {
+
+        classes.push(
+            ...otherMatch[1]
+                .split(/[;,]/)
+                .map(
+                    value =>
+                        value.trim()
+                )
+                .filter(Boolean)
+        );
+    }
+
     return [
-        ...new Set(
-            matches || []
-        )
+        ...new Set(classes)
     ];
 }
 
