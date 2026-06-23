@@ -652,7 +652,7 @@ function extractSubclassTitle(
 
     const index =
         html.indexOf(
-            anchorId
+            `name="${anchorId}"`
         );
 
     if (
