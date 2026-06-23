@@ -631,11 +631,24 @@ function extractClassTitle(
 
 function extractSubclassTitle(
     html,
+    classNumber,
     subclassNumber
 ) {
 
+    const anchorNumber =
+        Math.round(
+            Number(
+                subclassNumber
+            ) * 1000
+        )
+        .toString()
+        .padStart(
+            6,
+            "0"
+        );
+
     const anchorId =
-        `C382S${subclassNumber}000`;
+        `C${classNumber}S${anchorNumber}`;
 
     const index =
         html.indexOf(
@@ -661,14 +674,14 @@ function extractSubclassTitle(
         );
 
     const title =
-		match
-			? match[1]
-			: "";
-	
-	return title
-		.replace(/\*/g, "")
-		.replace(/\s+/g, " ")
-		.trim();
+        match
+            ? match[1]
+            : "";
+
+    return title
+        .replace(/\*/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
 }
 
 function buildDefinitionUrl(
@@ -764,6 +777,7 @@ async function lookupClassifications() {
             subclassTitle:
                 extractSubclassTitle(
                     html,
+                    classNumber,
                     subclassNumber
                 ) || "",
 
