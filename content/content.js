@@ -721,20 +721,17 @@ function buildCpcDefinitionUrl(
     symbol
 ) {
 
-    const match =
-        symbol.match(
-            /^([A-HY]\d{2}[A-Z])/
+    const section =
+        getCpcGrandParent(
+            symbol
         );
 
     if (
-        !match
+        !section
     ) {
 
         return "";
     }
-
-    const section =
-        match[1];
 
     return `https://www.uspto.gov/web/patents/classification/cpc/html/cpc-${section}.html`;
 }
@@ -984,7 +981,7 @@ function extractCpcTitle(
         index === -1
     ) {
 
-        return "";
+        return "Classification not found";
     }
 
     const chunk =
@@ -997,6 +994,13 @@ function extractCpcTitle(
         chunk.match(
             /class="class-title"[\s\S]*?<span[^>]*>(.*?)<\/span>/i
         );
+        
+    if (
+		!match
+	) {
+	
+		return "Unable to parse title";
+	}
 
     return match
         ? match[1]
