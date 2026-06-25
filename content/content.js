@@ -641,7 +641,7 @@ async function getCurrentStage() {
     );
 }
 
-function extractClassTitle(
+function extractUspcClassTitle(
     html
 ) {
 
@@ -655,7 +655,7 @@ function extractClassTitle(
         : "";
 }
 
-function extractSubclassTitle(
+function extractUspcSubclassTitle(
     html,
     classNumber,
     subclassNumber
@@ -710,15 +710,37 @@ function extractSubclassTitle(
         .trim();
 }
 
-function buildDefinitionUrl(
+function buildUspcDefinitionUrl(
     classNumber
 ) {
 
     return `https://www.uspto.gov/web/patents/classification/uspc${classNumber}/defs${classNumber}.htm`;
 }
+
+function buildCpcDefinitionUrl(
+    symbol
+) {
+
+    const match =
+        symbol.match(
+            /^([A-HY]\d{2}[A-Z])/
+        );
+
+    if (
+        !match
+    ) {
+
+        return "";
+    }
+
+    const section =
+        match[1];
+
+    return `https://www.uspto.gov/web/patents/classification/cpc/html/cpc-${section}.html`;
+}
 	
 async function lookupClassifications() {
-
+    
     const symbols =
         document
             .getElementById(
@@ -749,11 +771,101 @@ async function lookupClassifications() {
         of symbols
     ) {
 
-        const [
+        const isCpc =
+			/^[A-HY]/.test(
+				symbol
+			);
+			
+		const [
             classNumber,
             subclassNumber
         ] =
             symbol.split("/");
+            
+        if (
+			isCpc
+		) {
+		
+			let html =
+				htmlCache[symbol];
+		
+			if (
+				!html
+			) {
+		
+				const response =
+					await fetch(
+						buildCpcDefinitionUrl(
+							symbol
+						)
+					);
+		
+				if (
+					!response.ok
+				) {
+		
+					continue;
+				}
+		
+				html =
+					await response.text();
+		
+				htmlCache[
+					symbol
+				] = html;
+			}
+		
+			let classTitle = "";
+		
+			if (
+				isCpcParent(
+					symbol
+				)
+			) {
+		
+				classTitle =
+					extractCpcTitle(
+						html,
+						getCpcGrandParent(
+							symbol
+						)
+					);
+			}
+		
+			else {
+		
+				classTitle =
+					extractCpcTitle(
+						html,
+						getCpcParent(
+							symbol
+						)
+					);
+			}
+		
+			const subclassTitle =
+				extractCpcTitle(
+					html,
+					symbol
+				);
+		
+			classifications[
+				symbol
+			] = {
+		
+				classTitle,
+		
+				subclassTitle,
+		
+				keep:
+					classifications[
+						symbol
+					]?.keep
+					?? false
+			};
+		
+			continue;
+		}
 
         let html =
             htmlCache[
@@ -766,7 +878,7 @@ async function lookupClassifications() {
 
             const response =
                 await fetch(
-                    buildDefinitionUrl(
+                    buildUspcDefinitionUrl(
                         classNumber
                     )
                 );
@@ -796,12 +908,12 @@ async function lookupClassifications() {
         ] = {
 
             classTitle:
-                extractClassTitle(
+                extractUspcClassTitle(
                     html
                 ) || "",
 
             subclassTitle:
-                extractSubclassTitle(
+                extractUspcSubclassTitle(
                     html,
                     classNumber,
                     subclassNumber
@@ -820,6 +932,86 @@ async function lookupClassifications() {
         classifications
     });
 }
+
+function isCpcParent(
+    symbol
+) {
+
+    return /\/00$/.test(
+        symbol
+    );
+}
+
+function getCpcGrandParent(
+    symbol
+) {
+
+    const match =
+        symbol.match(
+            /^([A-HY]\d{2}[A-Z])/
+        );
+
+    return match
+        ? match[1]
+        : "";
+}
+
+function getCpcParent(
+    symbol
+) {
+
+    const match =
+        symbol.match(
+            /^([A-HY]\d{2}[A-Z]\d+)/
+        );
+
+    return match
+        ? `${match[1]}/00`
+        : "";
+}
+
+function extractCpcTitle(
+    html,
+    symbol
+) {
+
+    const index =
+        html.indexOf(
+            `id="${symbol}"`
+        );
+
+    if (
+        index === -1
+    ) {
+
+        return "";
+    }
+
+    const chunk =
+        html.slice(
+            index,
+            index + 1500
+        );
+
+    const match =
+        chunk.match(
+            /class="class-title"[\s\S]*?<span[^>]*>(.*?)<\/span>/i
+        );
+
+    return match
+        ? match[1]
+            .replace(
+                /<[^>]+>/g,
+                ""
+            )
+            .replace(
+                /\s+/g,
+                " "
+            )
+            .trim()
+        : "";
+}
+
 
 // ====================================
 // Main
