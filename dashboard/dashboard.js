@@ -12,6 +12,10 @@ from "../storage/storage.js";
 import {
     buildHistogramWithReferences,
     buildSubclassHistogramWithReferences,
+    buildPrimaryUspcHistogramWithReferences,
+    buildPrimaryUspcSubclassHistogramWithReferences,
+    buildOtherUspcHistogramWithReferences,
+    buildOtherUspcSubclassHistogramWithReferences,
     buildFamilyTotals,
     getClassificationFamily
 }
@@ -30,12 +34,11 @@ import {
 from "./workflow.js";
 
 let patents = [];
+let currentView = "references";
 let currentPatentIndex =
     null;
 let activeClassificationFilter =
     null;
-let currentView =
-    "references";
 let currentHistogram =
     {};
     
@@ -639,11 +642,18 @@ async function init() {
         }
 
         else if (
-            currentView === "uspc"
-        ) {
-
-            await renderUspcHistogram();
-        }
+			currentView === "primaryUspc"
+		) {
+		
+			await renderPrimaryUspcHistogram();
+		}
+		
+		else if (
+			currentView === "allUspc"
+		) {
+		
+			await renderOtherUspcHistogram();
+		}
     };
 	
 	document
@@ -727,15 +737,28 @@ async function init() {
 
     document
 		.getElementById(
-			"uspcTab"
+			"primaryUspcTab"
 		)
 		.onclick =
 		async () => {
-		
+	
 			currentView =
-				"uspc";
-		
-			await renderUspcHistogram();
+				"primaryUspc";
+	
+			await renderPrimaryUspcHistogram();
+		};
+	
+	document
+		.getElementById(
+			"allUspcTab"
+		)
+		.onclick =
+		async () => {
+	
+			currentView =
+				"allUspc";
+	
+			await renderOtherUspcHistogram();
 		};
 
     document
@@ -813,12 +836,18 @@ async function updateCurrentHistogram() {
     }
 
     else if (
-        currentView ===
-        "uspc"
-    ) {
-
-        await renderUspcHistogram();
-    }
+		currentView === "primaryUspc"
+	) {
+	
+		await renderPrimaryUspcHistogram();
+	}
+	
+	else if (
+		currentView === "allUspc"
+	) {
+	
+		await renderOtherUspcHistogram();
+	}
 }
 
 function showReferences() {
@@ -858,7 +887,7 @@ async function renderCpcHistogram() {
     );
 }
 
-async function renderUspcHistogram() {
+async function renderPrimaryUspcHistogram() {
 
     const showFull =
         document
@@ -868,21 +897,55 @@ async function renderUspcHistogram() {
             .checked;
 
     const histogram =
-		showFull
-			? buildHistogramWithReferences(
-				patents,
-				"uspc"
-			)
-			: buildSubclassHistogramWithReferences(
-				patents,
-				"uspc"
-			);
+        showFull
+
+            ? buildPrimaryUspcHistogramWithReferences(
+                patents
+              )
+
+            : buildPrimaryUspcSubclassHistogramWithReferences(
+                patents
+              );
 
     await renderHistogram(
+
         histogram,
+
         showFull
-            ? "Top USPC Classes"
-            : "Top USPC Main Classes"
+
+            ? "Top Primary USPC Classes"
+
+            : "Top Primary USPC Main Classes"
+    );
+}
+
+async function renderOtherUspcHistogram() {
+
+    const showFull =
+        document
+            .getElementById(
+                "showFullClasses"
+            )
+            .checked;
+
+    const histogram =
+        showFull
+				? buildOtherUspcHistogramWithReferences(
+					patents
+				  )
+				: buildOtherUspcSubclassHistogramWithReferences(
+					patents
+				  );
+
+    await renderHistogram(
+
+        histogram,
+
+        showFull
+
+            ? "Top Other USPC Classes"
+
+            : "Top Other USPC Main Classes"
     );
 }
 

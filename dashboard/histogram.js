@@ -144,6 +144,196 @@ export function buildSubclassHistogram(
     return histogram;
 }
 
+export function buildOtherUspcHistogramWithReferences(
+    patents
+) {
+
+    const histogram = {};
+
+    for (
+        const patent
+        of patents
+    ) {
+
+        const others =
+				(patent.uspc || [])
+					.slice(1);
+
+        for (
+            const code
+            of others
+        ) {
+
+            histogram[code] ??= {
+
+                count: 0,
+
+                references: []
+            };
+
+            histogram[
+                code
+            ].count++;
+
+            histogram[
+                code
+            ].references.push(
+                patent.referenceId
+            );
+        }
+    }
+
+    return histogram;
+}
+
+export function buildOtherUspcSubclassHistogramWithReferences(
+    patents
+) {
+
+    const histogram = {};
+
+    for (
+        const patent
+        of patents
+    ) {
+
+        for (
+            const code
+            of (patent.uspc || []).slice(1)
+        ) {
+
+            const bucket =
+                code.split("/")[0];
+
+            histogram[bucket] ??= {
+
+                count: 0,
+
+                references: []
+            };
+
+            histogram[
+                bucket
+            ].count++;
+
+            if (
+                !histogram[
+                    bucket
+                ].references.includes(
+                    patent.referenceId
+                )
+            ) {
+
+                histogram[
+                    bucket
+                ].references.push(
+                    patent.referenceId
+                );
+            }
+        }
+    }
+
+    return histogram;
+}
+
+export function buildPrimaryUspcHistogramWithReferences(
+    patents
+) {
+
+    const histogram = {};
+
+    for (
+        const patent
+        of patents
+    ) {
+
+        const code =
+            patent.primaryClass;
+
+        if (
+            !code
+        ) {
+
+            continue;
+        }
+
+        histogram[code] ??= {
+
+            count: 0,
+
+            references: []
+        };
+
+        histogram[
+            code
+        ].count++;
+
+        histogram[
+            code
+        ].references.push(
+            patent.referenceId
+        );
+    }
+
+    return histogram;
+}
+
+export function buildPrimaryUspcSubclassHistogramWithReferences(
+    patents
+) {
+
+    const histogram = {};
+
+    for (
+        const patent
+        of patents
+    ) {
+
+        const code =
+            patent.primaryClass;
+
+        if (
+            !code
+        ) {
+
+            continue;
+        }
+
+        const bucket =
+            code.split(
+                "/"
+            )[0];
+
+        histogram[bucket] ??= {
+
+            count: 0,
+
+            references: []
+        };
+
+        histogram[
+            bucket
+        ].count++;
+
+        if (
+            !histogram[
+                bucket
+            ].references.includes(
+                patent.referenceId
+            )
+        ) {
+
+            histogram[
+                bucket
+            ].references.push(
+                patent.referenceId
+            );
+        }
+    }
+
+    return histogram;
+}
+
 export function buildHistogramWithReferences(
     patents,
     mode
