@@ -731,6 +731,47 @@ async function getAvailableClasses() {
 }
 
 
+async function getClassificationsForFamily(
+    family
+) {
+
+    const patents =
+        await getPatents();
+
+    const classifications =
+        new Set();
+
+    for (
+        const patent
+        of patents
+    ) {
+
+        for (
+            const code
+            of [
+                ...(patent.uspc || []),
+                ...(patent.cpc || [])
+            ]
+        ) {
+
+            if (
+                getClassificationFamily(
+                    code
+                ) === family
+            ) {
+
+                classifications.add(
+                    code
+                );
+            }
+        }
+    }
+
+    return [...classifications]
+        .sort();
+}
+
+
 async function populateClassDropdown() {
 
     const families =
@@ -791,6 +832,42 @@ async function populateClassDropdown() {
         "CPC",
         families.cpc
     );
+}
+
+
+async function populateClassificationTextarea() {
+
+    const family =
+        document
+            .getElementById(
+                "classificationFamily"
+            )
+            .value;
+
+    const textarea =
+        document
+            .getElementById(
+                "classificationInput"
+            );
+
+    if (
+        !family
+    ) {
+
+        textarea.value = "";
+
+        return;
+    }
+
+    const subclasses =
+        await getClassificationsForFamily(
+            family
+        );
+
+    textarea.value =
+        subclasses.join(
+            "\n"
+        );
 }
 
 function extractUspcClassTitle(
@@ -1244,6 +1321,15 @@ async function renderPanel() {
 			createReferenceListPanel();
 			
 			await populateClassDropdown();
+			
+			await populateClassificationTextarea();
+			
+			document
+					.getElementById(
+						"classificationFamily"
+					)
+					.onchange =
+					populateClassificationTextarea;
 			
 			document
 			.getElementById(
