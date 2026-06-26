@@ -679,6 +679,40 @@ function getClassificationFamily(
     )[0];
 }
 
+function getCurrentClassificationFamily() {
+
+    const hash =
+        decodeURIComponent(
+            location.hash
+        );
+
+    const cpcMatch =
+        hash.match(
+            /([A-HY]\d{2}[A-Z]\d+)/
+        );
+
+    if (
+        cpcMatch
+    ) {
+
+        return cpcMatch[1];
+    }
+
+    const uspcMatch =
+        location.pathname.match(
+            /uspc(\d+)/i
+        );
+
+    if (
+        uspcMatch
+    ) {
+
+        return uspcMatch[1];
+    }
+
+    return "";
+}
+
 async function getAvailableClasses() {
 
     const patents =
@@ -783,6 +817,8 @@ async function populateClassDropdown() {
         );
 
     select.innerHTML = "";
+    
+    const currentFamily = getCurrentClassificationFamily();
 
     const addGroup = (
         label,
@@ -832,6 +868,14 @@ async function populateClassDropdown() {
         "CPC",
         families.cpc
     );
+    
+    if (
+		currentFamily
+	) {
+	
+		select.value =
+			currentFamily;
+	}
 }
 
 
