@@ -44,23 +44,37 @@ let currentHistogram =
 let compactClassTitle = false;
 let compactSubclassTitle = false;
     
-const DEFAULT_HISTOGRAM_COLUMNS = [
+const HISTOGRAM_COLUMNS_BY_STAGE = {
 
-    "class",
-    "count",
-    "histogram",
-    "references"
-];
+    landscapeScan: [
 
-const DEFAULT_REFERENCE_LIST_COLUMNS = [
+        "class",
+        "count",
+        "histogram",
+        "references"
+    ],
 
-    "class",
-    "classTitle",
-    "subclassTitle",
-    "count",
-    "histogram",
-    "references"
-];
+    referenceList: [
+
+        "class",
+        "classTitle",
+        "subclassTitle",
+        "count",
+        "histogram",
+        "references"
+    ],
+
+    classificationAnalysis: [
+
+        "class",
+        "classTitle",
+        "subclassTitle",
+        "count",
+        "histogram",
+        "references",
+        "keep"
+    ]
+};
 
 const HISTOGRAM_HEADER_MAP = {
 
@@ -80,7 +94,10 @@ const HISTOGRAM_HEADER_MAP = {
         "Histogram",
 
     references:
-        "Refs"
+        "Refs",
+
+    keep:
+        "Keep"
 };
     
 const EDIT_FIELD_MAP = {
@@ -1113,16 +1130,15 @@ async function renderHistogram(
 	const project =
 		await getCurrentProject();
 	
-	const isReferenceList =
-		project.workflow?.currentStage ===
-		"referenceList";
+	const stage =
+		project.workflow?.currentStage;
 	
 	const histogramColumnOrder =
-		isReferenceList
-	
-			? DEFAULT_REFERENCE_LIST_COLUMNS
-	
-			: await getHistogramColumnOrder();
+		HISTOGRAM_COLUMNS_BY_STAGE[
+			stage
+		]
+		??
+		await getHistogramColumnOrder();
 	
 	const headerRow =
 		document.getElementById(
@@ -1291,6 +1307,25 @@ async function renderHistogram(
 										[${refs}]
 									</td>
 								`;
+								
+							case "keep":
+							
+								return `
+									<td>
+							
+										<input
+											type="checkbox"
+											class="keepClassification"
+											data-code="${code}"
+											${
+												classification?.keep
+													? "checked"
+													: ""
+											}
+										>
+							
+									</td>
+								`;
 						}
 					}
 				)
@@ -1327,6 +1362,37 @@ async function renderHistogram(
 								code
 							].references
 						);
+					};
+			}
+		);
+		
+	document
+		.querySelectorAll(
+			".keepClassification"
+		)
+		.forEach(
+			checkbox => {
+	
+				checkbox.onchange =
+					async () => {
+	
+						const storage =
+							await chrome.storage.local.get(
+								"classifications"
+							);
+	
+						const classifications =
+							storage.classifications || {};
+	
+						classifications[
+							checkbox.dataset.code
+						].keep =
+							checkbox.checked;
+	
+						await chrome.storage.local.set({
+	
+							classifications
+						});
 					};
 			}
 		);
@@ -1462,6 +1528,12 @@ async function renderHistogram(
 								case "references":
 	
 									return refs;
+								
+								case "keep":
+								
+									return classification.keep
+										? "☑"
+										: "☐";
 	
 								default:
 	
