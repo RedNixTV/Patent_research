@@ -882,8 +882,8 @@ async function renderCpcHistogram() {
     await renderHistogram(
         histogram,
         showFull
-            ? "Top CPC Classes"
-            : "Top CPC Subclasses"
+            ? "Top CPC Subclasses"
+            : "Top CPC Classes"
     );
 }
 

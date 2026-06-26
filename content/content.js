@@ -209,8 +209,26 @@ function createReferenceListPanel() {
             Classification Lookup
         </div>
 
-        <textarea
-            id="classificationInput"
+        <label>
+		
+			Class
+		
+		</label>
+		
+		<br>
+		
+		<select
+			id="classificationFamily"
+			style="
+				width:250px;
+				margin-bottom:10px;
+			"
+		></select>
+		
+		<br>
+		
+		<textarea
+			id="classificationInput"
             style="
                 width:250px;
                 height:180px;
@@ -641,6 +659,140 @@ async function getCurrentStage() {
     );
 }
 
+function getClassificationFamily(
+    code
+) {
+
+    if (
+        /^[A-HY]/.test(
+            code
+        )
+    ) {
+
+        return code.match(
+            /^[A-HY]\d{2}[A-Z]\d+/
+        )[0];
+    }
+
+    return code.split(
+        "/"
+    )[0];
+}
+
+async function getAvailableClasses() {
+
+    const patents =
+        await getPatents();
+
+    const uspc =
+        new Set();
+
+    const cpc =
+        new Set();
+
+    for (
+        const patent
+        of patents
+    ) {
+
+        for (
+            const code
+            of patent.uspc || []
+        ) {
+
+            uspc.add(
+                getClassificationFamily(
+                    code
+                )
+            );
+        }
+
+        for (
+            const code
+            of patent.cpc || []
+        ) {
+
+            cpc.add(
+                getClassificationFamily(
+                    code
+                )
+            );
+        }
+    }
+
+    return {
+
+        uspc:
+            [...uspc].sort(),
+
+        cpc:
+            [...cpc].sort()
+    };
+}
+
+
+async function populateClassDropdown() {
+
+    const families =
+        await getAvailableClasses();
+
+    const select =
+        document.getElementById(
+            "classificationFamily"
+        );
+
+    select.innerHTML = "";
+
+    const addGroup = (
+        label,
+        values
+    ) => {
+
+        const group =
+            document.createElement(
+                "optgroup"
+            );
+
+        group.label =
+            label;
+
+        for (
+            const value
+            of values
+        ) {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                value;
+
+            option.textContent =
+                value;
+
+            group.appendChild(
+                option
+            );
+        }
+
+        select.appendChild(
+            group
+        );
+    };
+
+    addGroup(
+        "USPC",
+        families.uspc
+    );
+
+    addGroup(
+        "CPC",
+        families.cpc
+    );
+}
+
 function extractUspcClassTitle(
     html
 ) {
@@ -1057,7 +1209,8 @@ async function savePatentWithRelevance(
 			`${relevance} Saved`
 		);
 	}
-	async function renderPanel() {
+	
+async function renderPanel() {
 	
 		const existingPanel =
 			document.getElementById(
@@ -1089,6 +1242,8 @@ async function savePatentWithRelevance(
 		) {
 	
 			createReferenceListPanel();
+			
+			await populateClassDropdown();
 			
 			document
 			.getElementById(
@@ -1164,7 +1319,7 @@ async function savePatentWithRelevance(
 	}
 	
 	renderPanel();
-	
+		
 	chrome.storage.onChanged.addListener(
 	
 		(
