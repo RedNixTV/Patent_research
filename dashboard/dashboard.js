@@ -41,10 +41,10 @@ let activeClassificationFilter =
     null;
 let currentHistogram =
     {};
-let compactClassTitle = false;
-let compactSubclassTitle = false;
-let compactPatentTitle = false;
-let compactPatentAbstract = false;
+let compactClassTitle = true;
+let compactSubclassTitle = true;
+let compactPatentTitle = true;
+let compactPatentAbstract = true;
     
 const HISTOGRAM_COLUMNS_BY_STAGE = {
 

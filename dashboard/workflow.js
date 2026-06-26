@@ -15,7 +15,7 @@ export const WORKFLOW_STAGES = [
     {
         id: "classificationAnalysis",
         title: "Classification Analysis",
-       reason:"Determine where the invention belongs or defines it."
+       reason:"Determine where the invention belongs or defines it: histogram or technology coverage definition."
     },
 
     {
