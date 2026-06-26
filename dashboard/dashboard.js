@@ -330,6 +330,18 @@ async function renderWorkflowSelector() {
             ?.currentStage
         ||
         "landscapeScan";
+        
+    const stage =
+		WORKFLOW_STAGES.find(
+			stage =>
+				stage.id ===
+				selector.value
+		);
+	
+	document.getElementById(
+		"workflowDescription"
+	).textContent =
+		stage?.reason || "";
 }
 
 async function filterByClassification(
@@ -743,6 +755,18 @@ async function init() {
         await saveCurrentStage(
             e.target.value
         );
+        
+        const stage =
+			WORKFLOW_STAGES.find(
+				stage =>
+					stage.id ===
+					e.target.value
+			);
+		
+		document.getElementById(
+			"workflowDescription"
+		).textContent =
+			stage?.reason || "";
 
         await renderCurrentStage();
         
