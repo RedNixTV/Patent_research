@@ -829,13 +829,14 @@ async function getFamilyLookupStatus(
             ];
 
         if (
-            !record
-            ||
-            !record.classTitle
-        ) {
-
-            return "pending";
-        }
+			!record
+			||
+			record.status ===
+				"pending"
+		) {
+		
+			return "pending";
+		}
 
         if (
 			record.status ===
@@ -872,6 +873,62 @@ async function populateClassDropdown() {
 	const classifications =
 		storage.classifications
 		|| {};
+		
+	let updated = false;
+	
+	for (
+		const record
+		of Object.values(
+			classifications
+		)
+	) {
+	
+		if (
+			record.status
+		) {
+	
+			continue;
+		}
+	
+		updated =
+			true;
+	
+		if (
+			!record.classTitle
+		) {
+	
+			record.status =
+				"pending";
+		}
+	
+		else if (
+			record.classTitle ===
+				"Classification not found"
+			||
+			record.classTitle ===
+				"Unable to parse title"
+		) {
+	
+			record.status =
+				"failed";
+		}
+	
+		else {
+	
+			record.status =
+				"complete";
+		}
+	}
+	
+	if (
+		updated
+	) {
+	
+		await chrome.storage.local.set({
+	
+			classifications
+		});
+	}
     
     const currentFamily = getCurrentClassificationFamily();
 
