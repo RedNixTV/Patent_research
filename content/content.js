@@ -1447,7 +1447,7 @@ function extractCpcTitle(
     const chunk =
         html.slice(
             index,
-            index + 1500
+            index + 5000
         );
         
     console.log(
