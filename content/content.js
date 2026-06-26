@@ -838,16 +838,12 @@ async function getFamilyLookupStatus(
         }
 
         if (
-            record.classTitle ===
-                "Classification not found"
-            ||
-            record.classTitle ===
-                "Unable to parse title"
-        ) {
-
-            hasFailure =
-                true;
-        }
+			record.status ===
+			"failed"
+		) {
+		
+			hasFailure = true;
+		}
     }
 
     return hasFailure
@@ -1184,18 +1180,23 @@ async function lookupClassifications() {
 					symbol
 				);
 		
-			classifications[
-				symbol
-			] = {
-		
+			classifications[symbol] = {
+			
 				classTitle,
-		
+			
 				subclassTitle,
-		
+			
+				status:
+					classTitle === "Classification not found"
+					||
+					classTitle === "Unable to parse title"
+			
+						? "failed"
+			
+						: "complete",
+			
 				keep:
-					classifications[
-						symbol
-					]?.keep
+					classifications[symbol]?.keep
 					?? false
 			};
 			
@@ -1213,11 +1214,20 @@ async function lookupClassifications() {
 			) {
 			
 				classifications[parent] = {
-			
+				
 					classTitle,
-			
+				
 					subclassTitle: "",
-			
+				
+					status:
+						classTitle === "Classification not found"
+						||
+						classTitle === "Unable to parse title"
+				
+							? "failed"
+				
+							: "complete",
+				
 					keep: false
 				};
 			}
@@ -1273,20 +1283,25 @@ async function lookupClassifications() {
 					subclassNumber
 				) || "";
 
-			classifications[
-				symbol
-			] = {
-	
-				classTitle,
-				
-				subclassTitle,
-	
-				keep:
-					classifications[
-						symbol
-					]?.keep
-					?? false
-        };
+			classifications[symbol] = {
+		
+			classTitle,
+		
+			subclassTitle,
+		
+			status:
+				classTitle === "Classification not found"
+				||
+				classTitle === "Unable to parse title"
+		
+					? "failed"
+		
+					: "complete",
+		
+			keep:
+				classifications[symbol]?.keep
+				?? false
+		};
         
         if (
 			!classifications[classNumber]
@@ -1297,6 +1312,15 @@ async function lookupClassifications() {
 				classTitle,
 		
 				subclassTitle: "",
+				
+				status:
+					classTitle === "Classification not found"
+					||
+					classTitle === "Unable to parse title"
+			
+						? "failed"
+			
+						: "complete",
 		
 				keep: false
 			};

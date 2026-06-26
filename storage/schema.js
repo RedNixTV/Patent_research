@@ -37,6 +37,8 @@ export function createClassification() {
 
         subclassTitle: "",
 
+        status: "pending",
+
         keep: false
     };
 }
