@@ -43,6 +43,8 @@ let currentHistogram =
     {};
 let compactClassTitle = false;
 let compactSubclassTitle = false;
+let compactPatentTitle = false;
+let compactPatentAbstract = false;
     
 const HISTOGRAM_COLUMNS_BY_STAGE = {
 
@@ -351,9 +353,16 @@ async function filterByClassification(
         await getColumnOrder();
 
     renderPatentTable(
-        filteredPatents,
-        columnOrder
-    );
+		filteredPatents,
+		columnOrder,
+		{
+			compactTitle:
+				compactPatentTitle,
+	
+			compactAbstract:
+				compactPatentAbstract
+		}
+	);
 
     setupEditButtons();
 }
@@ -367,9 +376,16 @@ async function clearClassificationFilter() {
         await getColumnOrder();
 
     renderPatentTable(
-        patents,
-        columnOrder
-    );
+		patents,
+		columnOrder,
+		{
+			compactTitle:
+				compactPatentTitle,
+	
+			compactAbstract:
+				compactPatentAbstract
+		}
+	);
 
     setupEditButtons();
 }
@@ -500,9 +516,16 @@ function enableColumnDragDrop() {
                     );
 
                     renderPatentTable(
-                        patents,
-                        order
-                    );
+						patents,
+						order,
+						{
+							compactTitle:
+								compactPatentTitle,
+					
+							compactAbstract:
+								compactPatentAbstract
+						}
+					);
                     
                     await renderEditFields();
 
@@ -631,7 +654,14 @@ async function init() {
 	
 	renderPatentTable(
 		patents,
-		columnOrder
+		columnOrder,
+		{
+			compactTitle:
+				compactPatentTitle,
+	
+			compactAbstract:
+				compactPatentAbstract
+		}
 	);
 	
 	await renderEditFields();
@@ -639,6 +669,60 @@ async function init() {
     setupEditButtons();
     enableColumnDragDrop();
 	setupEditDialog();
+	
+	document
+		.getElementById(
+			"compactPatentTitle"
+		)
+		.onchange =
+		async event => {
+	
+			compactPatentTitle =
+				event.target.checked;
+				
+			const order = await getColumnOrder();
+	
+			renderPatentTable(
+				patents,
+				order,
+				{
+					compactTitle:
+						compactPatentTitle,
+	
+					compactAbstract:
+						compactPatentAbstract
+				}
+			);
+	
+			setupEditButtons();
+		};
+	
+	document
+		.getElementById(
+			"compactPatentAbstract"
+		)
+		.onchange =
+		async event => {
+	
+			compactPatentAbstract =
+				event.target.checked;
+				
+			const order = await getColumnOrder();
+	
+			renderPatentTable(
+				patents,
+				order,
+				{
+					compactTitle:
+						compactPatentTitle,
+	
+					compactAbstract:
+						compactPatentAbstract
+				}
+			);
+	
+			setupEditButtons();
+		};
 	
 	document
     .getElementById(

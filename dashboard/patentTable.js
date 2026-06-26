@@ -79,18 +79,34 @@ const COLUMN_RENDERERS = {
 				: (patent.patentNumber || ""),
 
     title:
-        patent =>
-            truncate(
-                patent.title,
-                60
-            ),
+		(
+			patent,
+			options
+		) =>
+	
+			options.compactTitle
+	
+				? truncate(
+					patent.title,
+					30
+				  )
+	
+				: (patent.title || ""),
 
     abstract:
-        patent =>
-            truncate(
-                patent.abstract,
-                120
-            ),
+			(
+				patent,
+				options
+			) =>
+		
+				options.compactAbstract
+		
+					? truncate(
+						patent.abstract,
+						60
+					  )
+		
+					: (patent.abstract || ""),
 
     inventorName:
         patent =>
@@ -185,9 +201,16 @@ export function renderHeaders(
 
 export function renderPatentTable(
     patents,
-    columnOrder
+    columnOrder,
+    options = {}
 ){
 
+    const compactTitle =
+		options.compactTitle ?? false;
+	
+	const compactAbstract =
+		options.compactAbstract ?? false;
+    
     columnOrder =
         columnOrder ||
         DEFAULT_COLUMNS;
@@ -240,11 +263,13 @@ export function renderPatentTable(
 				) {
 				
 					const value =
-						COLUMN_RENDERERS[
-							column
-						](
-							patent
-						);
+							COLUMN_RENDERERS[column](
+								patent,
+								{
+									compactTitle,
+									compactAbstract
+								}
+							);
 				
 					html += `
 				

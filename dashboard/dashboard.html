@@ -80,16 +80,52 @@
 				</button>
 			
 				<div id="histogramOutput"></div>
+				<div id="patentTableControls">
+				
+					<label>
+				
+						<input
+							type="checkbox"
+							id="compactPatentTitle"
+						>
+				
+						Title
+				
+					</label>
+				
+					<label
+						style="margin-left:12px;"
+					>
+				
+						<input
+							type="checkbox"
+							id="compactPatentAbstract"
+						>
+				
+						Abstract
+				
+					</label>
+				
+					<button
+						id="copyPatentTable"
+					>
+						Copy
+					</button>
+				
+				</div>
+				
 				<div id="tableContainer">
+				
 					<table id="patentTable">
-					
+				
 						<thead>
 							<tr id="headerRow"></tr>
 						</thead>
-					
+				
 						<tbody></tbody>
-					
-					</table>	
+				
+					</table>
+				
 				</div>
 				<style>
 				#histogramTable {
