@@ -78,7 +78,20 @@ const HISTOGRAM_COLUMNS_BY_STAGE = {
 		"confidence",
 		"researchTier",
 		"reason"
-    ]
+    ],
+    
+    examinerValidation: [
+	
+		"class",
+		"classTitle",
+		"subclassTitle",
+		"count",
+		"histogram",
+		"references",
+		"confidence",
+		"researchTier",
+		"reason"
+	]
 };
 
 const HISTOGRAM_HEADER_MAP = {
@@ -229,6 +242,41 @@ async function renderCurrentStage() {
         document.getElementById(
             "workflowContent"
         );
+        
+    const referencesTab =
+		document.getElementById(
+			"referencesTab"
+		);
+	
+	const cpcTab =
+		document.getElementById(
+			"cpcTab"
+		);
+		
+	const classificationTab =
+		document.getElementById(
+			"classificationTab"
+		);
+	
+	const primaryUspcTab =
+		document.getElementById(
+			"primaryUspcTab"
+		);
+	
+	const otherUspcTab =
+		document.getElementById(
+			"allUspcTab"
+		);
+		
+	referencesTab.style.display = "";
+	
+	cpcTab.style.display = "";
+	
+	primaryUspcTab.style.display = "";
+	
+	otherUspcTab.style.display = "";
+	
+	classificationTab.style.display = "none";
 
     switch (
         project.workflow
@@ -246,6 +294,34 @@ async function renderCurrentStage() {
             container.innerHTML = "";
 
             break;
+            
+        case "Art Unit":
+
+            container.innerHTML = `
+
+                <p>
+                    Coming Soon
+                </p>
+            `;
+
+            break;
+            
+        case "examinerValidation":
+		
+			container.innerHTML = "";
+		
+			cpcTab.style.display = "none";
+		
+			primaryUspcTab.style.display =
+				"none";
+		
+			otherUspcTab.style.display =
+				"none";
+		
+			classificationTab.style.display =
+				"";
+		
+			break;
 
         case "universe":
 
@@ -790,6 +866,13 @@ async function init() {
 		
 			await renderOtherUspcHistogram();
 		}
+		else if (
+			currentView ===
+			"classification"
+		) {
+		
+			await renderClassificationHistogram();
+		}
     };
 	
 	document
@@ -896,6 +979,19 @@ async function init() {
 	
 			await renderOtherUspcHistogram();
 		};
+		
+	document
+		.getElementById(
+			"classificationTab"
+		)
+		.onclick =
+		async () => {
+	
+			currentView =
+				"classification";
+	
+			await renderClassificationHistogram();
+		};
 
     document
 		.getElementById(
@@ -908,6 +1004,7 @@ async function init() {
 				"references";
 	
 			showReferences();
+			currentView = "references";
 		};
 		
 	document
@@ -983,6 +1080,13 @@ async function updateCurrentHistogram() {
 	) {
 	
 		await renderOtherUspcHistogram();
+	}
+	else if (
+		currentView ===
+		"classification"
+	) {
+	
+		await renderClassificationHistogram();
 	}
 }
 
@@ -1085,6 +1189,147 @@ async function renderOtherUspcHistogram() {
     );
 }
 
+async function renderClassificationHistogram() {
+
+    const showFull =
+        document
+            .getElementById(
+                "showFullClasses"
+            )
+            .checked;
+            
+    const storage =
+		await chrome.storage.local.get(
+			"classifications"
+		);
+	
+	const classifications =
+		storage.classifications || {};
+		
+	const keptPatents =
+		patents.map(
+			patent => ({
+	
+				...patent,
+	
+				cpc:
+					(patent.cpc || [])
+						.filter(
+							code =>
+								classifications[
+									code
+								]?.keep
+						),
+	
+				uspc:
+					(patent.uspc || [])
+						.filter(
+							code =>
+								classifications[
+									code
+								]?.keep
+						)
+			})
+		);
+
+    const histogram = {};
+
+    const mergeHistogram =
+        source => {
+
+            for (
+                const [
+                    code,
+                    data
+                ]
+                of Object.entries(
+                    source
+                )
+            ) {
+
+                histogram[code] ??= {
+
+                    count: 0,
+
+                    references: []
+                };
+
+                histogram[
+                    code
+                ].count +=
+                    data.count;
+
+                for (
+                    const ref
+                    of data.references
+                ) {
+
+                    if (
+                        !histogram[
+                            code
+                        ].references.includes(
+                            ref
+                        )
+                    ) {
+
+                        histogram[
+                            code
+                        ].references.push(
+                            ref
+                        );
+                    }
+                }
+            }
+        };
+
+    mergeHistogram(
+
+        showFull
+
+            ? buildHistogramWithReferences(
+                keptPatents,
+                "allCpc"
+            )
+
+            : buildSubclassHistogramWithReferences(
+                keptPatents,
+                "cpc"
+            )
+    );
+
+    mergeHistogram(
+
+        showFull
+
+            ? buildPrimaryUspcHistogramWithReferences(
+                keptPatents
+            )
+
+            : buildPrimaryUspcSubclassHistogramWithReferences(
+                keptPatents
+            )
+    );
+
+    mergeHistogram(
+
+        showFull
+
+            ? buildOtherUspcHistogramWithReferences(
+                keptPatents
+            )
+
+            : buildOtherUspcSubclassHistogramWithReferences(
+                keptPatents
+            )
+    );
+
+    await renderHistogram(
+
+        histogram,
+
+        "Selected Classifications"
+    );
+}
     
 async function renderHistogram(
     histogram,
@@ -1092,6 +1337,63 @@ async function renderHistogram(
 ) {
 	currentHistogram =
     histogram;
+    
+    const project =
+		await getCurrentProject();
+	
+	const stage =
+		project.workflow
+			?.currentStage;
+			
+	const storage =
+		await chrome.storage.local.get(
+			"classifications"
+		);
+    
+	const classifications =
+		storage.classifications || {};
+		
+	if (
+		stage ===
+		"examinerValidation"
+	) {
+	
+		histogram =
+			Object.fromEntries(
+	
+				Object.entries(
+					histogram
+				).filter(
+	
+					([code]) => {
+				
+					const record =
+						classifications[
+							code
+						];
+				
+					if (
+						record?.keep
+					) {
+				
+						return true;
+					}
+				
+					return Object.entries(
+						classifications
+					).some(
+				
+						([symbol, child]) =>
+				
+							child.keep &&
+							symbol.startsWith(
+								code + "/"
+							)
+					);
+				}
+				)
+			);
+	}
     
     const container =
 			document.getElementById(
@@ -1243,12 +1545,7 @@ async function renderHistogram(
 	
 		</table>
 	`;
-	
-	const project =
-		await getCurrentProject();
-	
-	const stage =
-		project.workflow?.currentStage;
+
 	
 	const histogramColumnOrder =
 		HISTOGRAM_COLUMNS_BY_STAGE[
@@ -1292,13 +1589,6 @@ async function renderHistogram(
 					data.count
 			)
 		);
-	const storage =
-		await chrome.storage.local.get(
-			"classifications"
-		);
-	
-	const classifications =
-		storage.classifications || {};
 		
 	for (
 		const [

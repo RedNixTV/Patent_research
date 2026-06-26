@@ -17,6 +17,19 @@ export const WORKFLOW_STAGES = [
         title: "Classification Analysis",
        reason:"Determine where the invention belongs or defines it: histogram or technology coverage definition."
     },
+    {
+		id: "artUnit",
+		title: "Art Unit",
+		reason:
+			"Find art unit: https://www.uspto.gov/sites/default/files/documents/caau.pdf 'Class 705/400: Art unit 3628'"
+	},
+    
+    {
+		id: "examinerValidation",
+		title: "Examiner Validation",
+		reason:
+			"Find the USPTO examiner: https://portal.uspto.gov/EmployeeSearch/"
+	},
 
     {
         id: "universe",
