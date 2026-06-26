@@ -1133,6 +1133,29 @@ async function lookupClassifications() {
 					]?.keep
 					?? false
 			};
+			
+			const parent =
+				getCpcParent(
+					symbol
+				)
+					.replace(
+						"/00",
+						""
+					);
+			
+			if (
+				!classifications[parent]
+			) {
+			
+				classifications[parent] = {
+			
+					classTitle,
+			
+					subclassTitle: "",
+			
+					keep: false
+				};
+			}
 		
 			continue;
 		}
@@ -1172,30 +1195,48 @@ async function lookupClassifications() {
             ] =
                 html;
         }
+                
+            const classTitle =
+				extractUspcClassTitle(
+					html
+				) || "";
+			
+			const subclassTitle =
+				extractUspcSubclassTitle(
+					html,
+					classNumber,
+					subclassNumber
+				) || "";
 
-        classifications[
-            symbol
-        ] = {
-
-            classTitle:
-                extractUspcClassTitle(
-                    html
-                ) || "",
-
-            subclassTitle:
-                extractUspcSubclassTitle(
-                    html,
-                    classNumber,
-                    subclassNumber
-                ) || "",
-
-            keep:
-                classifications[
-                    symbol
-                ]?.keep
-                ?? false
+			classifications[
+				symbol
+			] = {
+	
+				classTitle,
+				
+				subclassTitle,
+	
+				keep:
+					classifications[
+						symbol
+					]?.keep
+					?? false
         };
-    }
+        
+        if (
+			!classifications[classNumber]
+		) {
+		
+			classifications[classNumber] = {
+		
+				classTitle,
+		
+				subclassTitle: "",
+		
+				keep: false
+			};
+		}
+    }  // <-- closes the for loop
 
     await chrome.storage.local.set({
 
