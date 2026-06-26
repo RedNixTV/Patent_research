@@ -1039,19 +1039,34 @@ async function renderHistogram(
 	
 	container.innerHTML = `
 	
-		<h3>${title}</h3>
+		<div
+			style="
+				align-items:center;
+				margin-bottom:8px;
+			"
+		>
+	
+			<h3>${title}</h3>
+	
+			<button
+				id="copyHistogram"
+			>
+				Copy
+			</button>
+	
+		</div>
 	
 		<table
 			id="histogramTable"
 		>
 	
 			<thead>
-			
+	
 				<tr
 					id="histogramHeaderRow"
 				>
 				</tr>
-			
+	
 			</thead>
 	
 			<tbody
@@ -1266,6 +1281,125 @@ async function renderHistogram(
 		);
 		
 	enableHistogramDragDrop();
+	
+	document
+		.getElementById(
+			"copyHistogram"
+		)
+		.onclick =
+		async () => {
+	
+			const rows = [];
+	
+			rows.push(title);
+	
+			rows.push(
+				histogramColumnOrder
+					.map(
+						column =>
+							HISTOGRAM_HEADER_MAP[
+								column
+							]
+					)
+					.join("\t")
+			);
+	
+			for (
+				const [code, data]
+				of sorted
+			) {
+	
+				const classification =
+					classifications[
+						code
+					] || {};
+	
+				const refs =
+					"[" +
+					data.references
+						.sort(
+							(
+								a,
+								b
+							) => a - b
+						)
+						.join(",") +
+					"]";
+	
+				const barLength =
+					Math.round(
+						(
+							data.count /
+							maxCount
+						) * 20
+					);
+	
+				const bar =
+					"▉".repeat(
+						Math.max(
+							1,
+							barLength
+						)
+					);
+	
+				const values =
+					histogramColumnOrder.map(
+						column => {
+	
+							switch (
+								column
+							) {
+	
+								case "class":
+	
+									return code;
+	
+								case "classTitle":
+	
+									return (
+										classification.classTitle
+										|| ""
+									);
+	
+								case "subclassTitle":
+	
+									return (
+										classification.subclassTitle
+										|| ""
+									);
+	
+								case "count":
+	
+									return data.count;
+	
+								case "histogram":
+	
+									return bar;
+	
+								case "references":
+	
+									return refs;
+	
+								default:
+	
+									return "";
+							}
+						}
+					);
+	
+				rows.push(
+					values.join("\t")
+				);
+			}
+	
+			await navigator.clipboard.writeText(
+				rows.join("\n")
+			);
+	
+			alert(
+				"Histogram copied."
+			);
+		};
 }
 
 function setupEditButtons() {
