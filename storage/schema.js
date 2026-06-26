@@ -39,7 +39,13 @@ export function createClassification() {
 
         status: "pending",
 
-        keep: false
+        keep: false,
+        
+        confidence: "None",
+		
+		researchTier: "none",
+		
+		reason: ""
     };
 }
 

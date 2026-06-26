@@ -1254,7 +1254,19 @@ async function lookupClassifications() {
 			
 				keep:
 					classifications[symbol]?.keep
-					?? false
+					?? false,
+					
+				confidence:
+					classifications[symbol]?.confidence
+					?? "Medium",
+				
+				researchTier:
+					classifications[symbol]?.researchTier
+					?? "none",
+				
+				reason:
+					classifications[symbol]?.reason
+					?? ""
 			};
 			
 			const parent =
@@ -1285,7 +1297,21 @@ async function lookupClassifications() {
 				
 							: "complete",
 				
-					keep: false
+					keep:
+						classifications[parent]?.keep
+						?? false,
+					
+					confidence:
+						classifications[parent]?.confidence
+						?? "Medium",
+					
+					researchTier:
+						classifications[parent]?.researchTier
+						?? "none",
+					
+					reason:
+						classifications[parent]?.reason
+						?? ""
 				};
 			}
 		
@@ -1357,7 +1383,19 @@ async function lookupClassifications() {
 		
 			keep:
 				classifications[symbol]?.keep
-				?? false
+				?? false,
+				
+			confidence:
+				classifications[symbol]?.confidence
+				?? "Medium",
+			
+			researchTier:
+				classifications[symbol]?.researchTier
+				?? "none",
+			
+			reason:
+				classifications[symbol]?.reason
+				?? ""
 		};
         
         if (
@@ -1379,7 +1417,21 @@ async function lookupClassifications() {
 			
 						: "complete",
 		
-				keep: false
+				keep:
+					classifications[classNumber]?.keep
+					?? false,
+				
+				confidence:
+					classifications[classNumber]?.confidence
+					?? "None",
+				
+				researchTier:
+					classifications[classNumber]?.researchTier
+					?? "None",
+				
+				reason:
+					classifications[classNumber]?.reason
+					?? ""
 			};
 		}
     }  // <-- closes the for loop

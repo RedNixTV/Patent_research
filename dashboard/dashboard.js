@@ -74,7 +74,10 @@ const HISTOGRAM_COLUMNS_BY_STAGE = {
         "count",
         "histogram",
         "references",
-        "keep"
+        "keep",
+		"confidence",
+		"researchTier",
+		"reason"
     ]
 };
 
@@ -99,7 +102,13 @@ const HISTOGRAM_HEADER_MAP = {
         "Refs",
 
     keep:
-        "Keep"
+        "Keep",
+        
+    confidence: "Confidence",
+	
+	researchTier: "Tier",
+	
+	reason: "Reason"
 };
     
 const EDIT_FIELD_MAP = {
@@ -1410,6 +1419,92 @@ async function renderHistogram(
 							
 									</td>
 								`;
+								
+							case "confidence":
+							
+								return `
+									<td>
+							
+										<select
+											class="classificationConfidence"
+											data-code="${code}"
+										>
+							
+											${[
+												"None",
+												"Low",
+												"Medium",
+												"High",
+												"Very High"
+											].map(
+												value => `
+													<option
+														value="${value}"
+														${
+															classification?.confidence === value
+																? "selected"
+																: ""
+														}
+													>
+														${value}
+													</option>
+												`
+											).join("")}
+							
+										</select>
+							
+									</td>
+								`;
+							
+							case "researchTier":
+							
+								return `
+									<td>
+							
+										<select
+											class="classificationTier"
+											data-code="${code}"
+										>
+							
+											${[
+												"None",
+												"tertiary",
+												"secondary",
+												"primary"
+											].map(
+												value => `
+													<option
+														value="${value}"
+														${
+															classification?.researchTier === value
+																? "selected"
+																: ""
+														}
+													>
+														${value}
+													</option>
+												`
+											).join("")}
+							
+										</select>
+							
+									</td>
+								`;
+								
+							case "reason":
+							
+								return `
+									<td>
+							
+										<input
+											class="classificationReason"
+											data-code="${code}"
+											value="${classification?.reason || ""}"
+											style="width:250px;"
+										>
+							
+									</td>
+								`;
 						}
 					}
 				)
@@ -1476,6 +1571,127 @@ async function renderHistogram(
 						await chrome.storage.local.set({
 	
 							classifications
+						});
+					};
+			}
+		);
+		
+	document
+		.querySelectorAll(
+			".classificationConfidence"
+		)
+		.forEach(
+			select => {
+	
+				select.onchange =
+					async () => {
+	
+						const storage =
+							await chrome.storage.local.get(
+								"classifications"
+							);
+
+						storage.classifications[
+							select.dataset.code
+						].confidence =
+							select.value;
+	
+						await chrome.storage.local.set({
+		
+							classifications: storage.classifications
+						});
+				};
+			}
+		);
+		
+	document
+		.querySelectorAll(
+			".classificationTier"
+		)
+		.forEach(
+			select => {
+	
+				select.onchange =
+					async () => {
+	
+						const storage =
+							await chrome.storage.local.get(
+								"classifications"
+							);
+	
+						const classifications =
+							storage.classifications;
+	
+						const currentRecord =
+							classifications[
+								select.dataset.code
+							];
+	
+						const primaryCount =
+							Object.values(
+								classifications
+							).filter(
+								record =>
+									record.keep &&
+									record.researchTier ===
+										"primary"
+							).length;
+	
+						if (
+							select.value ===
+								"primary"
+							&&
+							currentRecord.researchTier !==
+								"primary"
+							&&
+							primaryCount >= 4
+						) {
+	
+							alert(
+								"You can only select up to four Primary classifications."
+							);
+	
+							select.value =
+								currentRecord.researchTier;
+	
+							return;
+						}
+	
+						currentRecord.researchTier =
+							select.value;
+	
+						await chrome.storage.local.set({
+	
+							classifications
+						});
+					};
+			}
+		);
+		
+	document
+		.querySelectorAll(
+			".classificationReason"
+		)
+		.forEach(
+			input => {
+	
+				input.onblur =
+					async () => {
+	
+						const storage =
+							await chrome.storage.local.get(
+								"classifications"
+							);
+	
+						storage.classifications[
+							input.dataset.code
+						].reason =
+							input.value.trim();
+	
+						await chrome.storage.local.set({
+	
+							classifications:
+								storage.classifications
 						});
 					};
 			}
@@ -1618,6 +1834,18 @@ async function renderHistogram(
 									return classification.keep
 										? "☑"
 										: "☐";
+										
+								case "confidence":
+								
+									return classification.confidence || "";
+									
+								case "researchTier":
+								
+									return classification.researchTier || "";
+								
+								case "reason":
+								
+									return classification.reason || "";
 	
 								default:
 	

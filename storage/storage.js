@@ -61,7 +61,13 @@ async function ensureClassificationsExist(
             
             status: "pending",
 
-            keep: false
+            keep: false,
+            	
+			confidence: "Medium",
+			
+			researchTier: "none",
+			
+			reason: ""
         };
     }
 
@@ -136,7 +142,13 @@ async function rebuildClassificationCatalog() {
                 
                 status: "pending",
 
-                keep: false
+                keep: false,
+					
+				confidence: "None",
+				
+				researchTier: "None",
+				
+				reason: ""
             };
         }
     }
