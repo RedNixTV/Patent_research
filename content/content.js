@@ -1638,24 +1638,38 @@ async function renderPanel() {
 	renderPanel();
 		
 	chrome.storage.onChanged.addListener(
-	
-		(
-			changes,
-			area
-		) => {
-	
-			if (
-				area !== "local"
-			) {
-	
-				return;
-			}
-	
-			if (
-				changes.projects
-			) {
-	
-				renderPanel();
-			}
-		}
-	);
+
+    async (
+        changes,
+        area
+    ) => {
+
+        if (
+            area !== "local"
+        ) {
+
+            return;
+        }
+
+        if (
+            changes.projects
+        ) {
+
+            renderPanel();
+
+            return;
+        }
+
+        if (
+            changes.classifications &&
+            document.getElementById(
+                "classificationFamily"
+            )
+        ) {
+
+            await populateClassDropdown();
+
+            await populateClassificationTextarea();
+        }
+    }
+);
