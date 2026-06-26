@@ -1934,3 +1934,38 @@ function setupEditDialog() {
 }
 
 init();
+
+async function refreshCurrentView() {
+
+    if (
+        currentView === "references"
+    ) {
+
+        return;
+    }
+
+    await updateCurrentHistogram();
+}
+
+chrome.storage.onChanged.addListener(
+
+    async (
+        changes,
+        area
+    ) => {
+
+        if (
+            area !== "local"
+        ) {
+
+            return;
+        }
+
+        if (
+            changes.classifications
+        ) {
+
+            await refreshCurrentView();
+        }
+    }
+);
