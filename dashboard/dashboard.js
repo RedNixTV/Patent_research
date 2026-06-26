@@ -41,6 +41,8 @@ let activeClassificationFilter =
     null;
 let currentHistogram =
     {};
+let compactClassTitle = false;
+let compactSubclassTitle = false;
     
 const DEFAULT_HISTOGRAM_COLUMNS = [
 
@@ -1039,21 +1041,52 @@ async function renderHistogram(
 	
 	container.innerHTML = `
 	
-		<div
-			style="
-				align-items:center;
-				margin-bottom:8px;
-			"
-		>
-	
+		<div>
+		
 			<h3>${title}</h3>
-	
+		
+			<label>
+		
+				<input
+					type="checkbox"
+					id="compactClassTitle"
+					${
+						compactClassTitle
+							? "checked"
+							: ""
+					}
+				>
+		
+				Class Title
+		
+			</label>
+		
+			<label
+				style="
+					margin-left:12px;
+				"
+			>
+		
+				<input
+					type="checkbox"
+					id="compactSubclassTitle"
+					${
+						compactSubclassTitle
+							? "checked"
+							: ""
+					}
+				>
+		
+				Subclass Title
+		
+			</label>
+		
 			<button
 				id="copyHistogram"
 			>
 				Copy
 			</button>
-	
+		
 		</div>
 	
 		<table
@@ -1182,8 +1215,17 @@ async function renderHistogram(
 								return `
 									<td>
 										${
-											classification?.classTitle
-											|| ""
+											compactClassTitle
+							
+											? truncate(
+												classification?.classTitle,
+												20
+											)
+							
+											: (
+												classification?.classTitle
+												|| ""
+											)
 										}
 									</td>
 								`;
@@ -1193,8 +1235,17 @@ async function renderHistogram(
 								return `
 									<td>
 										${
-											classification?.subclassTitle
-											|| ""
+											compactSubclassTitle
+							
+											? truncate(
+												classification?.subclassTitle,
+												25
+											)
+							
+											: (
+												classification?.subclassTitle
+												|| ""
+											)
 										}
 									</td>
 								`;
@@ -1281,6 +1332,38 @@ async function renderHistogram(
 		);
 		
 	enableHistogramDragDrop();
+	
+	document
+		.getElementById(
+			"compactClassTitle"
+		)
+		.onchange =
+		event => {
+	
+			compactClassTitle =
+				event.target.checked;
+	
+			renderHistogram(
+				currentHistogram,
+				title
+			);
+		};
+	
+	document
+		.getElementById(
+			"compactSubclassTitle"
+		)
+		.onchange =
+		event => {
+	
+			compactSubclassTitle =
+				event.target.checked;
+	
+			renderHistogram(
+				currentHistogram,
+				title
+			);
+		};
 	
 	document
 		.getElementById(
@@ -1400,6 +1483,29 @@ async function renderHistogram(
 				"Histogram copied."
 			);
 		};
+}
+
+function truncate(
+    text,
+    maxLength
+) {
+
+    if (
+        !text
+    ) {
+
+        return "";
+    }
+
+    return text.length >
+        maxLength
+
+        ? text.slice(
+            0,
+            maxLength
+        ) + "..."
+
+        : text;
 }
 
 function setupEditButtons() {
