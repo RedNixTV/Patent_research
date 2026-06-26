@@ -1085,33 +1085,21 @@ async function lookupClassifications() {
 				] = html;
 			}
 		
-			let classTitle = "";
-		
-			if (
-				isCpcParent(
-					symbol
-				)
-			) {
-		
-				classTitle =
-					extractCpcTitle(
-						html,
-						getCpcGrandParent(
+			const classTitle =
+				extractCpcTitle(
+					html,
+					isCpcParent(
+						symbol
+					)
+			
+						? getCpcGrandParent(
 							symbol
-						)
-					);
-			}
-		
-			else {
-		
-				classTitle =
-					extractCpcTitle(
-						html,
-						getCpcParent(
+						  )
+			
+						: getCpcParent(
 							symbol
-						)
-					);
-			}
+						  )
+				);
 		
 			const subclassTitle =
 				extractCpcTitle(
