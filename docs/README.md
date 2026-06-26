@@ -8,24 +8,27 @@
 ## Research Workflow
 ## Features
 ### Patent Capture
-## Classification Discovery
-### CPC Examples
-### USPC Examples
-## Dashboard
+### Classification Discovery
+#### CPC Examples
+#### USPC Examples
+### Project Management
+### Dashboard
 ## Dashboard Tabs
+### Export
 ### References
 ### CPC Histogram
-### USPC Histogram
+### Primary USPC Histogram
 ## Histogram Analysis
 ### Classification Aggregation
 ### Reference Traceability
+### Family Sorting
 ### Interactive Classification Filtering
+###  Histogram Copy
 ## Patent Table Management
-## Patent Editing
+### Patent Editing
 ### Editable Fields
 ### Read Only Fields
 ## Additional Features
-## Export
 ## Project Structure
 ## Storage
 ## Future Enhancements
@@ -97,12 +100,14 @@ folder.
 
 ### Patent Record Schema
 
-Each saved patent follows the structure:
+Each saved patent is stored independently of projects and classification metadata.
 
+```json
 {
   "patentNumber": "11210433",
   "title": "System and method for construction estimation using aerial images",
   "url": "https://www.freepatentsonline.com/11210433.html",
+
   "relevance": "partial",
 
   "abstract": "...",
@@ -126,20 +131,84 @@ Each saved patent follows the structure:
 
   "imageCount": 18,
 
-  "cpc": [],
-  "primaryCpc": [],
-  "uspc": [],
+  "cpc": [
+    "G06F30/13",
+    "G06F30/20"
+  ],
 
-  "classifications": [],
+  "primaryCpc": [],
+
+  "uspc": [
+    "703/1",
+    "703/2"
+  ],
 
   "savedDate": "2026-06-16T16:35:00Z"
 }
+```
+
+### Classification Record Schema
+
+Classification metadata is stored separately and shared across all projects.
+
+```json
+{
+  "G06F30/13": {
+    "classTitle": "Computer aided design",
+    "subclassTitle": "Design optimisation",
+    "status": "complete",
+    "keep": false
+  },
+
+  "703/1": {
+    "classTitle": "Data Processing",
+    "subclassTitle": "Optimization",
+    "status": "complete",
+    "keep": false
+  }
+}
+```
+
+Status values:
+
+* `"pending"`: Title lookup has not been completed.
+* `"complete"`: Titles were successfully retrieved.
+* `"failed"`: The classification could not be found or parsed.
+
+### Storage Architecture
+
+The extension stores four primary collections in `chrome.storage.local`:
+
+```text
+projects
+├── workflow
+├── stages
+│   ├── landscapeScan
+│   ├── referenceList
+│   ├── classificationAnalysis
+│   ├── universe
+│   ├── universeReview
+│   └── finalReferences
+
+patents
+├── patentNumber
+├── patentNumber
+└── ...
+
+classifications
+├── G06F30/13
+├── G06F30
+├── 703/1
+└── ...
+
+currentProjectId
+```
 
 ---
 
 ### Current Version
 
-Version: 1.0.0
+Version: 1.1.0
 
 Included
 
@@ -170,23 +239,24 @@ Local storage persistence
 JSON export
 Reference renumbering
 
----
-
-## Research Workflow
-
-1. Search patents on FreePatentsOnline
-2. Save relevant patents
-3. Build a patent universe
-4. Open the dashboard
-5. Analyze classification trends
-6. Discover additional search areas
-7. Expand the search universe
+Workflow based research
+Multi project support
+Automatic CPC title lookup
+Automatic USPC title lookup
+Primary USPC analysis
+Other USPC analysis
+Reference List workflow
+Classification status tracking
+Copy histograms directly to the clipboard.
+Compact histogram titles
+Live histogram updates
+Persistent dashboard layouts
 
 ---
 
 
 ## Features
-## Patent Capture
+### Patent Capture
 
 Automatically extracts:
 
@@ -206,37 +276,101 @@ Automatically extracts:
 * Image Count
 * Save Date
 
-## Classification Discovery
+## Research Workflow
+
+Landscape Scan
+
+Collect relevant patents from FreePatentsOnline.
+
+↓
+
+Reference List
+
+Look up CPC and USPC titles directly from USPTO classification schedules.
+
+↓
+
+Classification Analysis
+
+Analyze technology concentration using CPC and USPC histograms.
+
+↓
+
+Universe
+
+Expand the search based on discovered classifications.
+
+↓
+
+Universe Review
+
+Review exclusions and research notes.
+
+↓
+
+Final References
+
+Produce the final patent reference universe.
+
+---
+
+### Classification Discovery
+The extension retrieves official CPC and USPC titles directly from the USPTO classification schedules.
+
+Parent classifications are automatically stored, allowing class level analysis without requiring separate lookups.
+
+Each lookup is tracked as:
+
+⏳ Pending
+
+✓ Complete
+
+⚠ Failed
+
+Both class titles and subclass titles are stored locally for future analysis.
 
 Automatically extracts:
 
-### CPC Examples
+#### CPC Examples
 
 G06F30/13
 G06K9/00
 G06T7/33
 
-### USPC Examples
+#### USPC Examples
 
 703/1
 
-## Dashboard
+### Project Management
+
+• Multiple projects
+• Independent patent universes
+• Project switching
+• Persistent workflow stage
+
+### Dashboard
 
 The dashboard provides:
 
-* Reference Management
-* Patent Editing
-* CPC Histograms
-* USPC Histograms
-* Classification Filtering
-* Classification Family Aggregation
-* Reference Traceability
+• Reference Management
+• Patent Editing
+• CPC Histograms
+• Primary USPC Histograms
+• Other USPC Histograms
+• Project Management
+• Workflow Navigation
+• Classification Filtering
+• Classification Family Aggregation
+• Reference Traceability
+• Clipboard Export
+• Automatic histogram updates after classification lookups
 
 ## Dashboard Tabs
 
 References
 CPC Histogram
-USPC Histogram
+Primary USPC Histogram
+Other USPC Histogram
 
 The dashboard can generate frequency distributions for:
 
@@ -259,10 +393,12 @@ View and edit saved patents.
 
 Analyze CPC classifications and technology families.
 
-### USPC Histogram
+### Primary USPC Histogram
 
 Analyze USPC classifications and technology families.
 
+### Other USPC Histogram
+Analyzes secondary USPC classifications while excluding the primary classification.
 
 ## Histogram Analysis
 
@@ -306,6 +442,14 @@ remain visible. The filter can be cleared using:
 
 Show All References
 
+### Family Sorting
+
+Histogram results are grouped by technology family before being sorted by frequency, making related classifications appear together.
+
+###  Histogram Copy
+
+Any histogram can be copied directly to the clipboard for reports or spreadsheets.
+
 
 ## Patent Table Management
 
@@ -317,6 +461,8 @@ Features:
 * Dynamic edit dialog synchronization
 
 ## Patent Editing
+
+The edit dialog automatically mirrors the current table column order, making it easier to review and edit patents without changing context.
 
 ### Editable Fields
 
@@ -348,8 +494,16 @@ Features:
 • Automatic reference renumbering
 • Dynamic field ordering
 • Dialog synchronized with table layout
+• Dynamic edit dialog
+• Persistent column layouts
+• Persistent histogram layouts
+• Project switching
+• Workflow persistence
+• Compact display for Class Titles and Subclass Titles
+• Classification lookup tracking
+• Automatic histogram refresh
 
-## Export
+### Export
 
 Export patent collections as JSON for backup, sharing, and future analysis.
 
@@ -367,6 +521,7 @@ classification-discovery-tool/
 │   ├── dashboard.css
 │   ├── histogram.js
 │   └── patentTable.js
+│   └── workflow.js
 │
 ├── storage/
 │   ├── storage.js
@@ -376,11 +531,17 @@ classification-discovery-tool/
 └── README.md
 
 ## Storage
-Patent data is stored locally using:
+The extension stores the following locally:
 
-chrome.storage.local
+* Patent library
+* Projects
+* Workflow state
+* Classification catalog
+• Dashboard preferences
+• Patent table column layouts
+• Histogram column layouts
 
-No patent information is transmitted to external servers.
+No information is transmitted to external servers.
 
 Saved references remain available across browser sessions
 until manually deleted or exported.
@@ -392,14 +553,16 @@ until manually deleted or exported.
 • Strong-only classification analysis
 • CPC hierarchy drill-down
 • USPC hierarchy drill-down
-• Interactive histogram navigation
 • Patent notes
 • Tagging
-• Duplicate detection
 • Search within patent universe
 • Export histogram reports
 • Classification trend analytics
-• Dashboard summary cards
+• Patent search inside projects
+• Duplicate patent detection
+• CSV and Excel export
+• Citation network visualization
+• Classification timeline analysis
 
 ## MIT License
 
