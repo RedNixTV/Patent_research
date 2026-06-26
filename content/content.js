@@ -989,31 +989,49 @@ function extractCpcTitle(
             index,
             index + 1500
         );
-
-    const match =
-        chunk.match(
-            /class="class-title"[\s\S]*?<span[^>]*>(.*?)<\/span>/i
-        );
         
-    if (
-		!match
-	) {
+    console.log(
+		chunk.substring(
+			0,
+			1000
+		)
+	);
+        
+    const block =
+    chunk.match(
+        /<div class="class-title">([\s\S]*?)<span class="date-revised"/i
+    );
+    
+    if (!block) {
 	
 		return "Unable to parse title";
 	}
+                
+    const matches =
+    [
+        ...block[1].matchAll(
+            /<span class="ipc-text">(.*?)<\/span>/g
+        )
+    ];
+    
+    const titles =
+		matches.map(
+			match =>
+				match[1]
+					.replace(
+						/<[^>]+>/g,
+						""
+					)
+					.replace(
+						/\s+/g,
+						" "
+					)
+					.trim()
+		);
 
-    return match
-        ? match[1]
-            .replace(
-                /<[^>]+>/g,
-                ""
-            )
-            .replace(
-                /\s+/g,
-                " "
-            )
-            .trim()
-        : "";
+    return titles.join(
+		"; "
+	);
 }
 
 
