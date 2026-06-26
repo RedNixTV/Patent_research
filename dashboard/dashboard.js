@@ -1197,40 +1197,6 @@ async function renderClassificationHistogram() {
                 "showFullClasses"
             )
             .checked;
-            
-    const storage =
-		await chrome.storage.local.get(
-			"classifications"
-		);
-	
-	const classifications =
-		storage.classifications || {};
-		
-	const keptPatents =
-		patents.map(
-			patent => ({
-	
-				...patent,
-	
-				cpc:
-					(patent.cpc || [])
-						.filter(
-							code =>
-								classifications[
-									code
-								]?.keep
-						),
-	
-				uspc:
-					(patent.uspc || [])
-						.filter(
-							code =>
-								classifications[
-									code
-								]?.keep
-						)
-			})
-		);
 
     const histogram = {};
 
@@ -1287,12 +1253,12 @@ async function renderClassificationHistogram() {
         showFull
 
             ? buildHistogramWithReferences(
-                keptPatents,
+                patents,
                 "allCpc"
             )
 
             : buildSubclassHistogramWithReferences(
-                keptPatents,
+                patents,
                 "cpc"
             )
     );
@@ -1302,11 +1268,11 @@ async function renderClassificationHistogram() {
         showFull
 
             ? buildPrimaryUspcHistogramWithReferences(
-                keptPatents
+                patents
             )
 
             : buildPrimaryUspcSubclassHistogramWithReferences(
-                keptPatents
+                patents
             )
     );
 
@@ -1315,11 +1281,11 @@ async function renderClassificationHistogram() {
         showFull
 
             ? buildOtherUspcHistogramWithReferences(
-                keptPatents
+                patents
             )
 
             : buildOtherUspcSubclassHistogramWithReferences(
-                keptPatents
+                patents
             )
     );
 
