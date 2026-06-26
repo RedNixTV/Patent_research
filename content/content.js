@@ -805,6 +805,56 @@ async function getClassificationsForFamily(
         .sort();
 }
 
+async function getFamilyLookupStatus(
+    family,
+    classifications
+) {
+
+    const symbols =
+        await getClassificationsForFamily(
+            family
+        );
+
+    let hasFailure =
+        false;
+
+    for (
+        const symbol
+        of symbols
+    ) {
+
+        const record =
+            classifications[
+                symbol
+            ];
+
+        if (
+            !record
+            ||
+            !record.classTitle
+        ) {
+
+            return "pending";
+        }
+
+        if (
+            record.classTitle ===
+                "Classification not found"
+            ||
+            record.classTitle ===
+                "Unable to parse title"
+        ) {
+
+            hasFailure =
+                true;
+        }
+    }
+
+    return hasFailure
+        ? "failed"
+        : "complete";
+}
+
 
 async function populateClassDropdown() {
 
@@ -818,12 +868,22 @@ async function populateClassDropdown() {
 
     select.innerHTML = "";
     
+    const storage =
+		await chrome.storage.local.get(
+			"classifications"
+		);
+	
+	const classifications =
+		storage.classifications
+		|| {};
+    
     const currentFamily = getCurrentClassificationFamily();
 
-    const addGroup = (
-        label,
-        values
-    ) => {
+    const addGroup =
+		async (
+			label,
+			values
+		) => {
 
         const group =
             document.createElement(
@@ -844,10 +904,27 @@ async function populateClassDropdown() {
                 );
 
             option.value =
-                value;
-
-            option.textContent =
-                value;
+				value;
+			
+			const status =
+				await getFamilyLookupStatus(
+					value,
+					classifications
+				);
+			
+			const icon =
+				status === "complete"
+			
+					? "✓"
+			
+					: status === "failed"
+			
+						? "⚠"
+			
+						: "⏳";
+			
+			option.textContent =
+				`${icon} ${value}`;
 
             group.appendChild(
                 option
@@ -859,12 +936,12 @@ async function populateClassDropdown() {
         );
     };
 
-    addGroup(
+    await addGroup(
         "USPC",
         families.uspc
     );
 
-    addGroup(
+    await addGroup(
         "CPC",
         families.cpc
     );
