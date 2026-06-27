@@ -1496,6 +1496,13 @@ async function renderHistogram(
 		project.workflow
 			?.currentStage;
 			
+	const showFullClasses =
+		document
+			.getElementById(
+				"showFullClasses"
+			)
+			?.checked;
+			
 	const storage =
 		await chrome.storage.local.get(
 			"classifications"
@@ -1648,25 +1655,35 @@ async function renderHistogram(
 		
 			</label>
 		
-			<label
-				style="
-					margin-left:12px;
-				"
-			>
-		
-				<input
-					type="checkbox"
-					id="compactSubclassTitle"
-					${
-						compactSubclassTitle
-							? "checked"
-							: ""
-					}
-				>
-		
-				Subclass Title
-		
-			</label>
+			${
+				!(
+					stage === "examinerValidation"
+					&&
+					!showFullClasses
+				)
+					? `
+						<label
+							style="
+								margin-left:12px;
+							"
+						>
+			
+							<input
+								type="checkbox"
+								id="compactSubclassTitle"
+								${
+									compactSubclassTitle
+										? "checked"
+										: ""
+								}
+							>
+			
+							Subclass Title
+			
+						</label>
+					`
+					: ""
+			}
 		
 			<button
 				id="copyHistogram"
@@ -1698,12 +1715,30 @@ async function renderHistogram(
 	`;
 
 	
-	const histogramColumnOrder =
-		HISTOGRAM_COLUMNS_BY_STAGE[
-			stage
-		]
-		??
-		await getHistogramColumnOrder();
+	let histogramColumnOrder =
+		[
+			...(
+				HISTOGRAM_COLUMNS_BY_STAGE[
+					stage
+				]
+				??
+				await getHistogramColumnOrder()
+			)
+		];
+	
+	if (
+		stage === "examinerValidation"
+		&&
+		!showFullClasses
+	) {
+	
+		histogramColumnOrder =
+			histogramColumnOrder.filter(
+				column =>
+					column !==
+					"subclassTitle"
+			);
+	}
 	
 	const headerRow =
 		document.getElementById(
@@ -2222,21 +2257,27 @@ async function renderHistogram(
 			);
 		};
 	
-	document
-		.getElementById(
+	const compactSubclassCheckbox =
+		document.getElementById(
 			"compactSubclassTitle"
-		)
-		.onchange =
-		event => {
+		);
 	
-			compactSubclassTitle =
-				event.target.checked;
+	if (
+		compactSubclassCheckbox
+	) {
 	
-			renderHistogram(
-				currentHistogram,
-				title
-			);
-		};
+		compactSubclassCheckbox.onchange =
+			event => {
+	
+				compactSubclassTitle =
+					event.target.checked;
+	
+				renderHistogram(
+					currentHistogram,
+					title
+				);
+			};
+	}
 	
 	document
 		.getElementById(
