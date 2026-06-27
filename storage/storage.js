@@ -59,6 +59,8 @@ async function ensureClassificationsExist(
 
             subclassTitle: "",
             
+            artUnit: "",
+            
             status: "pending",
 
             keep: false,
@@ -139,6 +141,8 @@ async function rebuildClassificationCatalog() {
                 classTitle: "",
 
                 subclassTitle: "",
+                
+                artUnit: "",
                 
                 status: "pending",
 

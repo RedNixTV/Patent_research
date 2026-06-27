@@ -1242,6 +1242,10 @@ async function lookupClassifications() {
 				classTitle,
 			
 				subclassTitle,
+				
+				artUnit:
+					classifications[symbol]?.artUnit
+					?? "",
 			
 				status:
 					classTitle === "Classification not found"
@@ -1287,6 +1291,10 @@ async function lookupClassifications() {
 					classTitle,
 				
 					subclassTitle: "",
+					
+					artUnit:
+						classifications[parent]?.artUnit
+						?? "",
 				
 					status:
 						classTitle === "Classification not found"
@@ -1371,6 +1379,10 @@ async function lookupClassifications() {
 			classTitle,
 		
 			subclassTitle,
+			
+			artUnit:
+				classifications[symbol]?.artUnit
+				?? "",
 		
 			status:
 				classTitle === "Classification not found"
@@ -1407,6 +1419,10 @@ async function lookupClassifications() {
 				classTitle,
 		
 				subclassTitle: "",
+				
+				artUnit:
+					classifications[classNumber]?.artUnit
+					?? "",
 				
 				status:
 					classTitle === "Classification not found"

@@ -80,6 +80,20 @@ const HISTOGRAM_COLUMNS_BY_STAGE = {
 		"reason"
     ],
     
+    artUnit: [
+	
+		"class",
+		"artUnit",
+		"classTitle",
+		"subclassTitle",
+		"count",
+		"histogram",
+		"references",
+		"confidence",
+		"researchTier",
+		"reason"
+	],
+    
     examinerValidation: [
 	
 		"class",
@@ -109,6 +123,9 @@ const HISTOGRAM_HEADER_MAP = {
 
     class:
         "Cls",
+        
+    artUnit:
+		"Art Unit",
 
     classTitle:
         "Class Title",
@@ -320,50 +337,19 @@ async function renderCurrentStage() {
 			break;
             
         case "artUnit":
-		
-			container.innerHTML = "";
-		
-			cpcTab.style.display =
-				"none";
-		
-			primaryUspcTab.style.display =
-				"none";
-		
-			otherUspcTab.style.display =
-				"none";
-		
-			classificationTab.style.display =
-				"";
-		
-			currentView =
-				"classification";
-				
-			container.innerHTML = `
-
-                <p>
-                    Coming Soon
-                </p>
-            `;
-
-            break;
-            
-        case "examinerValidation":
+		case "examinerValidation":
 		
 			container.innerHTML = "";
 		
 			cpcTab.style.display = "none";
 		
-			primaryUspcTab.style.display =
-				"none";
+			primaryUspcTab.style.display = "none";
 		
-			otherUspcTab.style.display =
-				"none";
+			otherUspcTab.style.display = "none";
 		
-			classificationTab.style.display =
-				"";
+			classificationTab.style.display = "";
 		
-			currentView =
-				"classification";
+			currentView = "classification";
 		
 			break;
 
@@ -1512,8 +1498,9 @@ async function renderHistogram(
 		storage.classifications || {};
 		
 	if (
-		stage ===
-		"examinerValidation"
+		stage === "examinerValidation"
+		||
+		stage === "artUnit"
 	) {
 	
 		histogram =
@@ -1728,6 +1715,8 @@ async function renderHistogram(
 	
 	if (
 		stage === "examinerValidation"
+		||
+		stage === "artUnit"
 		&&
 		!showFullClasses
 	) {
@@ -1872,6 +1861,23 @@ async function renderHistogram(
 											${code}
 										</a>
 		
+									</td>
+								`;
+								
+							case "artUnit":
+							
+								return `
+									<td>
+							
+										<input
+											class="classificationArtUnit"
+											data-code="${code}"
+											value="${
+												classification?.artUnit || ""
+											}"
+											style="width:90px;"
+										>
+							
 									</td>
 								`;
 		
@@ -2019,6 +2025,35 @@ async function renderHistogram(
 			</tr>
 		`;
 	}
+	
+	document
+		.querySelectorAll(
+			".classificationArtUnit"
+		)
+		.forEach(
+			input => {
+	
+				input.onblur =
+					async () => {
+	
+						const storage =
+							await chrome.storage.local.get(
+								"classifications"
+							);
+	
+						storage.classifications[
+							input.dataset.code
+						].artUnit =
+							input.value.trim();
+	
+						await chrome.storage.local.set({
+	
+							classifications:
+								storage.classifications
+						});
+					};
+			}
+		);
         
     document
 		.querySelectorAll(
@@ -2350,6 +2385,10 @@ async function renderHistogram(
 								case "class":
 	
 									return code;
+									
+								case "artUnit":
+								
+									return classification.artUnit || "";
 	
 								case "classTitle":
 	

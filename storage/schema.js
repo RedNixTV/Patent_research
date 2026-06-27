@@ -36,6 +36,8 @@ export function createClassification() {
         classTitle: "",
 
         subclassTitle: "",
+        
+        artUnit: "",
 
         status: "pending",
 
