@@ -94,6 +94,17 @@ const HISTOGRAM_COLUMNS_BY_STAGE = {
 	]
 };
 
+const RESEARCH_TIER_PRIORITY = {
+
+    primary: 3,
+
+    secondary: 2,
+
+    tertiary: 1,
+
+    none: 0
+};
+
 const HISTOGRAM_HEADER_MAP = {
 
     class:
@@ -1332,6 +1343,144 @@ async function renderClassificationHistogram() {
 	);
 
 }
+
+function isParentClassification(
+    code
+) {
+
+    return !code.includes(
+        "/"
+    );
+}
+
+function getParentClassification(
+    code
+) {
+
+    if (
+        /^[A-HY]/.test(
+            code
+        )
+    ) {
+
+        return code.match(
+            /^([A-HY]\d{2}[A-Z]\d+)/
+        )[1];
+    }
+
+    return code.split(
+        "/"
+    )[0];
+}
+
+function synchronizeParentClassification(
+    editedCode,
+    classifications
+) {
+
+    if (
+        isParentClassification(
+            editedCode
+        )
+    ) {
+
+        return;
+    }
+
+    const parentCode =
+        getParentClassification(
+            editedCode
+        );
+
+    const keptChildren =
+        Object.entries(
+            classifications
+        )
+        .filter(
+
+            ([code, record]) =>
+
+                !isParentClassification(
+                    code
+                )
+
+                &&
+
+                getParentClassification(
+                    code
+                ) === parentCode
+
+                &&
+
+                record.keep
+        );
+
+    const parent =
+        classifications[
+            parentCode
+        ];
+
+    if (
+        !parent
+    ) {
+
+        return;
+    }
+
+    if (
+        keptChildren.length === 0
+    ) {
+
+        parent.keep =
+            false;
+
+        parent.confidence =
+            "None";
+
+        parent.researchTier =
+            "none";
+
+        parent.reason =
+            "";
+
+        return;
+    }
+
+    keptChildren.sort(
+
+        (
+            [, a],
+            [, b]
+        ) =>
+
+            RESEARCH_TIER_PRIORITY[
+                b.researchTier?.toLowerCase()
+                || "none"
+            ]
+
+            -
+
+            RESEARCH_TIER_PRIORITY[
+                a.researchTier?.toLowerCase()
+                || "none"
+            ]
+    );
+
+    const winner =
+        keptChildren[0][1];
+
+    parent.keep =
+        winner.keep;
+
+    parent.confidence =
+        winner.confidence;
+
+    parent.researchTier =
+        winner.researchTier;
+
+    parent.reason =
+        winner.reason;
+}
     
 async function renderHistogram(
     histogram,
@@ -1883,9 +2032,16 @@ async function renderHistogram(
 							checkbox.dataset.code
 						].keep =
 							checkbox.checked;
-	
+						
+						synchronizeParentClassification(
+						
+							checkbox.dataset.code,
+						
+							classifications
+						);
+						
 						await chrome.storage.local.set({
-	
+						
 							classifications
 						});
 					};
@@ -1911,10 +2067,18 @@ async function renderHistogram(
 							select.dataset.code
 						].confidence =
 							select.value;
-	
+						
+						synchronizeParentClassification(
+						
+							select.dataset.code,
+						
+							storage.classifications
+						);
+						
 						await chrome.storage.local.set({
-		
-							classifications: storage.classifications
+						
+							classifications:
+								storage.classifications
 						});
 				};
 			}
@@ -1944,14 +2108,27 @@ async function renderHistogram(
 							];
 	
 						const primaryCount =
-							Object.values(
+							Object.entries(
 								classifications
-							).filter(
-								record =>
-									record.keep &&
+							)
+							.filter(
+						
+								([code, record]) =>
+						
+									!isParentClassification(
+										code
+									)
+						
+									&&
+						
+									record.keep
+						
+									&&
+						
 									record.researchTier ===
 										"primary"
-							).length;
+							)
+							.length;
 	
 						if (
 							select.value ===
@@ -1975,9 +2152,16 @@ async function renderHistogram(
 	
 						currentRecord.researchTier =
 							select.value;
-	
+						
+						synchronizeParentClassification(
+						
+							select.dataset.code,
+						
+							classifications
+						);
+						
 						await chrome.storage.local.set({
-	
+						
 							classifications
 						});
 					};
@@ -2003,9 +2187,16 @@ async function renderHistogram(
 							input.dataset.code
 						].reason =
 							input.value.trim();
-	
+						
+						synchronizeParentClassification(
+						
+							input.dataset.code,
+						
+							storage.classifications
+						);
+						
 						await chrome.storage.local.set({
-	
+						
 							classifications:
 								storage.classifications
 						});
