@@ -1644,7 +1644,11 @@ async function renderHistogram(
 		
 			${
 				!(
-					stage === "examinerValidation"
+					(
+						stage === "examinerValidation"
+						||
+						stage === "artUnit"
+					)
 					&&
 					!showFullClasses
 				)
@@ -1714,9 +1718,11 @@ async function renderHistogram(
 		];
 	
 	if (
-		stage === "examinerValidation"
-		||
-		stage === "artUnit"
+		(
+			stage === "examinerValidation"
+			||
+			stage === "artUnit"
+		)
 		&&
 		!showFullClasses
 	) {
