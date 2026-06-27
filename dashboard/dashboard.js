@@ -284,20 +284,50 @@ async function renderCurrentStage() {
     ) {
 
         case "landscapeScan":
+        
+        	currentView = "cpc";
 
             container.innerHTML = "";
 
             break;
 
         case "referenceList":
+        
+        	currentView = "cpc";
 
             container.innerHTML = "";
 
             break;
             
-        case "Art Unit":
-
-            container.innerHTML = `
+        case "classificationAnalysis":
+		
+			currentView =
+				"cpc";
+		
+			container.innerHTML = "";
+		
+			break;
+            
+        case "artUnit":
+		
+			container.innerHTML = "";
+		
+			cpcTab.style.display =
+				"none";
+		
+			primaryUspcTab.style.display =
+				"none";
+		
+			otherUspcTab.style.display =
+				"none";
+		
+			classificationTab.style.display =
+				"";
+		
+			currentView =
+				"classification";
+				
+			container.innerHTML = `
 
                 <p>
                     Coming Soon
@@ -321,10 +351,15 @@ async function renderCurrentStage() {
 			classificationTab.style.display =
 				"";
 		
+			currentView =
+				"classification";
+		
 			break;
 
         case "universe":
 
+            currentView = "cpc";
+            
             container.innerHTML = `
 
                 <p>
@@ -336,6 +371,7 @@ async function renderCurrentStage() {
 
         default:
 
+            currentView = "cpc";
             container.innerHTML = "";
     }
 }
@@ -867,8 +903,7 @@ async function init() {
 			await renderOtherUspcHistogram();
 		}
 		else if (
-			currentView ===
-			"classification"
+			currentView === "classification"
 		) {
 		
 			await renderClassificationHistogram();
@@ -1288,13 +1323,14 @@ async function renderClassificationHistogram() {
                 patents
             )
     );
+	
+	await renderHistogram(
+	
+		histogram,
+	
+		"Selected Classifications"
+	);
 
-    await renderHistogram(
-
-        histogram,
-
-        "Selected Classifications"
-    );
 }
     
 async function renderHistogram(
