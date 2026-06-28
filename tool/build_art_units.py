@@ -550,17 +550,7 @@ def parse_art_units(text):
 	print(f"Found {len(art_units)} classes.")
 	
 	return art_units
-    
 
-def is_range_only(line):
-
-    return re.match(
-
-        r"^[A-Z0-9. ]+\s{2,}[A-Z0-9. ]+$",
-
-        line
-
-    ) is not None
 
 def save_json(data):
 
