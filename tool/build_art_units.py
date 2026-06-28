@@ -319,6 +319,34 @@ def add_range(
     ].append(
         range_data
     )
+
+def add_first_range(
+
+    art_units,
+
+    current_class,
+
+    current_art_unit,
+
+    first_range
+
+):
+
+    if first_range is None:
+
+        return
+
+    add_range(
+
+        art_units,
+
+        current_class,
+
+        current_art_unit,
+
+        first_range
+
+    )
     
     
 def report_unrecognized(
@@ -376,7 +404,12 @@ def write_debug_file(
 
     )
     
-    
+
+def normalize_whitespace(text):
+
+    return " ".join(
+        text.split()
+    )
 
 def append_title_fragment(
     current_title,
@@ -385,15 +418,15 @@ def append_title_fragment(
     current_class
 ):
 
-    fragment = " ".join(
-        fragment.split()
+    fragment = normalize_whitespace(
+        fragment
     )
 
-    normalized_title = " ".join(
-        current_title.split()
+    current_title = normalize_whitespace(
+        current_title
     )
 
-    if not normalized_title.endswith(
+    if not current_title.endswith(
         fragment
     ):
 
@@ -401,18 +434,87 @@ def append_title_fragment(
             " " + fragment
         )
 
-    current_title = " ".join(
-        current_title.split()
-    )
-
     art_units[current_class][
         "title"
     ] = current_title
 
     return current_title
+
+
+
+def create_class(
+
+    art_units,
+
+    class_id,
+
+    title
+
+):
+
+    art_units[class_id] = {
+
+        "title": title,
+
+        "ranges": []
+
+    }
     
 
-  
+def start_new_art_unit(
+
+    art_unit
+
+):
+
+    return (
+
+        art_unit,
+
+        None,
+
+        "",
+
+        False,
+
+        False
+
+    )
+    
+
+def initialize_class(
+
+    art_units,
+
+    current_class,
+
+    current_title
+
+):
+
+    if current_class not in art_units:
+
+        create_class(
+
+            art_units,
+
+            current_class,
+
+            current_title
+
+        )
+
+    else:
+
+        current_title = art_units[
+            current_class
+        ][
+            "title"
+        ]
+
+    return current_title
+    
+    
 def parse_art_units(text):
 	
 	print("Parsing Art Units...")
@@ -464,11 +566,9 @@ def parse_art_units(text):
 					]
 				)
 	
-			current_art_unit = art_unit
-			current_class = None
-			current_title = ""
-			collecting_title = False
-			class_line_had_range = False
+			( current_art_unit, current_class, current_title, collecting_title, class_line_had_range) = start_new_art_unit(
+				art_unit
+			)
 	
 			continue
 	
@@ -498,31 +598,13 @@ def parse_art_units(text):
 					]
 				)
 	
-			if current_class not in art_units:
-	
-				art_units[current_class] = {
-	
-					"title": current_title,
-	
-					"ranges": []
-	
-				}
-	
-			else:
-	
-				current_title = art_units[current_class]["title"]
+			current_title = initialize_class( art_units, current_class, current_title)
 	
 			collecting_title = True
 	
 			class_line_had_range = first_range is not None
 	
-			if first_range:
-	
-				first_range["artUnit"] = current_art_unit
-	
-				art_units[current_class]["ranges"].append(
-					first_range
-				)
+			add_first_range( art_units, current_class, current_art_unit, first_range)
 	
 			continue
 	
