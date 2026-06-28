@@ -534,6 +534,12 @@ def parse_art_units(text):
 	
 			continue
 	
+		print()
+		print("UNRECOGNIZED")
+		print("Art Unit :", current_art_unit)
+		print("Class    :", current_class)
+		print("Title    :", art_units[current_class]["title"])
+		print("Line     :", line)
 		print(f"Warning: Unrecognized line: {line}")
 	
 	DEBUG_FILE.write_text(
