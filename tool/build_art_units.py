@@ -15,6 +15,9 @@ RANGE_TOKEN = (
     r")"
 )
 
+DEBUG_CLASS = "358"
+DEBUG_FILE = Path("debug358.txt")
+
 def extract_pdf_text():
 
     print("Reading PDF...")
@@ -59,10 +62,6 @@ def parse_range_line(line):
     #
     # title + from + to
     #
-    # Example:
-    #
-    # APPLICATIONS     96      114
-    #
 
     match = re.match(
 
@@ -74,11 +73,9 @@ def parse_range_line(line):
 
     if match:
 
-        title = match.group(1).strip()
-
         return (
 
-            title,
+            match.group(1).strip(),
 
             {
 
@@ -91,12 +88,40 @@ def parse_range_line(line):
         )
 
     #
+    # title + single range
+    #
+
+    match = re.match(
+
+        rf"^(.*?)\s{{2,}}({RANGE_TOKEN})$",
+
+        line
+
+    )
+
+    if match:
+
+        return (
+
+            match.group(1).strip(),
+
+            {
+
+                "from": match.group(2).strip(),
+
+                "to": match.group(2).strip()
+
+            }
+
+        )
+
+    #
     # from + to
     #
 
     match = re.match(
 
-        r"^([A-Z0-9. ]+)\s{2,}([A-Z0-9. ]+)$",
+        rf"^({RANGE_TOKEN})\s{{2,}}({RANGE_TOKEN})$",
 
         line
 
@@ -124,7 +149,13 @@ def parse_range_line(line):
 
     value = line.strip()
 
-    if value:
+    if re.fullmatch(
+
+        RANGE_TOKEN,
+
+        value
+
+    ):
 
         return (
 
@@ -268,194 +299,232 @@ def parse_class(line):
  
     
 def parse_art_units(text):
-	
-	print("Parsing Art Units...")
-	
-	lines = text.splitlines()
-	
-	current_art_unit = None
-	
-	current_class = None
-	
-	current_title = ""
-	
-	collecting_title = False
-	
-	art_units = {}
-	
-	for raw_line in lines:
-	
-		line = raw_line.strip()
-	
-		#
-		# Skip blank lines
-		#
-	
-		if not line:
-	
-			continue
-	
-		#
-		# Skip page headers and footers
-		#
-	
-		if should_skip_line(line):
-	
-			continue
-	
-		#
-		# Detect a new Art Unit
-		#
-	
-		art_unit = parse_art_unit(line)
-		
-		if art_unit:
-		
-			current_art_unit = art_unit
-		
-			current_class = None
-		
-			current_title = ""
-		
-			collecting_title = False
-		
-			continue
-	
-		#
-		# Detect a new Class
-		#
-	
-		parsed_class = parse_class(line)
-		
-		if parsed_class:
-		
-			(
-		
-				current_class,
-		
-				current_title,
-		
-				first_range
-		
-			) = parsed_class
-		
-			if current_class not in art_units:
-		
-				art_units[current_class] = {
-		
-					"title": current_title,
-		
-					"ranges": []
-		
-				}
-		
-			else:
-		
-				current_title = art_units[current_class]["title"]
-		
-			collecting_title = True
-		
-			if first_range:
-		
-				first_range["artUnit"] = current_art_unit
-		
-				art_units[current_class]["ranges"].append(
-		
-					first_range
-		
-				)
-		
-				collecting_title = False
-		
-			continue
-	
-		#
-		# Try parsing a subclass range once
-		#
-	
-		parsed_range = parse_range_line(line)
-		
-		if parsed_range:
-		
-			title_fragment, range_data = parsed_range
-		
-		else:
-		
-			title_fragment = ""
-		
-			range_data = None
-	
-		#
-		# Continue reading a multi line class title
-		#
-	
-		if collecting_title:
-		
-			if range_data:
-		
-				if title_fragment:
-		
-					current_title += " " + title_fragment
-		
-				art_units[current_class]["title"] = " ".join(
-		
-					current_title.split()
-		
-				)
-		
-				collecting_title = False
-		
-			else:
-		
-				current_title += " " + line
-		
-				art_units[current_class]["title"] = " ".join(
-		
-					current_title.split()
-		
-				)
-		
-				continue
-	
-		#
-		# Store subclass range
-		#
-	
-		if (
-	
-			range_data
-	
-			and current_class
-	
-			and current_art_unit
-	
-		):
-	
-			range_data["artUnit"] = current_art_unit
-	
-			art_units[current_class]["ranges"].append(
-	
-				range_data
-	
-			)
-	
-			continue
-	
-		#
-		# Unknown line
-		# Useful while developing.
-		#
-	
-		print(f"Warning: Unrecognized line: {line}")
-	
-	print(
-	
-		f"Found {len(art_units)} classes."
-	
-	)
-	
-	return art_units
 
+    print("Parsing Art Units...")
+
+    lines = text.splitlines()
+
+    current_art_unit = None
+    current_class = None
+    current_title = ""
+
+    collecting_title = False
+
+    #
+    # True only when the first subclass range came from the
+    # "Class ..." line. It allows wrapped title lines to follow.
+    #
+    class_line_had_range = False
+
+    art_units = {}
+
+    debug_lines = []
+
+    for raw_line in lines:
+
+        line = raw_line.strip()
+
+        if not line:
+            continue
+
+        if should_skip_line(line):
+            continue
+
+        #
+        # New Art Unit
+        #
+
+        art_unit = parse_art_unit(line)
+
+        if art_unit:
+
+            if current_class == DEBUG_CLASS:
+
+                debug_lines.extend(
+                    [
+                        "",
+                        "=" * 70,
+                        f"NEW ART UNIT {art_unit}",
+                        "=" * 70
+                    ]
+                )
+
+            current_art_unit = art_unit
+            current_class = None
+            current_title = ""
+            collecting_title = False
+            class_line_had_range = False
+
+            continue
+
+        #
+        # New Class
+        #
+
+        parsed_class = parse_class(line)
+
+        if parsed_class:
+
+            (
+                current_class,
+                current_title,
+                first_range
+            ) = parsed_class
+
+            if current_class == DEBUG_CLASS:
+
+                debug_lines.extend(
+                    [
+                        "",
+                        "ENTERED CLASS",
+                        f"Art Unit      : {current_art_unit}",
+                        f"Current Title : {current_title!r}",
+                        f"First Range   : {first_range!r}"
+                    ]
+                )
+
+            if current_class not in art_units:
+
+                art_units[current_class] = {
+
+                    "title": current_title,
+
+                    "ranges": []
+
+                }
+
+            else:
+
+                current_title = art_units[current_class]["title"]
+
+            collecting_title = True
+
+            class_line_had_range = first_range is not None
+
+            if first_range:
+
+                first_range["artUnit"] = current_art_unit
+
+                art_units[current_class]["ranges"].append(
+                    first_range
+                )
+
+            continue
+
+        #
+        # Parse subclass range
+        #
+
+        parsed_range = parse_range_line(line)
+
+        if parsed_range:
+
+            title_fragment, range_data = parsed_range
+
+        else:
+
+            title_fragment = ""
+            range_data = None
+
+        if current_class == DEBUG_CLASS:
+
+            debug_lines.extend(
+                [
+                    "",
+                    "LINE",
+                    f"Text         : {line!r}",
+                    f"Parsed Range : {parsed_range!r}",
+                    f"Collecting   : {collecting_title}",
+                    f"Current Title: {current_title!r}",
+                    f"Class Line Range: {class_line_had_range}"
+                ]
+            )
+
+        #
+        # Continue wrapped title
+        #
+
+        if collecting_title:
+
+            #
+            # Ordinary wrapped title line
+            #
+
+            if range_data is None:
+
+                current_title += " " + line
+
+                art_units[current_class]["title"] = " ".join(
+                    current_title.split()
+                )
+
+                if current_class == DEBUG_CLASS:
+
+                    debug_lines.append(
+                        f"UPDATED TITLE : {current_title!r}"
+                    )
+
+                continue
+
+            #
+            # Title + range on same line
+            #
+
+            if title_fragment:
+
+                current_title += " " + title_fragment
+
+                art_units[current_class]["title"] = " ".join(
+                    current_title.split()
+                )
+
+            #
+            # If the first range already appeared on the
+            # Class line, this is now the second range.
+            # The title is complete.
+            #
+
+            collecting_title = False
+
+            range_data["artUnit"] = current_art_unit
+
+            art_units[current_class]["ranges"].append(
+                range_data
+            )
+
+            continue
+
+        #
+        # Remaining subclass ranges
+        #
+
+        if (
+
+            range_data
+            and current_class
+            and current_art_unit
+
+        ):
+
+            range_data["artUnit"] = current_art_unit
+
+            art_units[current_class]["ranges"].append(
+                range_data
+            )
+
+            continue
+
+        print(f"Warning: Unrecognized line: {line}")
+
+    DEBUG_FILE.write_text(
+        "\n".join(debug_lines),
+        encoding="utf-8"
+    )
+
+    print(f"Found {len(art_units)} classes.")
+
+    return art_units
+    
 
 def is_range_only(line):
 
