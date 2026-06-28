@@ -297,7 +297,122 @@ def parse_class(line):
 	
 	return class_id, title, first_range
  
+
+def add_range(
+
+    art_units,
+
+    current_class,
+
+    current_art_unit,
+
+    range_data
+
+):
+
+    range_data["artUnit"] = (
+        current_art_unit
+    )
+
+    art_units[current_class][
+        "ranges"
+    ].append(
+        range_data
+    )
     
+    
+def report_unrecognized(
+
+    current_art_unit,
+
+    current_class,
+
+    current_title,
+
+    line
+
+):
+
+    print()
+
+    print("UNRECOGNIZED")
+
+    print(
+        "Art Unit :",
+        current_art_unit
+    )
+
+    print(
+        "Class    :",
+        current_class
+    )
+
+    print(
+        "Title    :",
+        current_title
+    )
+
+    print(
+        "Line     :",
+        line
+    )
+
+    print(
+        f"Warning: Unrecognized line: {line}"
+    )
+    
+    
+def write_debug_file(
+    debug_lines
+):
+
+    DEBUG_FILE.write_text(
+
+        "\n".join(
+            debug_lines
+        ),
+
+        encoding="utf-8"
+
+    )
+    
+    
+
+def append_title_fragment(
+    current_title,
+    fragment,
+    art_units,
+    current_class
+):
+
+    fragment = " ".join(
+        fragment.split()
+    )
+
+    normalized_title = " ".join(
+        current_title.split()
+    )
+
+    if not normalized_title.endswith(
+        fragment
+    ):
+
+        current_title += (
+            " " + fragment
+        )
+
+    current_title = " ".join(
+        current_title.split()
+    )
+
+    art_units[current_class][
+        "title"
+    ] = current_title
+
+    return current_title
+    
+
+  
 def parse_art_units(text):
 	
 	print("Parsing Art Units...")
@@ -452,21 +567,7 @@ def parse_art_units(text):
 	
 			if range_data is None:
 	
-				fragment = " ".join(line.split())
-				
-				normalized_title = " ".join(current_title.split())
-				
-				if not normalized_title.endswith(fragment):
-				
-					current_title += " " + fragment
-				
-				art_units[current_class]["title"] = " ".join(
-					current_title.split()
-				)
-	
-				art_units[current_class]["title"] = " ".join(
-					current_title.split()
-				)
+				current_title = append_title_fragment( current_title, line, art_units, current_class)
 	
 				if current_class == DEBUG_CLASS:
 	
@@ -482,21 +583,7 @@ def parse_art_units(text):
 	
 			if title_fragment:
 	
-				fragment = " ".join(title_fragment.split())
-				
-				normalized_title = " ".join(current_title.split())
-				
-				if not normalized_title.endswith(fragment):
-				
-					current_title += " " + fragment
-				
-				art_units[current_class]["title"] = " ".join(
-					current_title.split()
-				)
-	
-				art_units[current_class]["title"] = " ".join(
-					current_title.split()
-				)
+				current_title = append_title_fragment( current_title, title_fragment, art_units, current_class)
 	
 			#
 			# If the first range already appeared on the
@@ -506,11 +593,7 @@ def parse_art_units(text):
 	
 			collecting_title = False
 	
-			range_data["artUnit"] = current_art_unit
-	
-			art_units[current_class]["ranges"].append(
-				range_data
-			)
+			add_range( art_units, current_class, current_art_unit, range_data)
 	
 			continue
 	
@@ -526,26 +609,13 @@ def parse_art_units(text):
 	
 		):
 	
-			range_data["artUnit"] = current_art_unit
-	
-			art_units[current_class]["ranges"].append(
-				range_data
-			)
+			add_range( art_units, current_class, current_art_unit, range_data)
 	
 			continue
 	
-		print()
-		print("UNRECOGNIZED")
-		print("Art Unit :", current_art_unit)
-		print("Class    :", current_class)
-		print("Title    :", art_units[current_class]["title"])
-		print("Line     :", line)
-		print(f"Warning: Unrecognized line: {line}")
+		report_unrecognized( current_art_unit, current_class, art_units[current_class]["title"], line)
 	
-	DEBUG_FILE.write_text(
-		"\n".join(debug_lines),
-		encoding="utf-8"
-	)
+	write_debug_file( debug_lines)
 	
 	print(f"Found {len(art_units)} classes.")
 	
