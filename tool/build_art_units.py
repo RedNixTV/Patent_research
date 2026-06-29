@@ -15,9 +15,6 @@ RANGE_TOKEN = (
     r")"
 )
 
-DEBUG_CLASS = "358"
-DEBUG_FILE = Path("debug358.txt")
-
 def extract_pdf_text():
 
     print("Reading PDF...")
@@ -303,10 +300,6 @@ def report_unrecognized( current_art_unit, current_class, current_title, line):
         f"Warning: Unrecognized line: {line}"
     )
     
-    
-def write_debug_file(debug_lines):
-    DEBUG_FILE.write_text("\n".join(debug_lines), encoding="utf-8")
-    
 
 def normalize_whitespace(text):
 
@@ -336,24 +329,13 @@ def start_new_art_unit( art_unit):
     return ( art_unit, None,  "", False, False)
     
 
-def handle_new_art_unit( line, current_class, debug_lines):
+def handle_new_art_unit( line, current_class):
 
     art_unit = parse_art_unit( line)
 
     if not art_unit:
 
         return None
-
-    if current_class == DEBUG_CLASS:
-
-        debug_lines.extend(
-            [
-                "",
-                "=" * 70,
-                f"NEW ART UNIT {art_unit}",
-                "=" * 70
-            ]
-        )
 
     return start_new_art_unit( art_unit )
     
@@ -368,7 +350,7 @@ def initialize_class( art_units, current_class, current_title):
 
     return ( art_units[current_class]["title"], False)
     
-def handle_new_class( line, art_units, current_art_unit, debug_lines):
+def handle_new_class( line, art_units, current_art_unit):
 
     parsed_class = parse_class( line )
 
@@ -377,18 +359,6 @@ def handle_new_class( line, art_units, current_art_unit, debug_lines):
         return None
 
     (current_class, current_title, first_range ) = parsed_class
-
-    if current_class == DEBUG_CLASS:
-
-        debug_lines.extend(
-            [
-                "",
-                "ENTERED CLASS",
-                f"Art Unit      : {current_art_unit}",
-                f"Current Title : {current_title!r}",
-                f"First Range   : {first_range!r}"
-            ]
-        )
 
     current_title, is_new_class = initialize_class( art_units, current_class, current_title)
     
@@ -399,7 +369,7 @@ def handle_new_class( line, art_units, current_art_unit, debug_lines):
     
 def handle_collecting_title( collecting_title, title_fragment, range_data, line, current_title, current_class, current_art_unit,
 	
-	art_units,debug_lines):
+	art_units):
 	
 	if not collecting_title:
 	
@@ -412,10 +382,6 @@ def handle_collecting_title( collecting_title, title_fragment, range_data, line,
 	if range_data is None:
 	
 		current_title = append_title_fragment( current_title, line, art_units, current_class)
-	
-		if current_class == DEBUG_CLASS:
-	
-			debug_lines.append( f"UPDATED TITLE : {current_title!r}")
 	
 		return ( current_title, True )
 	
@@ -471,8 +437,6 @@ def parse_art_units(text):
 	
 	art_units = {}
 	
-	debug_lines = []
-	
 	for raw_line in lines:
 	
 		line = raw_line.strip()
@@ -487,7 +451,7 @@ def parse_art_units(text):
 		# New Art Unit
 		#
 	
-		new_state = handle_new_art_unit( line, current_class, debug_lines)
+		new_state = handle_new_art_unit( line, current_class)
 		
 		if new_state:
 		
@@ -503,7 +467,7 @@ def parse_art_units(text):
 		# New Class
 		#
 	
-		new_class = handle_new_class( line, art_units, current_art_unit, debug_lines)
+		new_class = handle_new_class( line, art_units, current_art_unit)
 		
 		if new_class:
 		
@@ -558,26 +522,12 @@ def parse_art_units(text):
 		
 			skipping_known_title = False
 	
-		if current_class == DEBUG_CLASS:
-	
-			debug_lines.extend(
-				[
-					"",
-					"LINE",
-					f"Text         : {line!r}",
-					f"Parsed Range : {parsed_range!r}",
-					f"Collecting   : {collecting_title}",
-					f"Current Title: {current_title!r}",
-					f"Class Line Range: {class_line_had_range}"
-				]
-			)
-	
 		#
 		# Continue wrapped title
 		#
 	
 		title_result = handle_collecting_title( collecting_title, title_fragment, range_data, line, current_title, current_class,
-		current_art_unit, art_units, debug_lines)
+		current_art_unit, art_units)
 		
 		if title_result:
 		
@@ -594,9 +544,7 @@ def parse_art_units(text):
 			continue
 	
 		report_unrecognized( current_art_unit, current_class, art_units[current_class]["title"], line)
-	
-	write_debug_file( debug_lines)
-	
+		
 	print(f"Found {len(art_units)} classes.")
 	
 	return art_units
