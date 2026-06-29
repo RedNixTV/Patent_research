@@ -34,145 +34,169 @@ def extract_pdf_text():
 
         for page in document:
 
-            pages.append(
-                page.get_text()
-            )
+            pages.append(  page.get_text() )
 
     return "\n".join(pages)
 
 
 def parse_range_line(line):
 
-    line = line.rstrip()
-
-    #
-    # ALL
-    #
-
-    if line == "ALL":
-
-        return (
-            "",
-            {
-                "from": "ALL",
-                "to": "ALL"
-            }
-        )
-
-    #
-    # title + from + to
-    #
-
-    match = re.match(
-
-        rf"^(.*?)\s{{2,}}({RANGE_TOKEN})\s{{2,}}({RANGE_TOKEN})$",
-
-        line
-
-    )
-
-    if match:
-
-        return (
-
-            match.group(1).strip(),
-
-            {
-
-                "from": match.group(2).strip(),
-
-                "to": match.group(3).strip()
-
-            }
-
-        )
-
-    #
-    # title + single range
-    #
-
-    match = re.match(
-
-        rf"^(.*?)\s{{2,}}({RANGE_TOKEN})$",
-
-        line
-
-    )
-
-    if match:
-
-        return (
-
-            match.group(1).strip(),
-
-            {
-
-                "from": match.group(2).strip(),
-
-                "to": match.group(2).strip()
-
-            }
-
-        )
-
-    #
-    # from + to
-    #
-
-    match = re.match(
-
-        rf"^({RANGE_TOKEN})\s{{2,}}({RANGE_TOKEN})$",
-
-        line
-
-    )
-
-    if match:
-
-        return (
-
-            "",
-
-            {
-
-                "from": match.group(1).strip(),
-
-                "to": match.group(2).strip()
-
-            }
-
-        )
-
-    #
-    # single value
-    #
-
-    value = line.strip()
-
-    if re.fullmatch(
-
-        RANGE_TOKEN,
-
-        value
-
-    ):
-
-        return (
-
-            "",
-
-            {
-
-                "from": value,
-
-                "to": value
-
-            }
-
-        )
-
-    return None
-    
+	line = line.rstrip()
+	
+	#
+	# ALL
+	#
+	
+	if line == "ALL":
+	
+		return (
+			"",
+			{
+				"from": "ALL",
+				"to": "ALL"
+			}
+		)
+	
+	#
+	# title + from + to
+	#
+	
+	match = re.match(
+	
+		rf"^(.*?)\s{{2,}}({RANGE_TOKEN})\s{{2,}}({RANGE_TOKEN})$",
+	
+		line
+	
+	)
+	
+	if match:
+	
+		return (
+	
+			match.group(1).strip(),
+	
+			{
+	
+				"from": match.group(2).strip(),
+	
+				"to": match.group(3).strip()
+	
+			}
+	
+		)
+	
+	#
+	# title + single range
+	#
+	
+	match = re.match(
+	
+		rf"^(.*?)\s{{2,}}({RANGE_TOKEN})$",
+	
+		line
+	
+	)
+	
+	if match:
+	
+		#
+		# If the "title" is itself a range token,
+		# this is really "from + to".
+		#
+	
+		left = match.group(1).strip()
+	
+		if re.fullmatch(
+			RANGE_TOKEN,
+			left
+		):
+	
+			return (
+	
+				"",
+	
+				{
+	
+					"from": left,
+	
+					"to": match.group(2).strip()
+	
+				}
+	
+			)
+	
+		return (
+	
+			left,
+	
+			{
+	
+				"from": match.group(2).strip(),
+	
+				"to": ""
+	
+			}
+	
+		)
+	
+	#
+	# from + to
+	#
+	
+	match = re.match(
+	
+		rf"^({RANGE_TOKEN})\s{{2,}}({RANGE_TOKEN})$",
+	
+		line
+	
+	)
+	
+	if match:
+			
+		return (
+	
+			"",
+	
+			{
+	
+				"from": match.group(1).strip(),
+	
+				"to": match.group(2).strip()
+	
+			}
+	
+		)
+	
+	#
+	# single value
+	#
+	
+	value = line.strip()
+	
+	if re.fullmatch(
+	
+		RANGE_TOKEN,
+	
+		value
+	
+	):
+	
+		return (
+	
+			"",
+	
+			{
+	
+				"from": value,
+	
+				"to": ""
+	
+			}
+	
+		)
+	
+	return None
+	
 
 def should_skip_line(line):
 
@@ -208,11 +232,7 @@ def should_skip_line(line):
 
     for pattern in skip_patterns:
 
-        if re.match(
-            pattern,
-            line,
-            re.IGNORECASE
-        ):
+        if re.match( pattern, line, re.IGNORECASE ):
             return True
 
     return False
@@ -222,297 +242,207 @@ def parse_art_unit(line):
 
     line = line.strip()
 
-    match = re.match(
+    match = re.match(  r"^Art Unit\s+(\d+)$", line, re.IGNORECASE )
 
-        r"^Art Unit\s+(\d+)$",
-
-        line,
-
-        re.IGNORECASE
-
-    )
-
-    if match:
-
-        return match.group(1)
-
-    return None
+    return match.group(1) if match else None
 
 
 def parse_class(line):
 
-	line = line.strip()
-	
-	match = re.match(
-	
-		r"^Class\s+([A-Z]?\s*\d+[A-Z]?|[A-Z]{2,}\d*|[A-Z]\d+[A-Z]?)\s+(.*)$",
-	
-		line,
-	
-		re.IGNORECASE
-	
-	)
-	
-	if not match:
-	
-		return None
-	
-	class_id = match.group(1).strip()
-	
-	remainder = match.group(2)
-	
-	#
-	# Try to locate a range at the end.
-	#
-	
-	range_match = re.search(
-	
-		rf"^(.*?)\s{{2,}}({RANGE_TOKEN})(?:\s{{2,}}({RANGE_TOKEN}))?$",
-	
-		remainder
-	
-	)
-	
-	if range_match:
-	
-		title = range_match.group(1).strip()
-	
-		first_range = {
-	
-			"from": range_match.group(2).strip(),
-	
-			"to": (
-				range_match.group(3).strip()
-				if range_match.group(3)
-				else ""
-			)
-	
-		}
-	
-	else:
-	
-		title = remainder.strip()
-	
-		first_range = None
-	
-	return class_id, title, first_range
+    line = line.strip()
+
+    match = re.match(
+        r"^Class\s+([A-Z]?\s*\d+[A-Z]?|[A-Z]{2,}\d*|[A-Z]\d+[A-Z]?)\s+(.*)$",
+        line,
+        re.IGNORECASE
+    )
+
+    if not match:
+        return None
+
+    class_id = match.group(1).strip()
+    remainder = match.group(2)
+
+    range_match = re.search(
+        rf"^(.*?)\s{{2,}}({RANGE_TOKEN})(?:\s{{2,}}({RANGE_TOKEN}))?$",
+        remainder
+    )
+
+    if not range_match:
+        return class_id, remainder.strip(), None
+
+    return (
+        class_id,
+        range_match.group(1).strip(),
+        {
+            "from": range_match.group(2).strip(),
+            "to": range_match.group(3).strip() if range_match.group(3) else ""
+        }
+    )
  
 
-def add_range(
+def add_range(art_units, current_class, current_art_unit, range_data):
 
-    art_units,
+    range_data["artUnit"] = current_art_unit
+    art_units[current_class]["ranges"].append(range_data)
 
-    current_class,
+def add_first_range(art_units, current_class, current_art_unit, first_range):
 
-    current_art_unit,
-
-    range_data
-
-):
-
-    range_data["artUnit"] = (
-        current_art_unit
-    )
-
-    art_units[current_class][
-        "ranges"
-    ].append(
-        range_data
-    )
-
-def add_first_range(
-
-    art_units,
-
-    current_class,
-
-    current_art_unit,
-
-    first_range
-
-):
-
-    if first_range is None:
-
-        return
-
-    add_range(
-
-        art_units,
-
-        current_class,
-
-        current_art_unit,
-
-        first_range
-
-    )
+    if first_range is not None:
+        add_range( art_units, current_class, current_art_unit,  first_range)
     
     
-def report_unrecognized(
-
-    current_art_unit,
-
-    current_class,
-
-    current_title,
-
-    line
-
-):
-
-    print()
-
-    print("UNRECOGNIZED")
+def report_unrecognized( current_art_unit, current_class, current_title, line):
 
     print(
-        "Art Unit :",
-        current_art_unit
-    )
-
-    print(
-        "Class    :",
-        current_class
-    )
-
-    print(
-        "Title    :",
-        current_title
-    )
-
-    print(
-        "Line     :",
-        line
-    )
-
-    print(
+        f"\nUNRECOGNIZED\n"
+        f"Art Unit : {current_art_unit}\n"
+        f"Class    : {current_class}\n"
+        f"Title    : {current_title}\n"
+        f"Line     : {line}\n"
         f"Warning: Unrecognized line: {line}"
     )
     
     
-def write_debug_file(
-    debug_lines
-):
-
-    DEBUG_FILE.write_text(
-
-        "\n".join(
-            debug_lines
-        ),
-
-        encoding="utf-8"
-
-    )
+def write_debug_file(debug_lines):
+    DEBUG_FILE.write_text("\n".join(debug_lines), encoding="utf-8")
     
 
 def normalize_whitespace(text):
 
-    return " ".join(
-        text.split()
-    )
+    return " ".join(  text.split() )
 
-def append_title_fragment(
-    current_title,
-    fragment,
-    art_units,
-    current_class
-):
+def append_title_fragment(current_title, fragment, art_units, current_class):
 
-    fragment = normalize_whitespace(
-        fragment
-    )
+    fragment = normalize_whitespace(fragment)
+    current_title = normalize_whitespace(current_title)
 
-    current_title = normalize_whitespace(
-        current_title
-    )
+    if not current_title.endswith(fragment):
+        current_title += f" {fragment}"
 
-    if not current_title.endswith(
-        fragment
-    ):
-
-        current_title += (
-            " " + fragment
-        )
-
-    art_units[current_class][
-        "title"
-    ] = current_title
+    art_units[current_class]["title"] = current_title
 
     return current_title
 
 
 
-def create_class(
+def create_class(art_units, class_id, title):
 
-    art_units,
-
-    class_id,
-
-    title
-
-):
-
-    art_units[class_id] = {
-
-        "title": title,
-
-        "ranges": []
-
-    }
+    art_units[class_id] = { "title": title, "ranges": [] }
     
 
-def start_new_art_unit(
+def start_new_art_unit( art_unit):
 
-    art_unit
-
-):
-
-    return (
-
-        art_unit,
-
-        None,
-
-        "",
-
-        False,
-
-        False
-
-    )
+    return ( art_unit, None,  "", False, False)
     
 
-def initialize_class(
+def handle_new_art_unit( line, current_class, debug_lines):
 
-    art_units,
+    art_unit = parse_art_unit( line)
 
-    current_class,
+    if not art_unit:
 
-    current_title
+        return None
 
-):
+    if current_class == DEBUG_CLASS:
+
+        debug_lines.extend(
+            [
+                "",
+                "=" * 70,
+                f"NEW ART UNIT {art_unit}",
+                "=" * 70
+            ]
+        )
+
+    return start_new_art_unit( art_unit )
+    
+
+def initialize_class( art_units, current_class, current_title):
 
     if current_class not in art_units:
 
-        create_class(
-
-            art_units,
-
-            current_class,
-
-            current_title
-
-        )
+        create_class( art_units, current_class, current_title)
 
     else:
 
-        current_title = art_units[
-            current_class
-        ][
-            "title"
-        ]
+        current_title = art_units[current_class ][ "title"]
 
     return current_title
+    
+def handle_new_class( line, art_units, current_art_unit, debug_lines):
+
+    parsed_class = parse_class( line )
+
+    if not parsed_class:
+
+        return None
+
+    (current_class, current_title, first_range ) = parsed_class
+
+    if current_class == DEBUG_CLASS:
+
+        debug_lines.extend(
+            [
+                "",
+                "ENTERED CLASS",
+                f"Art Unit      : {current_art_unit}",
+                f"Current Title : {current_title!r}",
+                f"First Range   : {first_range!r}"
+            ]
+        )
+
+    current_title = initialize_class( art_units, current_class, current_title)
+
+    add_first_range( art_units, current_class, current_art_unit, first_range)
+
+    return ( current_class, current_title, True, first_range is not None )
+    
+    
+def handle_collecting_title( collecting_title, title_fragment, range_data, line, current_title, current_class, current_art_unit,
+
+    art_units,debug_lines):
+
+    if not collecting_title:
+
+        return None
+
+    #
+    # Wrapped title
+    #
+
+    if range_data is None:
+
+        current_title = append_title_fragment( current_title, line, art_units, current_class)
+
+        if current_class == DEBUG_CLASS:
+
+            debug_lines.append( f"UPDATED TITLE : {current_title!r}")
+
+        return ( current_title, True )
+
+    #
+    # Title + range
+    #
+
+    if title_fragment:
+
+        current_title = append_title_fragment( current_title, title_fragment, art_units, current_class)
+
+    add_range( art_units, current_class, current_art_unit, range_data)
+
+    return ( current_title, False)
+
+
+def handle_remaining_range( range_data, current_class, current_art_unit, art_units):
+
+    if not ( range_data and current_class and current_art_unit):
+
+        return False
+
+    add_range( art_units, current_class, current_art_unit, range_data)
+
+    return True
     
     
 def parse_art_units(text):
@@ -551,61 +481,26 @@ def parse_art_units(text):
 		# New Art Unit
 		#
 	
-		art_unit = parse_art_unit(line)
-	
-		if art_unit:
-	
-			if current_class == DEBUG_CLASS:
-	
-				debug_lines.extend(
-					[
-						"",
-						"=" * 70,
-						f"NEW ART UNIT {art_unit}",
-						"=" * 70
-					]
-				)
-	
-			( current_art_unit, current_class, current_title, collecting_title, class_line_had_range) = start_new_art_unit(
-				art_unit
-			)
-	
+		new_state = handle_new_art_unit( line, current_class, debug_lines)
+		
+		if new_state:
+		
+			( current_art_unit, current_class, current_title, collecting_title, class_line_had_range
+		
+			) = new_state
+		
 			continue
 	
 		#
 		# New Class
 		#
 	
-		parsed_class = parse_class(line)
-	
-		if parsed_class:
-	
-			(
-				current_class,
-				current_title,
-				first_range
-			) = parsed_class
-	
-			if current_class == DEBUG_CLASS:
-	
-				debug_lines.extend(
-					[
-						"",
-						"ENTERED CLASS",
-						f"Art Unit      : {current_art_unit}",
-						f"Current Title : {current_title!r}",
-						f"First Range   : {first_range!r}"
-					]
-				)
-	
-			current_title = initialize_class( art_units, current_class, current_title)
-	
-			collecting_title = True
-	
-			class_line_had_range = first_range is not None
-	
-			add_first_range( art_units, current_class, current_art_unit, first_range)
-	
+		new_class = handle_new_class( line, art_units, current_art_unit, debug_lines)
+		
+		if new_class:
+		
+			(current_class, current_title, collecting_title, class_line_had_range) = new_class
+		
 			continue
 	
 		#
@@ -641,58 +536,21 @@ def parse_art_units(text):
 		# Continue wrapped title
 		#
 	
-		if collecting_title:
-	
-			#
-			# Ordinary wrapped title line
-			#
-	
-			if range_data is None:
-	
-				current_title = append_title_fragment( current_title, line, art_units, current_class)
-	
-				if current_class == DEBUG_CLASS:
-	
-					debug_lines.append(
-						f"UPDATED TITLE : {current_title!r}"
-					)
-	
-				continue
-	
-			#
-			# Title + range on same line
-			#
-	
-			if title_fragment:
-	
-				current_title = append_title_fragment( current_title, title_fragment, art_units, current_class)
-	
-			#
-			# If the first range already appeared on the
-			# Class line, this is now the second range.
-			# The title is complete.
-			#
-	
-			collecting_title = False
-	
-			add_range( art_units, current_class, current_art_unit, range_data)
-	
+		title_result = handle_collecting_title( collecting_title, title_fragment, range_data, line, current_title, current_class,
+		current_art_unit, art_units, debug_lines)
+		
+		if title_result:
+		
+			( current_title, collecting_title) = title_result
+		
 			continue
 	
 		#
 		# Remaining subclass ranges
 		#
 	
-		if (
-	
-			range_data
-			and current_class
-			and current_art_unit
-	
-		):
-	
-			add_range( art_units, current_class, current_art_unit, range_data)
-	
+		if handle_remaining_range( range_data, current_class, current_art_unit, art_units):
+		
 			continue
 	
 		report_unrecognized( current_art_unit, current_class, art_units[current_class]["title"], line)
@@ -708,41 +566,17 @@ def save_json(data):
 
     print("Saving JSON...")
 
-    OUTPUT_FILE.parent.mkdir(
+    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-        parents=True,
-
-        exist_ok=True
-
-    )
-
-    with open(
-
-        OUTPUT_FILE,
-
-        "w",
-
-        encoding="utf-8"
-
-    ) as file:
-
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as file:
         json.dump(
-
             data,
-
             file,
-
             indent=4,
-
             ensure_ascii=False
-
         )
 
-    print(
-
-        f"Saved to {OUTPUT_FILE}"
-
-    )
+    print(f"Saved to {OUTPUT_FILE}")
 
 	
 def main():
