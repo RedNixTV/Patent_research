@@ -363,12 +363,10 @@ def initialize_class( art_units, current_class, current_title):
     if current_class not in art_units:
 
         create_class( art_units, current_class, current_title)
+        
+        return ( current_title, True)
 
-    else:
-
-        current_title = art_units[current_class ][ "title"]
-
-    return current_title
+    return ( art_units[current_class]["title"], False)
     
 def handle_new_class( line, art_units, current_art_unit, debug_lines):
 
@@ -392,46 +390,54 @@ def handle_new_class( line, art_units, current_art_unit, debug_lines):
             ]
         )
 
-    current_title = initialize_class( art_units, current_class, current_title)
-
+    current_title, is_new_class = initialize_class( art_units, current_class, current_title)
+    
     add_first_range( art_units, current_class, current_art_unit, first_range)
 
-    return ( current_class, current_title, True, first_range is not None )
+    return ( current_class, current_title, is_new_class, first_range is not None )
     
     
 def handle_collecting_title( collecting_title, title_fragment, range_data, line, current_title, current_class, current_art_unit,
-
-    art_units,debug_lines):
-
-    if not collecting_title:
-
-        return None
-
-    #
-    # Wrapped title
-    #
-
-    if range_data is None:
-
-        current_title = append_title_fragment( current_title, line, art_units, current_class)
-
-        if current_class == DEBUG_CLASS:
-
-            debug_lines.append( f"UPDATED TITLE : {current_title!r}")
-
-        return ( current_title, True )
-
-    #
-    # Title + range
-    #
-
-    if title_fragment:
-
-        current_title = append_title_fragment( current_title, title_fragment, art_units, current_class)
-
-    add_range( art_units, current_class, current_art_unit, range_data)
-
-    return ( current_title, False)
+	
+	art_units,debug_lines):
+	
+	if not collecting_title:
+	
+		return None
+	
+	#
+	# Wrapped title
+	#
+	
+	if range_data is None:
+	
+		current_title = append_title_fragment( current_title, line, art_units, current_class)
+	
+		if current_class == DEBUG_CLASS:
+	
+			debug_lines.append( f"UPDATED TITLE : {current_title!r}")
+	
+		return ( current_title, True )
+	
+	#
+	# Title + range
+	#
+	
+	if title_fragment:
+	
+		current_title = append_title_fragment( current_title, title_fragment, art_units, current_class)
+	
+		add_range( art_units, current_class, current_art_unit, range_data)
+	
+		return ( current_title, True)
+	
+	#
+	# Range only
+	#
+	
+	add_range( art_units, current_class, current_art_unit, range_data)
+	
+	return ( current_title, False)
 
 
 def handle_remaining_range( range_data, current_class, current_art_unit, art_units):
@@ -454,8 +460,8 @@ def parse_art_units(text):
 	current_art_unit = None
 	current_class = None
 	current_title = ""
-	
 	collecting_title = False
+	skipping_known_title = False
 	
 	#
 	# True only when the first subclass range came from the
@@ -488,6 +494,8 @@ def parse_art_units(text):
 			( current_art_unit, current_class, current_title, collecting_title, class_line_had_range
 		
 			) = new_state
+			
+			skipping_known_title = False
 		
 			continue
 	
@@ -500,6 +508,8 @@ def parse_art_units(text):
 		if new_class:
 		
 			(current_class, current_title, collecting_title, class_line_had_range) = new_class
+			
+			skipping_known_title = not collecting_title
 		
 			continue
 	
@@ -517,6 +527,36 @@ def parse_art_units(text):
 	
 			title_fragment = ""
 			range_data = None
+			
+		#
+		# Skip repeated class titles.
+		#
+		
+		if skipping_known_title:
+		
+			#
+			# Wrapped title line.
+			#
+		
+			if range_data is None:
+		
+				continue
+		
+			#
+			# Title + range.
+			#
+		
+			if title_fragment:
+			
+				add_range( art_units, current_class, current_art_unit, range_data)
+		
+				continue
+		
+			#
+			# pure range
+			#
+		
+			skipping_known_title = False
 	
 		if current_class == DEBUG_CLASS:
 	
