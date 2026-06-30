@@ -33,6 +33,8 @@ import {
 }
 from "./workflow.js";
 
+let artUnits = {};
+const artUnitCache = new Map();
 let patents = [];
 let currentView = "references";
 let currentPatentIndex =
@@ -755,6 +757,8 @@ function enableHistogramDragDrop() {
 
 async function init() {
 
+    await loadArtUnits();
+    
     await renderProjectSelector();
     
     await renderWorkflowSelector();
@@ -1055,6 +1059,212 @@ async function init() {
 		.onclick =
 		clearClassificationFilter;
 }
+
+
+async function loadArtUnits() {
+
+    artUnits =
+        await fetch(
+            chrome.runtime.getURL(
+                "tool/output/artUnits.json"
+            )
+        ).then(
+            response => response.json()
+        );
+
+}
+
+
+function subclassMatchesRange(
+    subclass,
+    range
+) {
+
+    if (
+        range.from === "ALL"
+    ) {
+
+        return true;
+    }
+
+    //
+    // FOR
+    //
+
+    if (
+        subclass.startsWith(
+            "FOR "
+        )
+    ) {
+
+        if (
+            range.to === ""
+        ) {
+
+            return (
+                subclass ===
+                range.from
+            );
+        }
+
+        return (
+            subclass >= range.from
+            &&
+            subclass <= range.to
+        );
+    }
+
+    //
+    // DIG
+    //
+
+    if (
+        subclass.startsWith(
+            "DIG "
+        )
+    ) {
+
+        if (
+            range.to === ""
+        ) {
+
+            return (
+                subclass ===
+                range.from
+            );
+        }
+
+        return (
+            subclass >= range.from
+            &&
+            subclass <= range.to
+        );
+    }
+
+    //
+    // E subclasses
+    //
+
+    if (
+        subclass.startsWith(
+            "E"
+        )
+    ) {
+
+        if (
+            range.to === ""
+        ) {
+
+            return (
+                subclass ===
+                range.from
+            );
+        }
+
+        return (
+            subclass >= range.from
+            &&
+            subclass <= range.to
+        );
+    }
+
+    const value =
+        Number(
+            subclass
+        );
+
+    const from =
+        Number(
+            range.from
+        );
+
+    const to =
+        range.to === ""
+            ? from
+            : Number(
+                range.to
+            );
+
+    return (
+        value >= from
+        &&
+        value <= to
+    );
+
+}
+
+
+
+function lookupArtUnit(
+    uspc
+) {
+
+    if (
+        artUnitCache.has(
+            uspc
+        )
+    ) {
+
+        return artUnitCache.get(
+            uspc
+        );
+    }
+
+    if (
+        !uspc.includes("/")
+    ) {
+
+        return "";
+    }
+
+    const [
+        classNumber,
+        subclass
+    ] =
+        uspc.split("/");
+
+    const classInfo =
+        artUnits[
+            classNumber
+        ];
+
+    if (
+        !classInfo
+    ) {
+
+        return "";
+    }
+
+    for (
+        const range
+        of classInfo.ranges
+    ) {
+
+        if (
+            subclassMatchesRange(
+                subclass,
+                range
+            )
+        ) {
+
+            artUnitCache.set(
+                uspc,
+                range.artUnit
+            );
+
+            return range.artUnit;
+        }
+    }
+
+    artUnitCache.set(
+        uspc,
+        ""
+    );
+
+    return "";
+
+}
+
 
 async function renderProjectSelector() {
 
@@ -1786,6 +1996,11 @@ async function renderHistogram(
 						a - b
 				)
 				.join(",");
+				
+		const computedArtUnit =
+				lookupArtUnit(
+					code
+				);
 	
 		const barLength =
 			Math.round(
@@ -1871,21 +2086,18 @@ async function renderHistogram(
 								`;
 								
 							case "artUnit":
-							
-								return `
-									<td>
-							
-										<input
-											class="classificationArtUnit"
-											data-code="${code}"
-											value="${
-												classification?.artUnit || ""
-											}"
-											style="width:90px;"
-										>
-							
-									</td>
-								`;
+								
+									return `
+										<td>
+								
+											<input
+												value="${computedArtUnit}"
+												readonly
+												style="width:90px;"
+											>
+								
+										</td>
+									`;
 		
 							case "count":
 		
@@ -2031,35 +2243,6 @@ async function renderHistogram(
 			</tr>
 		`;
 	}
-	
-	document
-		.querySelectorAll(
-			".classificationArtUnit"
-		)
-		.forEach(
-			input => {
-	
-				input.onblur =
-					async () => {
-	
-						const storage =
-							await chrome.storage.local.get(
-								"classifications"
-							);
-	
-						storage.classifications[
-							input.dataset.code
-						].artUnit =
-							input.value.trim();
-	
-						await chrome.storage.local.set({
-	
-							classifications:
-								storage.classifications
-						});
-					};
-			}
-		);
         
     document
 		.querySelectorAll(
@@ -2351,6 +2534,12 @@ async function renderHistogram(
 					classifications[
 						code
 					] || {};
+					
+				
+				const computedArtUnit =
+						lookupArtUnit(
+							code
+						);
 	
 				const refs =
 					"[" +
@@ -2394,7 +2583,7 @@ async function renderHistogram(
 									
 								case "artUnit":
 								
-									return classification.artUnit || "";
+									return computedArtUnit;
 	
 								case "classTitle":
 	
