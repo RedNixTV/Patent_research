@@ -1256,12 +1256,16 @@ function lookupArtUnit(
         }
     }
 
-    artUnitCache.set(
-        uspc,
-        ""
-    );
-
-    return "";
+    console.warn(
+		`No Art Unit found for USPC ${uspc}`
+	);
+	
+	artUnitCache.set(
+		uspc,
+		"Not Found"
+	);
+	
+	return "Not Found";
 
 }
 
@@ -1685,6 +1689,8 @@ async function renderHistogram(
 	currentHistogram =
     histogram;
     
+    const missingArtUnits = [];
+    
     const project =
 		await getCurrentProject();
 	
@@ -2001,6 +2007,16 @@ async function renderHistogram(
 				lookupArtUnit(
 					code
 				);
+				
+		if (
+			computedArtUnit ===
+			"Not Found"
+		) {
+		
+			missingArtUnits.push(
+				code
+			);
+		}
 	
 		const barLength =
 			Math.round(
@@ -2242,6 +2258,21 @@ async function renderHistogram(
 		
 			</tr>
 		`;
+	}
+	
+	if (
+		missingArtUnits.length
+	) {
+	
+		console.warn(
+			"Missing Art Unit mappings:",
+			missingArtUnits
+		);
+	
+		alert(
+			`Art Unit lookup failed for ${missingArtUnits.length} USPC classification(s).\n\n` +
+			missingArtUnits.join("\n")
+		);
 	}
         
     document
