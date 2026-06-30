@@ -99,6 +99,10 @@ const HISTOGRAM_COLUMNS_BY_STAGE = {
     examinerValidation: [
 	
 		"class",
+		"artUnit",
+		"employee",
+		"phone",
+		"comment",
 		"classTitle",
 		"subclassTitle",
 		"count",
@@ -128,6 +132,16 @@ const HISTOGRAM_HEADER_MAP = {
         
     artUnit:
 		"Art Unit",
+		
+	employee:
+    "Employee",
+	
+	phone:
+		"Phone",
+		
+		
+	comment:
+		"Comment",
 
     classTitle:
         "Class Title",
@@ -2114,6 +2128,51 @@ async function renderHistogram(
 								
 										</td>
 									`;
+									
+							case "employee":
+							
+								return `
+									<td>
+							
+										<input
+											class="classificationEmployee"
+											data-code="${code}"
+											value="${classification?.employee || ""}"
+											style="width:180px;"
+										>
+							
+									</td>
+								`;
+							
+							case "phone":
+							
+								return `
+									<td>
+							
+										<input
+											class="classificationPhone"
+											data-code="${code}"
+											value="${classification?.phone || ""}"
+											style="width:120px;"
+										>
+							
+									</td>
+								`;
+								
+							case "comment":
+							
+								return `
+									<td>
+							
+										<input
+											class="classificationComment"
+											data-code="${code}"
+											value="${classification?.comment || ""}"
+											style="width:120px;"
+										>
+							
+									</td>
+								`;
 		
 							case "count":
 		
@@ -2460,6 +2519,90 @@ async function renderHistogram(
 		
 	document
 		.querySelectorAll(
+			".classificationEmployee"
+		)
+		.forEach(
+			input => {
+	
+				input.onblur = async () => {
+	
+					const storage =
+						await chrome.storage.local.get(
+							"classifications"
+						);
+	
+					storage.classifications[
+						input.dataset.code
+					].employee =
+						input.value.trim();
+	
+					await chrome.storage.local.set({
+	
+						classifications:
+							storage.classifications
+					});
+				};
+			}
+		);
+	
+	document
+		.querySelectorAll(
+			".classificationPhone"
+		)
+		.forEach(
+			input => {
+	
+				input.onblur = async () => {
+	
+					const storage =
+						await chrome.storage.local.get(
+							"classifications"
+						);
+	
+					storage.classifications[
+						input.dataset.code
+					].phone =
+						input.value.trim();
+	
+					await chrome.storage.local.set({
+	
+						classifications:
+							storage.classifications
+					});
+				};
+			}
+		);
+			
+	document
+			.querySelectorAll(
+				".classificationComment"
+			)
+			.forEach(
+				input => {
+		
+					input.onblur = async () => {
+		
+						const storage =
+							await chrome.storage.local.get(
+								"classifications"
+							);
+		
+						storage.classifications[
+							input.dataset.code
+						].comment =
+							input.value.trim();
+		
+						await chrome.storage.local.set({
+		
+							classifications:
+								storage.classifications
+						});
+					};
+				}
+			);
+		
+	document
+		.querySelectorAll(
 			".classificationReason"
 		)
 		.forEach(
@@ -2615,6 +2758,18 @@ async function renderHistogram(
 								case "artUnit":
 								
 									return computedArtUnit;
+									
+								case "employee":
+								
+									return classification.employee || "";
+								
+								case "phone":
+								
+									return classification.phone || "";
+									
+								case "comment":
+								
+									return classification.comment || "";
 	
 								case "classTitle":
 	

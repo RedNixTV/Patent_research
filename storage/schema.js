@@ -38,6 +38,12 @@ export function createClassification() {
         subclassTitle: "",
         
         artUnit: "",
+        
+        employee: "",
+		
+		phone: "",
+		
+		comment: "",
 
         status: "pending",
 
