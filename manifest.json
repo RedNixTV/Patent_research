@@ -20,7 +20,8 @@
     {
       "matches": [
         "https://www.freepatentsonline.com/*",
-        "https://www.uspto.gov/web/patents/classification/*"
+        "https://www.uspto.gov/web/patents/classification/*",
+        "https://portal.uspto.gov/EmployeeSearch/*"
       ],
       "js": [
         "content/content.js"

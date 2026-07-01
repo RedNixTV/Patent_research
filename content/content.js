@@ -1,7 +1,11 @@
 console.log(
     "Classification Discovery Tool Loaded"
 );
-
+//
+// Examiner Validation
+//
+let examinerArtUnits = [];
+let currentExaminerIndex = 0;
 
 // ====================================
 // FPO Extractors
@@ -278,6 +282,109 @@ function createReferenceListPanel() {
     document.body.appendChild(
         panel
     );
+
+    return panel;
+}
+
+
+function createExaminerValidationPanel() {
+
+    const panel =
+        document.createElement("div");
+
+    panel.id =
+        "examinerValidationPanel";
+
+    panel.innerHTML = `
+
+        <div id="examinerProgress">
+        </div>
+
+        <hr>
+
+        <b>Art Unit</b>
+
+        <div id="currentArtUnit">
+        </div>
+
+        <hr>
+
+        <b>Classifications</b>
+
+        <div id="currentClassifications">
+        </div>
+
+        <hr>
+
+        Employee
+
+        <br>
+
+        <input
+            id="employeeInput"
+            style="width:250px;"
+        >
+
+        <br><br>
+
+        Phone
+
+        <br>
+
+        <input
+            id="phoneInput"
+            style="width:250px;"
+        >
+
+        <br><br>
+
+        Comment
+
+        <br>
+
+        <input
+            id="commentInput"
+            style="width:250px;"
+        >
+
+        <br><br>
+
+        <button id="previousArtUnit">
+
+            Previous
+
+        </button>
+
+        <button id="saveExaminer">
+
+            Save
+
+        </button>
+
+        <button id="nextArtUnit">
+
+            Next
+
+        </button>
+
+    `;
+
+    panel.style.position = "fixed";
+
+    panel.style.bottom = "20px";
+
+    panel.style.right = "20px";
+
+    panel.style.background = "white";
+
+    panel.style.padding = "10px";
+
+    panel.style.zIndex = "999999";
+
+    panel.style.border =
+        "1px solid #ccc";
+
+    document.body.appendChild(panel);
 
     return panel;
 }
@@ -1044,6 +1151,285 @@ async function populateClassificationTextarea() {
         );
 }
 
+
+async function initializeExaminerValidation() {
+
+    examinerArtUnits =
+        await getExaminerValidationArtUnits();
+        
+    console.log(
+		examinerArtUnits
+	);
+
+    currentExaminerIndex = 0;
+
+    if (
+		examinerArtUnits.length === 0
+	) {
+	
+		document.getElementById(
+			"currentArtUnit"
+		).textContent =
+			"No Art Units";
+	
+		return;
+	}
+	
+	await loadCurrentArtUnit();
+
+    wireExaminerButtons();
+}
+
+
+async function loadCurrentArtUnit() {
+
+    const group =
+        examinerArtUnits[
+            currentExaminerIndex
+        ];
+
+    if (!group) {
+
+        return;
+    }
+
+    document.getElementById(
+        "currentArtUnit"
+    ).textContent =
+        group.artUnit;
+
+    document.getElementById(
+        "currentClassifications"
+    ).innerHTML =
+        group.codes.join("<br>");
+
+    const storage =
+        await chrome.storage.local.get(
+            "classifications"
+        );
+
+    const record =
+		storage.classifications[
+			group.codes[0]
+		] || {};
+
+    document.getElementById(
+        "employeeInput"
+    ).value =
+        record.employee || "";
+
+    document.getElementById(
+        "phoneInput"
+    ).value =
+        record.phone || "";
+
+    document.getElementById(
+        "commentInput"
+    ).value =
+        record.comment || "";
+
+    updateProgress();
+}
+
+
+function updateProgress() {
+
+    document.getElementById(
+        "examinerProgress"
+    ).textContent =
+
+        `Art Unit ${currentExaminerIndex + 1} of ${examinerArtUnits.length}`;
+
+}
+
+
+async function saveCurrentArtUnit() {
+
+    const group =
+        examinerArtUnits[
+            currentExaminerIndex
+        ];
+
+    const storage =
+        await chrome.storage.local.get(
+            "classifications"
+        );
+
+    const classifications =
+        storage.classifications;
+
+    const employee =
+        document.getElementById(
+            "employeeInput"
+        ).value.trim();
+
+    const phone =
+        document.getElementById(
+            "phoneInput"
+        ).value.trim();
+
+    const comment =
+        document.getElementById(
+            "commentInput"
+        ).value.trim();
+
+    for (
+        const code
+        of group.codes
+    ) {
+
+        classifications[
+            code
+        ].employee =
+            employee;
+
+        classifications[
+            code
+        ].phone =
+            phone;
+
+        classifications[
+            code
+        ].comment =
+            comment;
+    }
+
+    await chrome.storage.local.set({
+
+        classifications
+
+    });
+
+    await nextArtUnit();
+}
+
+
+async function nextArtUnit() {
+
+    if (
+        currentExaminerIndex >=
+        examinerArtUnits.length - 1
+    ) {
+
+        alert(
+            "All Art Units completed."
+        );
+
+        return;
+    }
+
+    currentExaminerIndex++;
+
+    await loadCurrentArtUnit();
+}
+
+
+async function previousArtUnit() {
+
+    if (
+
+        currentExaminerIndex >
+
+        0
+
+    ) {
+
+        currentExaminerIndex--;
+
+        await loadCurrentArtUnit();
+
+    }
+
+}
+
+
+function wireExaminerButtons() {
+
+    document.getElementById(
+        "saveExaminer"
+    ).onclick =
+        saveCurrentArtUnit;
+
+    document.getElementById(
+        "nextArtUnit"
+    ).onclick =
+        nextArtUnit;
+
+    document.getElementById(
+        "previousArtUnit"
+    ).onclick =
+        previousArtUnit;
+
+}
+
+
+async function getExaminerValidationArtUnits() {
+
+    const storage =
+        await chrome.storage.local.get(
+            "classifications"
+        );
+
+    const classifications =
+        storage.classifications || {};
+
+    const groups = {};
+
+    for (
+        const [code, record]
+        of Object.entries(classifications)
+    ) {
+
+//         if (!record.keep) {
+// 
+//             continue;
+//         }
+
+        if (/^[A-HY]/.test(code)) {
+
+            continue;
+        }
+
+        const artUnit =
+            lookupArtUnit(code);
+
+        if (
+            artUnit === "Not Found"
+        ) {
+
+            continue;
+        }
+
+        groups[artUnit] ??= {
+
+            artUnit,
+
+            codes: []
+
+        };
+
+        groups[artUnit]
+            .codes
+            .push(code);
+    }
+
+    const artUnits =
+		Object.values(groups);
+		
+	console.log(
+		groups
+	);
+	
+	artUnits.sort(
+		(a, b) =>
+			Number(a.artUnit) -
+			Number(b.artUnit)
+	);
+	
+	return artUnits;
+}
+
+
 function extractUspcClassTitle(
     html
 ) {
@@ -1588,29 +1974,64 @@ async function savePatentWithRelevance(
 	
 async function renderPanel() {
 	
-		const existingPanel =
-			document.getElementById(
+		document
+			.getElementById(
 				"classificationToolPanel"
-			);
+			)
+			?.remove();
 		
-		if (
-			existingPanel
-		) {
-		
-			existingPanel.remove();
-		}
+		document
+			.getElementById(
+				"examinerValidationPanel"
+			)
+			?.remove();
 
 		const stage =
 			await getCurrentStage();
 			
 		const isClassificationPage =
-		location.hostname ===
-			"www.uspto.gov"
-		&&
-		location.pathname.startsWith(
-			"/web/patents/classification"
-		);
-	
+				location.hostname ===
+					"www.uspto.gov"
+				&&
+				location.pathname.startsWith(
+					"/web/patents/classification"
+				);
+				
+				const isEmployeeSearchPage =
+		
+			location.hostname ===
+				"portal.uspto.gov"
+		
+			&&
+		
+			location.pathname.startsWith(
+				"/EmployeeSearch"
+			);
+		
+		if (
+		
+			stage ===
+				"examinerValidation"
+		
+			&&
+		
+			isEmployeeSearchPage
+		
+		) {
+		
+			createExaminerValidationPanel();
+		
+			await initializeExaminerValidation();
+			
+			console.log(
+				"Examiner Validation detected"
+			);
+		
+			return;
+		
+		}
+
+
 		if (
 			stage === "referenceList"
 			&&
@@ -1729,15 +2150,27 @@ async function renderPanel() {
         }
 
         if (
-            changes.classifications &&
-            document.getElementById(
-                "classificationFamily"
-            )
-        ) {
-
-            await populateClassDropdown();
-
-            await populateClassificationTextarea();
-        }
+			changes.classifications
+		) {
+		
+			if (
+				document.getElementById(
+					"classificationFamily"
+				)
+			) {
+		
+				await populateClassDropdown();
+				await populateClassificationTextarea();
+			}
+		
+			if (
+				document.getElementById(
+					"examinerValidationPanel"
+				)
+			) {
+		
+				await loadCurrentArtUnit();
+			}
+		}
     }
 );
