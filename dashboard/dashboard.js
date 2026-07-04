@@ -1270,7 +1270,7 @@ function lookupArtUnit(
         }
     }
 
-    console.warn(
+    console.info(
 		`No Art Unit found for USPC ${uspc}`
 	);
 	
@@ -2323,7 +2323,7 @@ async function renderHistogram(
 		missingArtUnits.length
 	) {
 	
-		console.warn(
+		console.info(
 			"Missing Art Unit mappings:",
 			missingArtUnits
 		);
