@@ -3,7 +3,10 @@ import {
 }
 from "./storage.js";
 
-export async function exportData() {
+export async function exportData(
+    filename =
+        "patent-universe.json"
+) {
 
     const patents =
         await getPatents();
@@ -67,6 +70,6 @@ export async function exportData() {
         url,
 
         filename:
-            "patent-universe.json"
+            filename
     });
 }

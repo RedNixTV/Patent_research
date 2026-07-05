@@ -33,6 +33,11 @@ import {
 }
 from "./workflow.js";
 
+import {
+    exportData
+}
+from "../storage/exportImport.js";
+
 let artUnits = {};
 const artUnitCache = new Map();
 let patents = [];
@@ -585,6 +590,34 @@ async function saveHistogramColumnOrder(
     });
 }
 
+function buildExportFilename(
+    project
+) {
+
+    const name =
+        project?.name
+        || "patent-universe";
+
+    const safeName =
+        name
+            .trim()
+            .replace(
+                /[\\/:*?"<>|]+/g,
+                "-"
+            )
+            .replace(
+                /\s+/g,
+                " "
+            )
+            || "patent-universe";
+
+    return safeName.endsWith(
+        ".json"
+    )
+        ? safeName
+        : `${safeName}.json`;
+}
+
 
 function enableColumnDragDrop() {
 
@@ -1104,6 +1137,23 @@ async function init() {
 			);
 	
 			location.reload();
+		};
+
+	document
+		.getElementById(
+			"exportData"
+		)
+		.onclick =
+		async () => {
+
+			const filename =
+				buildExportFilename(
+					await getCurrentProject()
+				);
+
+			await exportData(
+				filename
+			);
 		};
 
     document

@@ -556,7 +556,7 @@ The edit dialog automatically mirrors the current table column order, making it 
 
 ### Export
 
-Export patent collections as JSON for backup, sharing, and future analysis.
+Use the dashboard Export button to download the current project's patent collection as JSON for backup, sharing, and future analysis. The downloaded file uses the current project name.
 
 ## Project Structure
 classification-discovery-tool/
