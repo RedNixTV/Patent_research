@@ -18,6 +18,8 @@
 ### References
 ### CPC Histogram
 ### Primary USPC Histogram
+### Other USPC Histogram
+### Classification
 ## Histogram Analysis
 ### Classification Aggregation
 ### Reference Traceability
@@ -25,6 +27,7 @@
 ### Interactive Classification Filtering
 ###  Histogram Copy
 ## Patent Table Management
+### Patent Table Copy
 ### Patent Editing
 ### Editable Fields
 ### Read Only Fields
@@ -156,15 +159,29 @@ Classification metadata is stored separately and shared across all projects.
   "G06F30/13": {
     "classTitle": "Computer aided design",
     "subclassTitle": "Design optimisation",
+    "artUnit": "",
+    "employee": "",
+    "phone": "",
+    "comment": "",
     "status": "complete",
-    "keep": false
+    "keep": false,
+    "confidence": "Medium",
+    "researchTier": "primary",
+    "reason": "Matches the target technology area"
   },
 
   "703/1": {
     "classTitle": "Data Processing",
     "subclassTitle": "Optimization",
+    "artUnit": "2129",
+    "employee": "Jane Examiner",
+    "phone": "555-0100",
+    "comment": "Confirmed classification fit",
     "status": "complete",
-    "keep": false
+    "keep": true,
+    "confidence": "High",
+    "researchTier": "secondary",
+    "reason": "Useful supporting class"
   }
 }
 ```
@@ -186,6 +203,8 @@ projects
 │   ├── landscapeScan
 │   ├── referenceList
 │   ├── classificationAnalysis
+│   ├── artUnit
+│   ├── examinerValidation
 │   ├── universe
 │   ├── universeReview
 │   └── finalReferences
@@ -246,8 +265,11 @@ Automatic USPC title lookup
 Primary USPC analysis
 Other USPC analysis
 Reference List workflow
+Art Unit workflow
+Examiner Validation workflow
 Classification status tracking
 Copy histograms directly to the clipboard.
+Copy patent table data with full title and abstract values.
 Compact histogram titles
 Live histogram updates
 Persistent dashboard layouts
@@ -293,6 +315,18 @@ Look up CPC and USPC titles directly from USPTO classification schedules.
 Classification Analysis
 
 Analyze technology concentration using CPC and USPC histograms.
+
+↓
+
+Art Unit
+
+Map USPC classifications to USPTO Art Units using the local Art Unit lookup data.
+
+↓
+
+Examiner Validation
+
+Review and record examiner contact information for selected Art Units.
 
 ↓
 
@@ -357,6 +391,7 @@ The dashboard provides:
 • CPC Histograms
 • Primary USPC Histograms
 • Other USPC Histograms
+• Classification view for Art Unit and Examiner Validation stages
 • Project Management
 • Workflow Navigation
 • Classification Filtering
@@ -371,6 +406,7 @@ References
 CPC Histogram
 Primary USPC Histogram
 Other USPC Histogram
+Classification
 
 The dashboard can generate frequency distributions for:
 
@@ -399,6 +435,10 @@ Analyze USPC classifications and technology families.
 
 ### Other USPC Histogram
 Analyzes secondary USPC classifications while excluding the primary classification.
+
+### Classification
+
+Combines selected CPC and USPC classifications for Art Unit and Examiner Validation workflows.
 
 ## Histogram Analysis
 
@@ -459,6 +499,13 @@ Features:
 * Persistent column layouts
 * Horizontal scrolling
 * Dynamic edit dialog synchronization
+* Patent table copy to clipboard
+
+### Patent Table Copy
+
+The patent table can be copied as tab separated text for spreadsheets and reports.
+
+When compact title or abstract display is enabled, the dashboard still copies the full title and full abstract from the saved patent record. The visible table remains compact, but copied output preserves the source data.
 
 ## Patent Editing
 
@@ -500,8 +547,11 @@ The edit dialog automatically mirrors the current table column order, making it 
 • Project switching
 • Workflow persistence
 • Compact display for Class Titles and Subclass Titles
+• Compact patent title and abstract display
 • Classification lookup tracking
 • Automatic histogram refresh
+• Art Unit lookup from local USPTO CAAU data
+• Examiner contact tracking
 
 ### Export
 
@@ -520,7 +570,7 @@ classification-discovery-tool/
 │   ├── dashboard.js
 │   ├── dashboard.css
 │   ├── histogram.js
-│   └── patentTable.js
+│   ├── patentTable.js
 │   └── workflow.js
 │
 ├── storage/
@@ -528,7 +578,13 @@ classification-discovery-tool/
 │   ├── exportImport.js
 │   └── schema.js
 │
-└── README.md
+├── tool/
+│   ├── build_art_units.py
+│   └── output/
+│       └── artUnits.json
+│
+└── docs/
+    └── README.md
 
 ## Storage
 The extension stores the following locally:
@@ -540,6 +596,8 @@ The extension stores the following locally:
 • Dashboard preferences
 • Patent table column layouts
 • Histogram column layouts
+• Examiner validation fields
+• Art Unit metadata
 
 No information is transmitted to external servers.
 
