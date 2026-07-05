@@ -844,6 +844,121 @@ async function init() {
 	
 			setupEditButtons();
 		};
+		
+	document
+		.getElementById(
+			"copyPatentTable"
+		)
+		.onclick =
+		async () => {
+	
+			const table =
+				document.getElementById(
+					"patentTable"
+				);
+				
+			const columnOrder =
+				await getColumnOrder();
+	
+			const rows = [];
+	
+			for (
+				const row
+				of table.rows
+			) {
+	
+				const values = [];
+				
+				const editButton =
+					row.querySelector(
+						".editPatent"
+					);
+					
+				const patent =
+					editButton
+						? patents[
+							Number(
+								editButton.dataset.index
+							)
+						  ]
+						: null;
+	
+				for (
+					let cellIndex = 0;
+					cellIndex < row.cells.length;
+					cellIndex++
+				) {
+				
+					const cell =
+						row.cells[
+							cellIndex
+						];
+						
+					const column =
+						columnOrder[
+							cellIndex - 1
+						];
+						
+					let value =
+						cell.innerText;
+						
+					if (
+						patent
+						&&
+						cellIndex === 0
+					) {
+					
+						value =
+							patent.referenceId;
+					}
+					
+					if (
+						patent
+						&&
+						column === "title"
+					) {
+					
+						value =
+							patent.title || "";
+					}
+					
+					if (
+						patent
+						&&
+						column === "abstract"
+					) {
+					
+						value =
+							patent.abstract || "";
+					}
+	
+					values.push(
+	
+						String(
+							value ?? ""
+						)
+							.replace(
+								/\s+/g,
+								" "
+							)
+							.trim()
+					);
+				}
+	
+				rows.push(
+					values.join("\t")
+				);
+			}
+	
+			await navigator.clipboard.writeText(
+	
+				rows.join("\n")
+			);
+	
+			alert(
+				"Patent table copied."
+			);
+		};
 	
 	document
 		.getElementById(
