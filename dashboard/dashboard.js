@@ -1998,11 +1998,7 @@ async function renderHistogram(
 					!showFullClasses
 				)
 					? `
-						<label
-							style="
-								margin-left:12px;
-							"
-						>
+						<label class="controlSpacing">
 			
 							<input
 								type="checkbox"
@@ -2236,9 +2232,9 @@ async function renderHistogram(
 										<td>
 								
 											<input
+												class="classificationArtUnitInput"
 												value="${computedArtUnit}"
 												readonly
-												style="width:90px;"
 											>
 								
 										</td>
@@ -2253,7 +2249,6 @@ async function renderHistogram(
 											class="classificationEmployee"
 											data-code="${code}"
 											value="${classification?.employee || ""}"
-											style="width:180px;"
 										>
 							
 									</td>
@@ -2268,7 +2263,6 @@ async function renderHistogram(
 											class="classificationPhone"
 											data-code="${code}"
 											value="${classification?.phone || ""}"
-											style="width:120px;"
 										>
 							
 									</td>
@@ -2283,7 +2277,6 @@ async function renderHistogram(
 											class="classificationComment"
 											data-code="${code}"
 											value="${classification?.comment || ""}"
-											style="width:120px;"
 										>
 							
 									</td>
@@ -2414,7 +2407,6 @@ async function renderHistogram(
 											class="classificationReason"
 											data-code="${code}"
 											value="${classification?.reason || ""}"
-											style="width:250px;"
 										>
 							
 									</td>
@@ -3144,10 +3136,7 @@ async function renderEditFields() {
             control = `
                 <textarea
                     id="${field.id}"
-                    style="
-                        width:100%;
-                        height:120px;
-                    "
+                    class="editFieldTextarea"
                     ${
                         field.readonly
                             ? "readonly"
@@ -3186,7 +3175,7 @@ async function renderEditFields() {
             control = `
                 <input
                     id="${field.id}"
-                    style="width:100%;"
+                    class="editFieldControl"
                     ${
                         field.readonly
                             ? "readonly"
@@ -3233,10 +3222,7 @@ async function renderEditFields() {
 				control = `
 					<textarea
 						id="${field.id}"
-						style="
-							width:100%;
-							height:120px;
-						"
+						class="editFieldTextarea"
 						readonly
 					></textarea>
 				`;
@@ -3247,7 +3233,7 @@ async function renderEditFields() {
 				control = `
 					<input
 						id="${field.id}"
-						style="width:100%;"
+						class="editFieldControl"
 						readonly
 					>
 				`;

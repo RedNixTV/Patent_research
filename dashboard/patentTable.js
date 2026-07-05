@@ -244,10 +244,6 @@ export function renderPatentTable(
 							index
 						}"
 						title="Edit Patent"
-						style="
-							cursor:pointer;
-							margin-right:8px;
-						"
 					>
 						✏️
 					</span>

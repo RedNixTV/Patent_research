@@ -552,6 +552,7 @@ The edit dialog automatically mirrors the current table column order, making it 
 • Automatic histogram refresh
 • Art Unit lookup from local USPTO CAAU data
 • Examiner contact tracking
+• Centralized dashboard presentation styles
 
 ### Export
 
@@ -585,6 +586,9 @@ classification-discovery-tool/
 │
 └── docs/
     └── README.md
+
+Dashboard presentation styles are centralized in `dashboard/dashboard.css`.
+Runtime display changes, such as showing and hiding workflow tabs or dialogs, remain in JavaScript.
 
 ## Storage
 The extension stores the following locally:

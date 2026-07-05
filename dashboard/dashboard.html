@@ -6,6 +6,10 @@
 		<title>
 			Classification Discovery Tool
 		</title>
+		<link
+			rel="stylesheet"
+			href="dashboard.css"
+		>
 	</head>
 	
 		<body>
@@ -54,11 +58,6 @@
 				
 				<div
 					id="workflowDescription"
-					style="
-						margin-top:8px;
-						font-style:italic;
-						color:#555;
-					"
 				></div>
 			
 			</div>
@@ -107,9 +106,7 @@
 				
 					</label>
 				
-					<label
-						style="margin-left:12px;"
-					>
+					<label class="controlSpacing">
 				
 						<input
 							type="checkbox"
@@ -142,140 +139,8 @@
 					</table>
 				
 				</div>
-				<style>
-				#histogramTable {
-				
-					border-collapse: collapse;
-				
-					width: auto;
-				
-					margin-top: 10px;
-				}
-				
-				#histogramTable th,
-				#histogramTable td {
-				
-					padding: 1px 2px;
-				
-					white-space: nowrap;
-				
-					text-align: left;
-				}
-				
-				#histogramTable th {
-				
-					font-weight: bold;
-				}
-				
-				.histogramBarCell {
-				
-					font-family: monospace;
-				}
-
-				#workflowBar {
-				
-					margin:10px 0;
-				}
-				
-				#tableContainer {
-				
-					overflow-x: auto;
-				
-					width: 100%;
-				}
-				
-				#patentTable {
-				
-					table-layout: fixed;
-					border-collapse: collapse;
-					width: auto;
-				}
-				
-				#patentTable th,
-				#patentTable td {
-				
-					padding: 4px 8px;
-					white-space: nowrap;
-					overflow: hidden;
-					text-overflow: ellipsis;
-				}
-				#patentTable th:nth-child(1),
-				#patentTable td:nth-child(1) {
-					width: 60px;
-				}
-				
-				#patentTable th:nth-child(2),
-				#patentTable td:nth-child(2) {
-					width: 120px;
-				}
-				
-				#patentTable th:nth-child(3),
-				#patentTable td:nth-child(3) {
-					width: 300px;
-				}
-				
-				#patentTable th:nth-child(4),
-				#patentTable td:nth-child(4) {
-					width: 350px;
-				}
-				
-				#patentTable th:nth-child(5),
-				#patentTable td:nth-child(5) {
-					width: 180px;
-				}
-				
-				#patentTable th:nth-child(6),
-				#patentTable td:nth-child(6) {
-					width: 220px;
-				}
-				
-				#patentTable th:nth-child(7),
-				#patentTable td:nth-child(7) {
-					width: 140px;
-				}
-				
-				#patentTable th:nth-child(8),
-				#patentTable td:nth-child(8),
-				#patentTable th:nth-child(9),
-				#patentTable td:nth-child(9) {
-					width: 120px;
-				}
-				
-				#patentTable th:nth-child(10),
-				#patentTable td:nth-child(10) {
-					width: 120px;
-				}
-				
-				#patentTable th:nth-child(11),
-				#patentTable td:nth-child(11) {
-					width: 220px;
-				}
-				
-				#patentTable th:nth-child(12),
-				#patentTable td:nth-child(12) {
-					width: 100px;
-				}
-				
-				</style>
 			<div
 				id="editPatentDialog"
-				style="
-					display:none;
-					position:fixed;
-					top:50%;
-					left:50%;
-					transform:translate(-50%,-50%);
-					background:white;
-					border:1px solid #ccc;
-					padding:20px;
-					z-index:999999;
-					width:700px;
-			
-					max-height:90vh;
-					overflow-y:auto;
-			
-					box-sizing:border-box;
-				"
 			>
 			
 				<h3>Edit Patent</h3>
