@@ -41,6 +41,9 @@ from "../storage/exportImport.js";
 let artUnits = {};
 const artUnitCache = new Map();
 let patents = [];
+let selectedPatentIds =
+    new Set();
+let currentTablePatents = [];
 let currentView = "references";
 let currentPatentIndex =
     null;
@@ -52,6 +55,185 @@ let compactClassTitle = true;
 let compactSubclassTitle = true;
 let compactPatentTitle = true;
 let compactPatentAbstract = true;
+
+function getPatentSelectionId(
+    patent
+) {
+
+    return String(
+        patent.patentNumber ||
+        patent.applicationNumber ||
+        patent.referenceId ||
+        ""
+    );
+}
+
+function getSelectedPatents() {
+
+    return patents.filter(
+        patent =>
+            selectedPatentIds.has(
+                getPatentSelectionId(
+                    patent
+                )
+            )
+    );
+}
+
+function areAllTablePatentsSelected() {
+
+    return currentTablePatents.length > 0
+        && currentTablePatents.every(
+            patent =>
+                selectedPatentIds.has(
+                    getPatentSelectionId(
+                        patent
+                    )
+                )
+        );
+}
+
+function areSomeTablePatentsSelected() {
+
+    return currentTablePatents.some(
+        patent =>
+            selectedPatentIds.has(
+                getPatentSelectionId(
+                    patent
+                )
+            )
+    );
+}
+
+async function renderCurrentPatentTable(
+    tablePatents = currentTablePatents
+) {
+
+    currentTablePatents =
+        tablePatents;
+
+    const columnOrder =
+        await getColumnOrder();
+
+    renderHeaders(
+        columnOrder,
+        {
+            allSelected:
+                areAllTablePatentsSelected()
+        }
+    );
+
+    renderPatentTable(
+        currentTablePatents,
+        columnOrder,
+        {
+            compactTitle:
+                compactPatentTitle,
+
+            compactAbstract:
+                compactPatentAbstract,
+
+            selectedPatentIds
+        }
+    );
+
+    setupEditButtons();
+    setupPatentSelectionControls();
+}
+
+function setupPatentSelectionControls() {
+
+    const selectAll =
+        document.getElementById(
+            "selectAllPatents"
+        );
+
+    if (selectAll) {
+
+        selectAll.checked =
+            areAllTablePatentsSelected();
+
+        selectAll.indeterminate =
+            !selectAll.checked
+            && areSomeTablePatentsSelected();
+
+        selectAll.onchange =
+            async event => {
+
+                for (
+                    const patent
+                    of currentTablePatents
+                ) {
+
+                    const id =
+                        getPatentSelectionId(
+                            patent
+                        );
+
+                    if (
+                        event.target.checked
+                    ) {
+
+                        selectedPatentIds.add(
+                            id
+                        );
+                    }
+
+                    else {
+
+                        selectedPatentIds.delete(
+                            id
+                        );
+                    }
+                }
+
+                await renderCurrentPatentTable(
+                    currentTablePatents
+                );
+
+                await updateCurrentHistogram();
+            };
+    }
+
+    document
+        .querySelectorAll(
+            ".patentSelectionCheckbox"
+        )
+        .forEach(
+            checkbox => {
+
+                checkbox.onchange =
+                    async event => {
+
+                        const id =
+                            event.target.dataset
+                                .patentId;
+
+                        if (
+                            event.target.checked
+                        ) {
+
+                            selectedPatentIds.add(
+                                id
+                            );
+                        }
+
+                        else {
+
+                            selectedPatentIds.delete(
+                                id
+                            );
+                        }
+
+                        await renderCurrentPatentTable(
+                            currentTablePatents
+                        );
+
+                        await updateCurrentHistogram();
+                    };
+            }
+        );
+}
     
 const HISTOGRAM_COLUMNS_BY_STAGE = {
 
@@ -500,22 +682,9 @@ async function filterByClassification(
 				})
 			);
 
-    const columnOrder =
-        await getColumnOrder();
-
-    renderPatentTable(
-		filteredPatents,
-		columnOrder,
-		{
-			compactTitle:
-				compactPatentTitle,
-	
-			compactAbstract:
-				compactPatentAbstract
-		}
-	);
-
-    setupEditButtons();
+    await renderCurrentPatentTable(
+        filteredPatents
+    );
 }
 
 async function clearClassificationFilter() {
@@ -523,20 +692,9 @@ async function clearClassificationFilter() {
     activeClassificationFilter =
         null;
 
-    const columnOrder =
-        await getColumnOrder();
-
-    renderPatentTable(
-		patents,
-		columnOrder,
-		{
-			compactTitle:
-				compactPatentTitle,
-	
-			compactAbstract:
-				compactPatentAbstract
-		}
-	);
+    await renderCurrentPatentTable(
+        patents
+    );
 
     setupEditButtons();
 }
@@ -691,24 +849,31 @@ function enableColumnDragDrop() {
                     );
 
                     renderHeaders(
-                        order
+                        order,
+                        {
+                            allSelected:
+                                areAllTablePatentsSelected()
+                        }
                     );
 
                     renderPatentTable(
-						patents,
+						currentTablePatents,
 						order,
 						{
 							compactTitle:
 								compactPatentTitle,
 					
 							compactAbstract:
-								compactPatentAbstract
+								compactPatentAbstract,
+
+                            selectedPatentIds
 						}
 					);
                     
                     await renderEditFields();
 
                     setupEditButtons();
+                    setupPatentSelectionControls();
 
                     enableColumnDragDrop();
                 }
@@ -826,28 +991,19 @@ async function init() {
 		}
 	);
 
-    const columnOrder =
-		await getColumnOrder();
-	
-	renderHeaders(
-		columnOrder
-	);
-	
-	renderPatentTable(
-		patents,
-		columnOrder,
-		{
-			compactTitle:
-				compactPatentTitle,
-	
-			compactAbstract:
-				compactPatentAbstract
-		}
-	);
+    selectedPatentIds =
+        new Set(
+            patents.map(
+                getPatentSelectionId
+            )
+        );
+
+	await renderCurrentPatentTable(
+        patents
+    );
 	
 	await renderEditFields();
     
-    setupEditButtons();
     enableColumnDragDrop();
 	setupEditDialog();
 	
@@ -861,21 +1017,9 @@ async function init() {
 			compactPatentTitle =
 				event.target.checked;
 				
-			const order = await getColumnOrder();
-	
-			renderPatentTable(
-				patents,
-				order,
-				{
-					compactTitle:
-						compactPatentTitle,
-	
-					compactAbstract:
-						compactPatentAbstract
-				}
-			);
-	
-			setupEditButtons();
+			await renderCurrentPatentTable(
+                currentTablePatents
+            );
 		};
 		
 	document
@@ -1003,21 +1147,9 @@ async function init() {
 			compactPatentAbstract =
 				event.target.checked;
 				
-			const order = await getColumnOrder();
-	
-			renderPatentTable(
-				patents,
-				order,
-				{
-					compactTitle:
-						compactPatentTitle,
-	
-					compactAbstract:
-						compactPatentAbstract
-				}
-			);
-	
-			setupEditButtons();
+			await renderCurrentPatentTable(
+                currentTablePatents
+            );
 		};
 	
 	document
@@ -1526,6 +1658,9 @@ function showReferences() {
 
 async function renderCpcHistogram() {
 
+    const histogramPatents =
+        getSelectedPatents();
+
     const showFull =
         document
             .getElementById(
@@ -1536,11 +1671,11 @@ async function renderCpcHistogram() {
     const histogram =
 		showFull
 			? buildHistogramWithReferences(
-				patents,
+				histogramPatents,
 				"allCpc"
 			)
 			: buildSubclassHistogramWithReferences(
-				patents,
+				histogramPatents,
 				"cpc"
 			);
 
@@ -1554,6 +1689,9 @@ async function renderCpcHistogram() {
 
 async function renderPrimaryUspcHistogram() {
 
+    const histogramPatents =
+        getSelectedPatents();
+
     const showFull =
         document
             .getElementById(
@@ -1565,11 +1703,11 @@ async function renderPrimaryUspcHistogram() {
         showFull
 
             ? buildPrimaryUspcHistogramWithReferences(
-                patents
+                histogramPatents
               )
 
             : buildPrimaryUspcSubclassHistogramWithReferences(
-                patents
+                histogramPatents
               );
 
     await renderHistogram(
@@ -1586,6 +1724,9 @@ async function renderPrimaryUspcHistogram() {
 
 async function renderOtherUspcHistogram() {
 
+    const histogramPatents =
+        getSelectedPatents();
+
     const showFull =
         document
             .getElementById(
@@ -1596,10 +1737,10 @@ async function renderOtherUspcHistogram() {
     const histogram =
         showFull
 				? buildOtherUspcHistogramWithReferences(
-					patents
+					histogramPatents
 				  )
 				: buildOtherUspcSubclassHistogramWithReferences(
-					patents
+					histogramPatents
 				  );
 
     await renderHistogram(
@@ -1615,6 +1756,9 @@ async function renderOtherUspcHistogram() {
 }
 
 async function renderClassificationHistogram() {
+
+    const histogramPatents =
+        getSelectedPatents();
 
     const showFull =
         document
@@ -1678,12 +1822,12 @@ async function renderClassificationHistogram() {
         showFull
 
             ? buildHistogramWithReferences(
-                patents,
+                histogramPatents,
                 "allCpc"
             )
 
             : buildSubclassHistogramWithReferences(
-                patents,
+                histogramPatents,
                 "cpc"
             )
     );
@@ -1693,11 +1837,11 @@ async function renderClassificationHistogram() {
         showFull
 
             ? buildPrimaryUspcHistogramWithReferences(
-                patents
+                histogramPatents
             )
 
             : buildPrimaryUspcSubclassHistogramWithReferences(
-                patents
+                histogramPatents
             )
     );
 
@@ -1706,11 +1850,11 @@ async function renderClassificationHistogram() {
         showFull
 
             ? buildOtherUspcHistogramWithReferences(
-                patents
+                histogramPatents
             )
 
             : buildOtherUspcSubclassHistogramWithReferences(
-                patents
+                histogramPatents
             )
     );
 	

@@ -165,7 +165,8 @@ function truncate(
 }
 
 export function renderHeaders(
-    columnOrder
+    columnOrder,
+    options = {}
 ) {
 
     const headerRow =
@@ -175,8 +176,20 @@ export function renderHeaders(
 
     headerRow.innerHTML = "";
 
-    headerRow.innerHTML =
-        "<th>#</th>";
+    const allSelected =
+        options.allSelected ?? true;
+
+    headerRow.innerHTML = `
+        <th class="patentSelectionHeader">
+            <input
+                type="checkbox"
+                id="selectAllPatents"
+                title="Select all patents for histogram"
+                ${allSelected ? "checked" : ""}
+            >
+            <span>#</span>
+        </th>
+    `;
 
     for (
         const column
@@ -208,8 +221,16 @@ export function renderPatentTable(
     const compactTitle =
 		options.compactTitle ?? false;
 	
-	const compactAbstract =
+    const compactAbstract =
 		options.compactAbstract ?? false;
+
+    const selectedPatentIds =
+        options.selectedPatentIds ||
+        new Set(
+            patents.map(
+                getPatentSelectionId
+            )
+        );
     
     columnOrder =
         columnOrder ||
@@ -233,9 +254,22 @@ export function renderPatentTable(
                     "tr"
                 );
 
+            const selectionId =
+                getPatentSelectionId(
+                    patent
+                );
+
             let html = `
 			
-				<td>
+				<td class="patentReferenceCell">
+
+                    <input
+                        type="checkbox"
+                        class="patentSelectionCheckbox"
+                        data-patent-id="${escapeAttribute(selectionId)}"
+                        title="Include patent in histogram"
+                        ${selectedPatentIds.has(selectionId) ? "checked" : ""}
+                    >
 			
 					<span
 						class="editPatent"
@@ -282,4 +316,27 @@ export function renderPatentTable(
             );
         }
     );
+}
+
+function getPatentSelectionId(
+    patent
+) {
+
+    return String(
+        patent.patentNumber ||
+        patent.applicationNumber ||
+        patent.referenceId ||
+        ""
+    );
+}
+
+function escapeAttribute(
+    value
+) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
 }
