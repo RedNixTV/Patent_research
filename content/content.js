@@ -246,6 +246,16 @@ function createReferenceListPanel() {
         >
             Lookup
         </button>
+
+        <button
+            id="lookupAllCpcClassifications"
+            style="
+                margin-left:8px;
+                display:none;
+            "
+        >
+            All CPC
+        </button>
         
         <button
 			id="openDashboard"
@@ -1524,6 +1534,118 @@ function buildCpcDefinitionUrl(
 
     return `https://www.uspto.gov/web/patents/classification/cpc/html/cpc-${section}.html`;
 }
+
+function isCpcDefinitionPage() {
+
+    return location.hostname ===
+        "www.uspto.gov"
+        &&
+        location.pathname.startsWith(
+            "/web/patents/classification/cpc/html/cpc-"
+        )
+        &&
+        location.pathname.endsWith(
+            ".html"
+        );
+}
+
+function getCurrentCpcPageClass() {
+
+    const match =
+        location.pathname.match(
+            /\/cpc-([A-HY]\d{2}[A-Z])\.html$/i
+        );
+
+    return match
+        ? match[1].toUpperCase()
+        : "";
+}
+
+async function getClassificationsForCpcPageClass(
+    pageClass
+) {
+
+    const patents =
+        await getPatents();
+
+    const classifications =
+        new Set();
+
+    for (
+        const patent
+        of patents
+    ) {
+
+        for (
+            const code
+            of patent.cpc || []
+        ) {
+
+            if (
+                getCpcGrandParent(
+                    code
+                ) === pageClass
+            ) {
+
+                classifications.add(
+                    code
+                );
+            }
+        }
+    }
+
+    return [...classifications].sort(
+        (
+            a,
+            b
+        ) =>
+            a.localeCompare(
+                b,
+                undefined,
+                {
+                    numeric: true
+                }
+            )
+    );
+}
+
+async function lookupCurrentCpcPageClassifications() {
+
+    const pageClass =
+        getCurrentCpcPageClass();
+
+    const symbols =
+        await getClassificationsForCpcPageClass(
+            pageClass
+        );
+
+    if (
+        symbols.length === 0
+    ) {
+
+        alert(
+            "No CPC symbols found for this CPC page in the current project."
+        );
+
+        return;
+    }
+
+    document
+        .getElementById(
+            "classificationInput"
+        )
+        .value =
+        symbols.join(
+            "\n"
+        );
+
+    await lookupClassifications();
+    await populateClassDropdown();
+
+    alert(
+        `${symbols.length} CPC symbols looked up for ${pageClass}.`
+    );
+}
 	
 async function lookupClassifications() {
     
@@ -1572,8 +1694,13 @@ async function lookupClassifications() {
 			isCpc
 		) {
 		
+            const definitionUrl =
+                buildCpcDefinitionUrl(
+                    symbol
+                );
+
 			let html =
-				htmlCache[symbol];
+				htmlCache[definitionUrl];
 		
 			if (
 				!html
@@ -1581,9 +1708,7 @@ async function lookupClassifications() {
 		
 				const response =
 					await fetch(
-						buildCpcDefinitionUrl(
-							symbol
-						)
+						definitionUrl
 					);
 		
 				if (
@@ -1597,7 +1722,7 @@ async function lookupClassifications() {
 					await response.text();
 		
 				htmlCache[
-					symbol
+					definitionUrl
 				] = html;
 			}
 		
@@ -1904,13 +2029,6 @@ function extractCpcTitle(
             index + 5000
         );
         
-    console.log(
-		chunk.substring(
-			0,
-			1000
-		)
-	);
-        
     const block =
     chunk.match(
         /<div class="class-title">([\s\S]*?)<span class="date-revised"/i
@@ -2057,6 +2175,22 @@ async function renderPanel() {
 			)
 			.onclick =
 			lookupClassifications;
+
+            const bulkCpcButton =
+                document.getElementById(
+                    "lookupAllCpcClassifications"
+                );
+
+            if (
+                isCpcDefinitionPage()
+            ) {
+
+                bulkCpcButton.style.display =
+                    "";
+
+                bulkCpcButton.onclick =
+                    lookupCurrentCpcPageClassifications;
+            }
 			
 			document
 			.getElementById(
