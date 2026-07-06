@@ -2011,59 +2011,75 @@ function extractCpcTitle(
     symbol
 ) {
 
-    const index =
-        html.indexOf(
-            `id="${symbol}"`
+    const document =
+        new DOMParser()
+            .parseFromString(
+                html,
+                "text/html"
+            );
+
+    const classification =
+        document.getElementById(
+            symbol
         );
 
     if (
-        index === -1
+        !classification
     ) {
 
         return "Classification not found";
     }
 
-    const chunk =
-        html.slice(
-            index,
-            index + 5000
+    const titleBlock =
+        classification.closest(
+            ".class-title"
+        )
+        ||
+        classification.querySelector(
+            ".class-title"
+        )
+        ||
+        classification.parentElement?.querySelector(
+            ".class-title"
         );
-        
-    const block =
-    chunk.match(
-        /<div class="class-title">([\s\S]*?)<span class="date-revised"/i
-    );
-    
-    if (!block) {
-	
-		return "Unable to parse title";
-	}
-                
-    const matches =
+
+    if (
+        !titleBlock
+    ) {
+
+        return "Unable to parse title";
+    }
+
+    const titleElements =
     [
-        ...block[1].matchAll(
-            /<span class="ipc-text">(.*?)<\/span>/g
+        ...titleBlock.querySelectorAll(
+            ".ipc-text, .cpc-text"
         )
     ];
-    
+
     const titles =
-		matches.map(
-			match =>
-				match[1]
-					.replace(
-						/<[^>]+>/g,
-						""
-					)
-					.replace(
-						/\s+/g,
-						" "
-					)
-					.trim()
-		);
+        titleElements
+            .map(
+                element =>
+                    element.textContent
+                        .replace(
+                            /\s+/g,
+                            " "
+                        )
+                        .trim()
+            )
+            .filter(Boolean);
+
+    if (
+        !titles.length
+    ) {
+
+        return "Unable to parse title";
+    }
 
     return titles.join(
-		"; "
-	);
+        "; "
+    );
 }
 
 
