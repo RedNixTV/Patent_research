@@ -2483,6 +2483,9 @@ async function renderHistogram(
 					data.count
 			)
 		);
+
+    let classificationStorageChanged =
+        false;
 		
 	for (
 		const [
@@ -2511,6 +2514,25 @@ async function renderHistogram(
                 : classifications[
                     code
                   ]?.artUnit || "";
+
+        if (
+            shouldLookupArtUnit
+            &&
+            computedArtUnit
+            &&
+            computedArtUnit !== "Not Found"
+            &&
+            classifications[code]
+            &&
+            classifications[code].artUnit !== computedArtUnit
+        ) {
+
+            classifications[code].artUnit =
+                computedArtUnit;
+
+            classificationStorageChanged =
+                true;
+        }
 				
 		if (
             shouldLookupArtUnit
@@ -2806,6 +2828,15 @@ async function renderHistogram(
 			</tr>
 		`;
 	}
+
+    if (
+        classificationStorageChanged
+    ) {
+
+        await chrome.storage.local.set({
+            classifications
+        });
+    }
 	
 	if (
         stage === "artUnit"
