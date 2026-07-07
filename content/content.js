@@ -1390,10 +1390,12 @@ async function getExaminerValidationArtUnits() {
         of Object.entries(classifications)
     ) {
 
-//         if (!record.keep) {
-// 
-//             continue;
-//         }
+        if (
+            !record.pickArtUnit
+        ) {
+
+            continue;
+        }
 
         if (/^[A-HY]/.test(code)) {
 
@@ -1962,6 +1964,10 @@ async function lookupClassifications() {
 				artUnitReason:
 					classifications[symbol]?.artUnitReason
 					?? "",
+
+				pickArtUnit:
+					classifications[symbol]?.pickArtUnit
+					?? false,
 			
 				status:
 					classTitle === "Classification not found"
@@ -2015,6 +2021,10 @@ async function lookupClassifications() {
 					artUnitReason:
 						classifications[parent]?.artUnitReason
 						?? "",
+
+					pickArtUnit:
+						classifications[parent]?.pickArtUnit
+						?? false,
 				
 					status:
 						classTitle === "Classification not found"
@@ -2110,6 +2120,10 @@ async function lookupClassifications() {
 			artUnitReason:
 				classifications[symbol]?.artUnitReason
 				?? "",
+
+			pickArtUnit:
+				classifications[symbol]?.pickArtUnit
+				?? false,
 		
 			status:
 				classTitle === "Classification not found"
@@ -2154,6 +2168,10 @@ async function lookupClassifications() {
 				artUnitReason:
 					classifications[classNumber]?.artUnitReason
 					?? "",
+
+				pickArtUnit:
+					classifications[classNumber]?.pickArtUnit
+					?? false,
 
 				status:
 					classTitle === "Classification not found"

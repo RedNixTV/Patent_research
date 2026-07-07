@@ -390,9 +390,11 @@ const HISTOGRAM_COLUMNS_BY_STAGE = {
     ],
     
     artUnit: [
-	
+
 		"class",
 		"artUnit",
+		"keep",
+		"pickArtUnit",
 		"classTitle",
 		"subclassTitle",
 		"count",
@@ -440,6 +442,9 @@ const HISTOGRAM_HEADER_MAP = {
         
     artUnit:
 		"Art Unit",
+
+	pickArtUnit:
+		"Pick",
 		
 	employee:
     "Employee",
@@ -2236,6 +2241,30 @@ async function renderHistogram(
 						classifications[
 							code
 						];
+
+					if (
+						stage === "examinerValidation"
+					) {
+
+						if (
+							record?.pickArtUnit
+						) {
+
+							return true;
+						}
+
+						return Object.entries(
+							classifications
+						).some(
+
+							([symbol, child]) =>
+
+								child.pickArtUnit &&
+								symbol.startsWith(
+									code + "/"
+								)
+						);
+					}
 				
 					if (
 						record?.keep
@@ -2645,6 +2674,25 @@ async function renderHistogram(
 								
 										</td>
 									`;
+
+							case "pickArtUnit":
+
+								return `
+									<td>
+
+										<input
+											type="checkbox"
+											class="pickArtUnitForValidation"
+											data-code="${code}"
+											${
+												classification?.pickArtUnit
+													? "checked"
+													: ""
+											}
+										>
+
+									</td>
+								`;
 									
 							case "employee":
 							
@@ -3067,6 +3115,35 @@ async function renderHistogram(
 		
 	document
 		.querySelectorAll(
+			".pickArtUnitForValidation"
+		)
+		.forEach(
+			checkbox => {
+
+				checkbox.onchange =
+					async () => {
+
+						const storage =
+							await chrome.storage.local.get(
+								"classifications"
+							);
+
+						storage.classifications[
+							checkbox.dataset.code
+						].pickArtUnit =
+							checkbox.checked;
+
+						await chrome.storage.local.set({
+
+							classifications:
+								storage.classifications
+						});
+					};
+			}
+		);
+
+	document
+		.querySelectorAll(
 			".classificationEmployee"
 		)
 		.forEach(
@@ -3336,6 +3413,12 @@ async function renderHistogram(
 								case "artUnit":
 								
 									return computedArtUnit;
+
+								case "pickArtUnit":
+
+									return classification.pickArtUnit
+										? "☑"
+										: "☐";
 									
 								case "employee":
 								

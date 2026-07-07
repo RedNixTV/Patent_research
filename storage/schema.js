@@ -41,6 +41,8 @@ export function createClassification() {
 
         artUnitReason: "",
 
+        pickArtUnit: false,
+
         employee: "",
 		
 		phone: "",
