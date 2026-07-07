@@ -1972,11 +1972,11 @@ async function lookupClassifications() {
 					
 				confidence:
 					classifications[symbol]?.confidence
-					?? "Medium",
+					?? "None",
 				
 				researchTier:
 					classifications[symbol]?.researchTier
-					?? "none",
+					?? "None",
 				
 				reason:
 					classifications[symbol]?.reason
@@ -2021,11 +2021,11 @@ async function lookupClassifications() {
 					
 					confidence:
 						classifications[parent]?.confidence
-						?? "Medium",
+						?? "None",
 					
 					researchTier:
 						classifications[parent]?.researchTier
-						?? "none",
+						?? "None",
 					
 					reason:
 						classifications[parent]?.reason
@@ -2112,11 +2112,11 @@ async function lookupClassifications() {
 				
 			confidence:
 				classifications[symbol]?.confidence
-				?? "Medium",
+				?? "None",
 			
 			researchTier:
 				classifications[symbol]?.researchTier
-				?? "none",
+				?? "None",
 			
 			reason:
 				classifications[symbol]?.reason

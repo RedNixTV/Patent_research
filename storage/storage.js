@@ -65,9 +65,9 @@ async function ensureClassificationsExist(
 
             keep: false,
             	
-			confidence: "Medium",
+			confidence: "None",
 			
-			researchTier: "none",
+			researchTier: "None",
 			
 			reason: ""
         };

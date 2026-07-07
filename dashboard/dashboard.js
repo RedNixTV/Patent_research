@@ -1961,7 +1961,7 @@ function synchronizeParentClassification(
             "None";
 
         parent.researchTier =
-            "none";
+            "None";
 
         parent.reason =
             "";
@@ -2004,6 +2004,55 @@ function synchronizeParentClassification(
     parent.reason =
         winner.reason;
 }
+
+async function normalizeClassificationAnalysisDefaults(
+    classifications
+) {
+
+    let changed =
+        false;
+
+    for (
+        const record
+        of Object.values(
+            classifications
+        )
+    ) {
+
+        if (
+            !record.keep
+            &&
+            record.confidence === "Medium"
+        ) {
+
+            record.confidence =
+                "None";
+
+            changed =
+                true;
+        }
+
+        if (
+            record.researchTier === "none"
+        ) {
+
+            record.researchTier =
+                "None";
+
+            changed =
+                true;
+        }
+    }
+
+    if (
+        changed
+    ) {
+
+        await chrome.storage.local.set({
+            classifications
+        });
+    }
+}
     
 async function renderHistogram(
     histogram,
@@ -2035,6 +2084,15 @@ async function renderHistogram(
     
 	const classifications =
 		storage.classifications || {};
+
+    if (
+        stage === "classificationAnalysis"
+    ) {
+
+        await normalizeClassificationAnalysisDefaults(
+            classifications
+        );
+    }
 		
 	if (
 		stage === "examinerValidation"

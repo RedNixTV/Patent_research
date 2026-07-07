@@ -51,7 +51,7 @@ export function createClassification() {
         
         confidence: "None",
 		
-		researchTier: "none",
+		researchTier: "None",
 		
 		reason: ""
     };
