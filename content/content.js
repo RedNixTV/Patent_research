@@ -1460,53 +1460,252 @@ function extractUspcSubclassTitle(
     subclassNumber
 ) {
 
-    const anchorNumber =
-        Math.round(
-            Number(
-                subclassNumber
-            ) * 1000
-        )
-        .toString()
-        .padStart(
-            6,
-            "0"
-        );
+    const cleanTitle =
+        title =>
+            title
+                .replace(/\*/g, "")
+                .replace(/\s+/g, " ")
+                .trim();
 
-    const anchorId =
-        `C${classNumber}S${anchorNumber}`;
+    const cleanParsedTitle =
+        title =>
+            cleanTitle(
+                title
+            )
+                .replace(
+                    /:$/,
+                    ""
+                )
+                .replace(
+                    /\s*\(EPO\)$/,
+                    " (EPO)"
+                );
 
-    const index =
-        html.indexOf(
-            `name="${anchorId}"`
+    const document =
+        new DOMParser()
+            .parseFromString(
+                html,
+                "text/html"
+            );
+
+    // Ordinary USPC subclasses use a generated anchor name followed by
+    // a bolded title in the form: <b>Title:</b>.
+    const numericSubclass =
+        Number(
+            subclassNumber
         );
 
     if (
-        index === -1
+        Number.isFinite(
+            numericSubclass
+        )
+    ) {
+
+        const anchorNumber =
+            Math.round(
+                numericSubclass * 1000
+            )
+            .toString()
+            .padStart(
+                6,
+                "0"
+            );
+
+        const anchorId =
+            `C${classNumber}S${anchorNumber}`;
+
+        const anchor =
+            document.getElementsByName(
+                anchorId
+            )[0];
+
+        if (
+            !anchor
+        ) {
+
+            return "";
+        }
+
+        const titleElement =
+            [
+                ...document.querySelectorAll(
+                    "b"
+                )
+            ]
+                .find(
+                    element =>
+                        anchor.compareDocumentPosition(
+                            element
+                        )
+                        &
+                        Node.DOCUMENT_POSITION_FOLLOWING
+                );
+
+        if (
+            !titleElement
+        ) {
+
+            return "";
+        }
+
+        const match =
+            titleElement
+                .textContent
+                .match(
+                    /^([^:<]+):/i
+                );
+
+        return match
+            ? cleanTitle(
+                match[1]
+              )
+            : "";
+    }
+
+    // E subclasses may put the subclass number in the anchor href while
+    // using the anchor text itself as the subclass title.
+    const eSubclassAnchors =
+        [
+            ...document.querySelectorAll(
+                "a"
+            )
+        ];
+
+    const titledAnchor =
+        eSubclassAnchors
+            .find(
+                anchor => {
+
+                    const anchorTitle =
+                        cleanTitle(
+                            anchor.textContent
+                        );
+
+                    return anchorTitle
+                        &&
+                        anchorTitle !== subclassNumber
+                        &&
+                        anchor
+                            .getAttribute(
+                                "href"
+                            )
+                            ?.includes(
+                                subclassNumber
+                            );
+                }
+            );
+
+    if (
+        titledAnchor
+    ) {
+
+        return cleanParsedTitle(
+            titledAnchor.textContent
+        );
+    }
+
+    const eSubclassAnchor =
+        eSubclassAnchors
+            .find(
+                anchor =>
+                    cleanTitle(
+                        anchor.textContent
+                    ) === subclassNumber
+                    ||
+                    anchor
+                        .getAttribute(
+                            "href"
+                        )
+                        ?.includes(
+                            subclassNumber
+                        )
+            );
+
+    if (
+        !eSubclassAnchor
+        ||
+        !eSubclassAnchor.parentNode
     ) {
 
         return "";
     }
 
-    const chunk =
-        html.slice(
-            index,
-            index + 1000
+    const anchorTitle =
+        cleanTitle(
+            eSubclassAnchor.textContent
+        );
+
+    if (
+        anchorTitle
+        &&
+        anchorTitle !== subclassNumber
+    ) {
+
+        return anchorTitle;
+    }
+
+    const titleParts =
+        [];
+
+    let afterAnchor =
+        false;
+
+    for (
+        const node
+        of eSubclassAnchor.parentNode.childNodes
+    ) {
+
+        if (
+            node === eSubclassAnchor
+        ) {
+
+            afterAnchor =
+                true;
+
+            continue;
+        }
+
+        if (
+            afterAnchor
+            &&
+            node.nodeType === Node.TEXT_NODE
+        ) {
+
+            titleParts.push(
+                node.textContent
+            );
+
+            if (
+                node.textContent.includes(
+                    ":"
+                )
+            ) {
+
+                break;
+            }
+        }
+    }
+
+    const title =
+        cleanTitle(
+            titleParts.join(
+                " "
+            )
         );
 
     const match =
-        chunk.match(
-            /<b>([^:<]+):<\/b>/i
+        title.match(
+            /^(.+?):/
         );
 
-    const title =
+    const parsedTitle =
         match
             ? match[1]
-            : "";
+            : title;
 
-    return title
-        .replace(/\*/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
+    return cleanParsedTitle(
+        parsedTitle
+    );
 }
 
 function buildUspcDefinitionUrl(
@@ -1842,15 +2041,18 @@ async function lookupClassifications() {
                 classNumber
             ];
 
+        const uspcDefinitionUrl =
+            buildUspcDefinitionUrl(
+                classNumber
+            );
+
         if (
             !html
         ) {
 
             const response =
                 await fetch(
-                    buildUspcDefinitionUrl(
-                        classNumber
-                    )
+                    uspcDefinitionUrl
                 );
 
             if (
