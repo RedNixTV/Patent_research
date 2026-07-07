@@ -80,6 +80,36 @@ function getSelectedPatents() {
     );
 }
 
+function getProjectClassificationCodes(
+    projectPatents
+) {
+
+    const codes =
+        new Set();
+
+    for (
+        const patent
+        of projectPatents
+    ) {
+
+        for (
+            const code
+            of [
+                ...(patent.cpc || []),
+                ...(patent.primaryCpc || []),
+                ...(patent.uspc || [])
+            ]
+        ) {
+
+            codes.add(
+                code
+            );
+        }
+    }
+
+    return codes;
+}
+
 function areAllTablePatentsSelected() {
 
     return currentTablePatents.length > 0
@@ -2814,6 +2844,11 @@ async function renderHistogram(
 							classifications[
 								select.dataset.code
 							];
+
+						const projectClassificationCodes =
+							getProjectClassificationCodes(
+								patents
+							);
 	
 						const primaryCount =
 							Object.entries(
@@ -2827,6 +2862,12 @@ async function renderHistogram(
 										code
 									)
 						
+									&&
+
+									projectClassificationCodes.has(
+										code
+									)
+
 									&&
 						
 									record.keep
