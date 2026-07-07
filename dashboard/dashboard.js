@@ -400,6 +400,7 @@ const HISTOGRAM_COLUMNS_BY_STAGE = {
 		"references",
 		"confidence",
 		"researchTier",
+		"artUnitReason",
 		"reason"
 	],
     
@@ -471,7 +472,9 @@ const HISTOGRAM_HEADER_MAP = {
     confidence: "Confidence",
 	
 	researchTier: "Tier",
-	
+
+	artUnitReason: "Art Unit Reason",
+
 	reason: "Cls Reason"
 };
     
@@ -2814,6 +2817,20 @@ async function renderHistogram(
 							
 									</td>
 								`;
+
+							case "artUnitReason":
+
+								return `
+									<td>
+
+										<input
+											class="classificationArtUnitReason"
+											data-code="${code}"
+											value="${classification?.artUnitReason || ""}"
+										>
+
+									</td>
+								`;
 						}
 					}
 				)
@@ -3134,6 +3151,35 @@ async function renderHistogram(
 		
 	document
 		.querySelectorAll(
+			".classificationArtUnitReason"
+		)
+		.forEach(
+			input => {
+
+				input.onblur =
+					async () => {
+
+						const storage =
+							await chrome.storage.local.get(
+								"classifications"
+							);
+
+						storage.classifications[
+							input.dataset.code
+						].artUnitReason =
+							input.value.trim();
+
+						await chrome.storage.local.set({
+
+							classifications:
+								storage.classifications
+						});
+					};
+			}
+		);
+
+	document
+		.querySelectorAll(
 			".classificationReason"
 		)
 		.forEach(
@@ -3344,9 +3390,13 @@ async function renderHistogram(
 									return classification.researchTier || "";
 								
 								case "reason":
-								
+
 									return classification.reason || "";
-	
+
+								case "artUnitReason":
+
+									return classification.artUnitReason || "";
+
 								default:
 	
 									return "";

@@ -60,7 +60,9 @@ async function ensureClassificationsExist(
             subclassTitle: "",
             
             artUnit: "",
-            
+
+            artUnitReason: "",
+
             status: "pending",
 
             keep: false,
@@ -143,7 +145,9 @@ async function rebuildClassificationCatalog() {
                 subclassTitle: "",
                 
                 artUnit: "",
-                
+
+                artUnitReason: "",
+
                 status: "pending",
 
                 keep: false,

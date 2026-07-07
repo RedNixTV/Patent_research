@@ -1958,6 +1958,10 @@ async function lookupClassifications() {
 				artUnit:
 					classifications[symbol]?.artUnit
 					?? "",
+
+				artUnitReason:
+					classifications[symbol]?.artUnitReason
+					?? "",
 			
 				status:
 					classTitle === "Classification not found"
@@ -2006,6 +2010,10 @@ async function lookupClassifications() {
 					
 					artUnit:
 						classifications[parent]?.artUnit
+						?? "",
+
+					artUnitReason:
+						classifications[parent]?.artUnitReason
 						?? "",
 				
 					status:
@@ -2098,6 +2106,10 @@ async function lookupClassifications() {
 			artUnit:
 				classifications[symbol]?.artUnit
 				?? "",
+
+			artUnitReason:
+				classifications[symbol]?.artUnitReason
+				?? "",
 		
 			status:
 				classTitle === "Classification not found"
@@ -2139,6 +2151,10 @@ async function lookupClassifications() {
 					classifications[classNumber]?.artUnit
 					?? "",
 				
+				artUnitReason:
+					classifications[classNumber]?.artUnitReason
+					?? "",
+
 				status:
 					classTitle === "Classification not found"
 					||

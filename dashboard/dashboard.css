@@ -190,7 +190,8 @@
 	width: 120px;
 }
 
-.classificationReason {
+.classificationReason,
+.classificationArtUnitReason {
 	width: 250px;
 }
 

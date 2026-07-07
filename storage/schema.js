@@ -38,7 +38,9 @@ export function createClassification() {
         subclassTitle: "",
         
         artUnit: "",
-        
+
+        artUnitReason: "",
+
         employee: "",
 		
 		phone: "",
