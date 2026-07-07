@@ -472,7 +472,7 @@ const HISTOGRAM_HEADER_MAP = {
 	
 	researchTier: "Tier",
 	
-	reason: "Reason"
+	reason: "Cls Reason"
 };
     
 const EDIT_FIELD_MAP = {
