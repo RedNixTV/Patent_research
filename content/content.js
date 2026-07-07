@@ -1401,9 +1401,11 @@ async function getExaminerValidationArtUnits() {
         }
 
         const artUnit =
-            lookupArtUnit(code);
+            record.artUnit || "";
 
         if (
+            !artUnit
+            ||
             artUnit === "Not Found"
         ) {
 
