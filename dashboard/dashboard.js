@@ -55,6 +55,8 @@ let compactClassTitle = true;
 let compactSubclassTitle = true;
 let compactPatentTitle = true;
 let compactPatentAbstract = true;
+let suppressArtUnitLookupDialog = false;
+let artUnitLookupDialogOpen = false;
 
 function getPatentSelectionId(
     patent
@@ -108,6 +110,94 @@ function getProjectClassificationCodes(
     }
 
     return codes;
+}
+
+function showArtUnitLookupFailureDialog(
+    missingArtUnits
+) {
+
+    if (
+        suppressArtUnitLookupDialog
+        ||
+        artUnitLookupDialogOpen
+    ) {
+
+        return;
+    }
+
+    artUnitLookupDialogOpen =
+        true;
+
+    const overlay =
+        document.createElement(
+            "div"
+        );
+
+    overlay.className =
+        "modalOverlay";
+
+    const dialog =
+        document.createElement(
+            "div"
+        );
+
+    dialog.className =
+        "artUnitLookupDialog";
+
+    dialog.innerHTML = `
+        <h3>
+            Art Unit lookup failed
+        </h3>
+
+        <p>
+            Art Unit lookup failed for ${missingArtUnits.length} USPC classification(s).
+        </p>
+
+        <pre>${missingArtUnits.join("\n")}</pre>
+
+        <label>
+            <input
+                type="checkbox"
+                id="suppressArtUnitLookupDialog"
+            >
+            Do not show again during this session
+        </label>
+
+        <div class="dialogActions">
+            <button id="closeArtUnitLookupDialog">
+                OK
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(
+        overlay
+    );
+
+    document.body.appendChild(
+        dialog
+    );
+
+    document
+        .getElementById(
+            "closeArtUnitLookupDialog"
+        )
+        .onclick =
+        () => {
+
+            suppressArtUnitLookupDialog =
+                document
+                    .getElementById(
+                        "suppressArtUnitLookupDialog"
+                    )
+                    .checked;
+
+            dialog.remove();
+            overlay.remove();
+
+            artUnitLookupDialogOpen =
+                false;
+        };
 }
 
 function areAllTablePatentsSelected() {
@@ -2409,13 +2499,22 @@ async function renderHistogram(
 						a - b
 				)
 				.join(",");
-				
+
+        const shouldLookupArtUnit =
+            stage === "artUnit";
+
 		const computedArtUnit =
-				lookupArtUnit(
-					code
-				);
+            shouldLookupArtUnit
+                ? lookupArtUnit(
+                    code
+                  )
+                : classifications[
+                    code
+                  ]?.artUnit || "";
 				
 		if (
+            shouldLookupArtUnit
+            &&
 			computedArtUnit ===
 			"Not Found"
 		) {
@@ -2709,6 +2808,8 @@ async function renderHistogram(
 	}
 	
 	if (
+        stage === "artUnit"
+        &&
 		missingArtUnits.length
 	) {
 	
@@ -2717,10 +2818,9 @@ async function renderHistogram(
 			missingArtUnits
 		);
 	
-		alert(
-			`Art Unit lookup failed for ${missingArtUnits.length} USPC classification(s).\n\n` +
-			missingArtUnits.join("\n")
-		);
+        showArtUnitLookupFailureDialog(
+            missingArtUnits
+        );
 	}
         
     document
@@ -3108,12 +3208,13 @@ async function renderHistogram(
 					classifications[
 						code
 					] || {};
-					
-				
+
 				const computedArtUnit =
-						lookupArtUnit(
-							code
-						);
+                    stage === "artUnit"
+                        ? lookupArtUnit(
+                            code
+                          )
+                        : classification.artUnit || "";
 	
 				const refs =
 					"[" +

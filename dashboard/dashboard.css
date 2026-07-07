@@ -133,6 +133,41 @@
 	box-sizing: border-box;
 }
 
+.modalOverlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.45);
+	z-index: 999998;
+}
+
+.artUnitLookupDialog {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: white;
+	border: 1px solid #ccc;
+	padding: 20px;
+	z-index: 999999;
+	width: 450px;
+	box-sizing: border-box;
+}
+
+.artUnitLookupDialog h3 {
+	margin-top: 0;
+}
+
+.artUnitLookupDialog pre {
+	max-height: 180px;
+	overflow: auto;
+	white-space: pre-wrap;
+}
+
+.dialogActions {
+	margin-top: 16px;
+	text-align: right;
+}
+
 .controlSpacing {
 	margin-left: 12px;
 }
