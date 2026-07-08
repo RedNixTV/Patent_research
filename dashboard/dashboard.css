@@ -59,9 +59,11 @@
 }
 
 .patentSelectionCheckbox,
-#selectAllPatents {
+.patentReviewCheckbox,
+#selectAllPatents,
+#selectAllReviewPatents {
 	margin: 0;
-	margin-right: 6px;
+	margin-right: 0px;
 	vertical-align: middle;
 }
 

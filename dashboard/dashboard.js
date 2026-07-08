@@ -294,6 +294,25 @@ function areSomeTablePatentsSelected() {
     );
 }
 
+function areAllTablePatentsSelectedForReview() {
+
+    return currentTablePatents.length > 0
+        && currentTablePatents.every(
+            patent =>
+                patent.universeReviewSelected ===
+                true
+        );
+}
+
+function areSomeTablePatentsSelectedForReview() {
+
+    return currentTablePatents.some(
+        patent =>
+            patent.universeReviewSelected ===
+            true
+    );
+}
+
 async function renderCurrentPatentTable(
     tablePatents = currentTablePatents
 ) {
@@ -315,7 +334,13 @@ async function renderCurrentPatentTable(
         columnOrder,
         {
             allSelected:
-                areAllTablePatentsSelected()
+                areAllTablePatentsSelected(),
+
+            allReviewSelected:
+                areAllTablePatentsSelectedForReview(),
+
+            someReviewSelected:
+                areSomeTablePatentsSelectedForReview()
         }
     );
 
@@ -447,6 +472,42 @@ function setupPatentSelectionControls() {
 
 function setupPatentFieldControls() {
 
+    const selectAllReview =
+        document.getElementById(
+            "selectAllReviewPatents"
+        );
+
+    if (selectAllReview) {
+
+        selectAllReview.checked =
+            areAllTablePatentsSelectedForReview();
+
+        selectAllReview.indeterminate =
+            !selectAllReview.checked
+            && areSomeTablePatentsSelectedForReview();
+
+        selectAllReview.onchange =
+            async event => {
+
+                for (
+                    const patent
+                    of currentTablePatents
+                ) {
+
+                    patent.universeReviewSelected =
+                        event.target.checked;
+                }
+
+                await savePatents(
+                    patents
+                );
+
+                await renderCurrentPatentTable(
+                    currentTablePatents
+                );
+            };
+    }
+
     document
         .querySelectorAll(
             ".patentFieldControl"
@@ -495,6 +556,16 @@ function setupPatentFieldControls() {
                         await savePatents(
                             patents
                         );
+
+                        if (
+                            field ===
+                            "universeReviewSelected"
+                        ) {
+
+                            await renderCurrentPatentTable(
+                                currentTablePatents
+                            );
+                        }
                     };
             }
         );

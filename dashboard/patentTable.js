@@ -192,7 +192,7 @@ const COLUMN_RENDERERS = {
                 class="patentFieldControl patentReviewCheckbox"
                 data-field="universeReviewSelected"
                 data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
-                ${patent.universeReviewSelected !== false ? "checked" : ""}
+                ${patent.universeReviewSelected ? "checked" : ""}
                 title="Show in Universe Review"
             >
         `,
@@ -275,6 +275,12 @@ export function renderHeaders(
     const allSelected =
         options.allSelected ?? true;
 
+    const allReviewSelected =
+        options.allReviewSelected ?? false;
+
+    const someReviewSelected =
+        options.someReviewSelected ?? false;
+
     headerRow.innerHTML = `
         <th class="patentSelectionHeader">
             <input
@@ -291,6 +297,33 @@ export function renderHeaders(
         const column
         of columnOrder
     ) {
+
+        if (
+            column ===
+            "universeReviewSelected"
+        ) {
+
+            headerRow.innerHTML += `
+
+                <th
+                    draggable="true"
+                    data-column="${column}"
+                    class="patentReviewHeader"
+                >
+                    <input
+                        type="checkbox"
+                        id="selectAllReviewPatents"
+                        title="Select all patents for Universe Review"
+                        ${allReviewSelected ? "checked" : ""}
+                    >
+                    <span>
+                        ${COLUMN_DEFINITIONS[column].label}
+                    </span>
+                </th>
+            `;
+
+            continue;
+        }
 
         headerRow.innerHTML += `
 
