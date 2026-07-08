@@ -81,29 +81,26 @@ function getPatentColumnOrderForStage(
     stage
 ) {
 
-    const baseColumns =
-        columnOrder.filter(
-            column =>
-                !STAGE_ONLY_PATENT_COLUMNS
-                    .includes(
-                        column
-                    )
-        );
-
     if (
         !shouldShowPatentComparisonColumns(
             stage
         )
     ) {
 
-        return baseColumns;
+        return columnOrder.filter(
+            column =>
+                !STAGE_ONLY_PATENT_COLUMNS
+                    .includes(
+                        column
+                    )
+        );
     }
 
     return [
-        ...baseColumns,
+        ...columnOrder,
         ...STAGE_ONLY_PATENT_COLUMNS.filter(
             column =>
-                !baseColumns.includes(
+                !columnOrder.includes(
                     column
                 )
         )
