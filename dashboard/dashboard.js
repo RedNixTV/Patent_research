@@ -58,6 +58,58 @@ let compactPatentAbstract = true;
 let suppressArtUnitLookupDialog = false;
 let artUnitLookupDialogOpen = false;
 
+const STAGE_ONLY_PATENT_COLUMNS =
+    [
+        "overlap",
+        "whyItMatters"
+    ];
+
+const PATENT_COMPARISON_STAGES =
+    new Set(["universe","universeReview", "finalReferences"]);
+
+function shouldShowPatentComparisonColumns(
+    stage
+) {
+
+    return PATENT_COMPARISON_STAGES.has(
+        stage
+    );
+}
+
+function getPatentColumnOrderForStage(
+    columnOrder,
+    stage
+) {
+
+    const baseColumns =
+        columnOrder.filter(
+            column =>
+                !STAGE_ONLY_PATENT_COLUMNS
+                    .includes(
+                        column
+                    )
+        );
+
+    if (
+        !shouldShowPatentComparisonColumns(
+            stage
+        )
+    ) {
+
+        return baseColumns;
+    }
+
+    return [
+        ...baseColumns,
+        ...STAGE_ONLY_PATENT_COLUMNS.filter(
+            column =>
+                !baseColumns.includes(
+                    column
+                )
+        )
+    ];
+}
+
 function getPatentSelectionId(
     patent
 ) {
@@ -259,6 +311,7 @@ async function renderCurrentPatentTable(
 
     setupEditButtons();
     setupPatentSelectionControls();
+    setupPatentFieldControls();
 }
 
 function setupPatentSelectionControls() {
@@ -350,6 +403,56 @@ function setupPatentSelectionControls() {
                         );
 
                         await updateCurrentHistogram();
+                    };
+            }
+        );
+}
+
+function setupPatentFieldControls() {
+
+    document
+        .querySelectorAll(
+            ".patentFieldControl"
+        )
+        .forEach(
+            control => {
+
+                control.onchange =
+                    async event => {
+
+                        const field =
+                            event.target.dataset
+                                .field;
+
+                        const patentId =
+                            event.target.dataset
+                                .patentId;
+
+                        const patent =
+                            patents.find(
+                                candidate =>
+                                    getPatentSelectionId(
+                                        candidate
+                                    ) === patentId
+                            );
+
+                        if (
+                            !patent ||
+                            ![
+                                "overlap",
+                                "whyItMatters"
+                            ].includes(field)
+                        ) {
+
+                            return;
+                        }
+
+                        patent[field] =
+                            event.target.value;
+
+                        await savePatents(
+                            patents
+                        );
                     };
             }
         );
@@ -564,7 +667,23 @@ const EDIT_FIELD_MAP = {
 
         label: "Relevance",
         id: "editRelevance",
-        type: "select"
+        type: "select",
+        options: ["None","strong","partial", "weak"]
+    },
+
+    overlap: {
+
+        label: "Overlap",
+        id: "editOverlap",
+        type: "select",
+        options: ["None", "Low","Medium","High","Very High"]
+    },
+
+    whyItMatters: {
+
+        label: "Why it matters",
+        id: "editWhyItMatters",
+        type: "textarea"
     },
     
     url: {
@@ -834,9 +953,13 @@ async function getColumnOrder() {
             "columnOrder"
         );
 
-    return (
+    const project =
+        await getCurrentProject();
+
+    return getPatentColumnOrderForStage(
         result.columnOrder ||
-        DEFAULT_COLUMNS
+        DEFAULT_COLUMNS,
+        project?.workflow?.currentStage
     );
 }
 
@@ -1002,6 +1125,7 @@ function enableColumnDragDrop() {
 
                     setupEditButtons();
                     setupPatentSelectionControls();
+                    setupPatentFieldControls();
 
                     enableColumnDragDrop();
                 }
@@ -1298,12 +1422,17 @@ async function init() {
 					e.target.value
 			);
 		
-		document.getElementById(
+        document.getElementById(
 			"workflowDescription"
 		).textContent =
 			stage?.reason || "";
 
         await renderCurrentStage();
+        await renderCurrentPatentTable(
+            currentTablePatents
+        );
+        await renderEditFields();
+        enableColumnDragDrop();
         
         if (
             currentView === "cpc"
@@ -3582,6 +3711,34 @@ function setupEditButtons() {
                             .value =
                             patent.relevance || "";
 
+                        if (
+                            document.getElementById(
+                                "editOverlap"
+                            )
+                        ) {
+
+                            document
+                                .getElementById(
+                                    "editOverlap"
+                                )
+                                .value =
+                                patent.overlap || "None";
+                        }
+
+                        if (
+                            document.getElementById(
+                                "editWhyItMatters"
+                            )
+                        ) {
+
+                            document
+                                .getElementById(
+                                    "editWhyItMatters"
+                                )
+                                .value =
+                                patent.whyItMatters || "";
+                        }
+
                         document
                             .getElementById(
                                 "editAssignee"
@@ -3713,17 +3870,17 @@ async function renderEditFields() {
                 <select
                     id="${field.id}"
                 >
-                    <option value="strong">
-                        Strong
-                    </option>
-
-                    <option value="partial">
-                        Partial
-                    </option>
-
-                    <option value="weak">
-                        Weak
-                    </option>
+                    ${
+                        field.options
+                            .map(
+                                option => `
+                                    <option value="${option}">
+                                        ${option}
+                                    </option>
+                                `
+                            )
+                            .join("")
+                    }
                 </select>
             `;
         }
@@ -3861,6 +4018,35 @@ function setupEditDialog() {
                         "editRelevance"
                     )
                     .value;
+
+            if (
+                document.getElementById(
+                    "editOverlap"
+                )
+            ) {
+
+                patent.overlap =
+                    document
+                        .getElementById(
+                            "editOverlap"
+                        )
+                        .value;
+            }
+
+            if (
+                document.getElementById(
+                    "editWhyItMatters"
+                )
+            ) {
+
+                patent.whyItMatters =
+                    document
+                        .getElementById(
+                            "editWhyItMatters"
+                        )
+                        .value
+                        .trim();
+            }
 
             patent.assignee =
                 document

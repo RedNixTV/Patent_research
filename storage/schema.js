@@ -6,6 +6,8 @@ export function createPatent() {
 		title: "",
 		url: "",
 		relevance: "",
+		overlap: "None",
+		whyItMatters: "",
 	
 		abstract: "",
 	

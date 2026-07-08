@@ -203,3 +203,14 @@
 	width: 100%;
 	height: 120px;
 }
+
+.patentOverlapSelect {
+	min-width: 110px;
+}
+
+.patentWhyItMattersTextarea {
+	width: 260px;
+	height: 16px;
+	min-height: 16px;
+	resize: vertical;
+}

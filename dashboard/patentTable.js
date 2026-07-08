@@ -10,7 +10,9 @@ export const DEFAULT_COLUMNS = [
     "publicationDate",
     "primaryClass",
     "otherClasses",
-    "relevance"
+    "relevance",
+    "overlap",
+    "whyItMatters"
 ];
 
 export const COLUMN_DEFINITIONS = {
@@ -57,6 +59,14 @@ export const COLUMN_DEFINITIONS = {
 
     relevance: {
         label: "Relevance"
+    },
+
+    overlap: {
+        label: "Overlap"
+    },
+
+    whyItMatters: {
+        label: "Why it matters"
     }
 };
 
@@ -140,7 +150,48 @@ const COLUMN_RENDERERS = {
 
     relevance:
         patent =>
-            patent.relevance || ""
+            patent.relevance || "",
+
+    overlap:
+        patent => {
+
+            const value =
+                patent.overlap || "None";
+
+            const options = ["None","Low","Medium","High", "Very High"];
+
+            return `
+                <select
+                    class="patentFieldControl patentOverlapSelect"
+                    data-field="overlap"
+                    data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
+                >
+                    ${
+                        options
+                            .map(
+                                option => `
+                                    <option
+                                        value="${escapeAttribute(option)}"
+                                        ${option === value ? "selected" : ""}
+                                    >
+                                        ${option}
+                                    </option>
+                                `
+                            )
+                            .join("")
+                    }
+                </select>
+            `;
+        },
+
+    whyItMatters:
+        patent => `
+            <textarea
+                class="patentFieldControl patentWhyItMattersTextarea"
+                data-field="whyItMatters"
+                data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
+            >${escapeHtml(patent.whyItMatters || "")}</textarea>
+        `
 };
 
 function truncate(
@@ -337,6 +388,16 @@ function escapeAttribute(
     return String(value)
         .replace(/&/g, "&amp;")
         .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+function escapeHtml(
+    value
+) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;");
 }
