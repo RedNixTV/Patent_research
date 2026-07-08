@@ -11,6 +11,7 @@ export const DEFAULT_COLUMNS = [
     "primaryClass",
     "otherClasses",
     "relevance",
+    "universeReviewSelected",
     "overlap",
     "whyItMatters"
 ];
@@ -59,6 +60,10 @@ export const COLUMN_DEFINITIONS = {
 
     relevance: {
         label: "Relevance"
+    },
+
+    universeReviewSelected: {
+        label: "Review"
     },
 
     overlap: {
@@ -151,6 +156,18 @@ const COLUMN_RENDERERS = {
     relevance:
         patent =>
             patent.relevance || "",
+
+    universeReviewSelected:
+        patent => `
+            <input
+                type="checkbox"
+                class="patentFieldControl patentReviewCheckbox"
+                data-field="universeReviewSelected"
+                data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
+                ${patent.universeReviewSelected !== false ? "checked" : ""}
+                title="Show in Universe Review"
+            >
+        `,
 
     overlap:
         patent => {

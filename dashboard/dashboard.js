@@ -60,12 +60,18 @@ let artUnitLookupDialogOpen = false;
 
 const STAGE_ONLY_PATENT_COLUMNS =
     [
+        "universeReviewSelected",
         "overlap",
         "whyItMatters"
     ];
 
 const PATENT_COMPARISON_STAGES =
     new Set(["universe","universeReview", "finalReferences"]);
+
+const PATENT_REVIEW_SELECTION_STAGES =
+    new Set([
+        "universe"
+    ]);
 
 function shouldShowPatentComparisonColumns(
     stage
@@ -81,26 +87,35 @@ function getPatentColumnOrderForStage(
     stage
 ) {
 
-    if (
-        !shouldShowPatentComparisonColumns(
-            stage
-        )
-    ) {
+    const visibleStageOnlyColumns =
+        STAGE_ONLY_PATENT_COLUMNS.filter(
+            column =>
+                (
+                    column !==
+                    "universeReviewSelected"
+                )
+                ? shouldShowPatentComparisonColumns(
+                    stage
+                  )
+                : PATENT_REVIEW_SELECTION_STAGES
+                    .has(stage)
+        );
 
-        return columnOrder.filter(
+    const baseColumns =
+        columnOrder.filter(
             column =>
                 !STAGE_ONLY_PATENT_COLUMNS
-                    .includes(
-                        column
-                    )
+                    .includes(column)
+                ||
+                visibleStageOnlyColumns
+                    .includes(column)
         );
-    }
 
     return [
-        ...columnOrder,
-        ...STAGE_ONLY_PATENT_COLUMNS.filter(
+        ...baseColumns,
+        ...visibleStageOnlyColumns.filter(
             column =>
-                !columnOrder.includes(
+                !baseColumns.includes(
                     column
                 )
         )
@@ -121,7 +136,12 @@ function getPatentSelectionId(
 
 function getSelectedPatents() {
 
-    return patents.filter(
+    const sourcePatents =
+        currentTablePatents.length
+            ? currentTablePatents
+            : patents;
+
+    return sourcePatents.filter(
         patent =>
             selectedPatentIds.has(
                 getPatentSelectionId(
@@ -437,7 +457,8 @@ function setupPatentFieldControls() {
                             !patent ||
                             ![
                                 "overlap",
-                                "whyItMatters"
+                                "whyItMatters",
+                                "universeReviewSelected"
                             ].includes(field)
                         ) {
 
@@ -445,7 +466,10 @@ function setupPatentFieldControls() {
                         }
 
                         patent[field] =
-                            event.target.value;
+                            event.target.type ===
+                                "checkbox"
+                                ? event.target.checked
+                                : event.target.value;
 
                         await savePatents(
                             patents
@@ -820,6 +844,26 @@ async function renderCurrentStage() {
     }
 }
 
+async function getPatentsForCurrentStage() {
+
+    const project =
+        await getCurrentProject();
+
+    if (
+        project?.workflow?.currentStage ===
+        "universeReview"
+    ) {
+
+        return patents.filter(
+            patent =>
+                patent.universeReviewSelected !==
+                false
+        );
+    }
+
+    return patents;
+}
+
 async function saveCurrentStage(
     stageId
 ) {
@@ -908,8 +952,11 @@ async function filterByClassification(
     activeClassificationFilter =
         code;
 
+    const stagePatents =
+        await getPatentsForCurrentStage();
+
     const filteredPatents =
-		patents
+		stagePatents
 			.filter(
 				patent =>
 					references.includes(
@@ -936,8 +983,11 @@ async function clearClassificationFilter() {
     activeClassificationFilter =
         null;
 
+    const stagePatents =
+        await getPatentsForCurrentStage();
+
     await renderCurrentPatentTable(
-        patents
+        stagePatents
     );
 
     setupEditButtons();
@@ -1248,7 +1298,7 @@ async function init() {
         );
 
 	await renderCurrentPatentTable(
-        patents
+        await getPatentsForCurrentStage()
     );
 	
 	await renderEditFields();
@@ -1426,7 +1476,7 @@ async function init() {
 
         await renderCurrentStage();
         await renderCurrentPatentTable(
-            currentTablePatents
+            await getPatentsForCurrentStage()
         );
         await renderEditFields();
         enableColumnDragDrop();
