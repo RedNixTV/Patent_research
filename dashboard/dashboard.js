@@ -456,6 +456,7 @@ function setupPatentFieldControls() {
                         if (
                             !patent ||
                             ![
+                                "relevance",
                                 "overlap",
                                 "whyItMatters",
                                 "universeReviewSelected"

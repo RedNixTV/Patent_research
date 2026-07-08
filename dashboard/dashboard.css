@@ -205,7 +205,11 @@
 }
 
 .patentOverlapSelect {
-	min-width: 110px;
+	min-width: 50px;
+}
+
+.patentRelevanceSelect {
+	min-width: 20px;
 }
 
 .patentWhyItMattersTextarea {

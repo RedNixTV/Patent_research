@@ -154,8 +154,36 @@ const COLUMN_RENDERERS = {
                 .join(", "),
 
     relevance:
-        patent =>
-            patent.relevance || "",
+        patent => {
+
+            const value =
+                patent.relevance || "none";
+
+            const options = ["none", "weak","partial","strong"];
+
+            return `
+                <select
+                    class="patentFieldControl patentRelevanceSelect"
+                    data-field="relevance"
+                    data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
+                >
+                    ${
+                        options
+                            .map(
+                                option => `
+                                    <option
+                                        value="${escapeAttribute(option)}"
+                                        ${option === value ? "selected" : ""}
+                                    >
+                                        ${option}
+                                    </option>
+                                `
+                            )
+                            .join("")
+                    }
+                </select>
+            `;
+        },
 
     universeReviewSelected:
         patent => `
