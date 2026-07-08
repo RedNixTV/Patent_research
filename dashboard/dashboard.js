@@ -304,6 +304,13 @@ async function renderCurrentPatentTable(
     const columnOrder =
         await getColumnOrder();
 
+    const project =
+        await getCurrentProject();
+
+    const renumberReferences =
+        project?.workflow?.currentStage ===
+        "universeReview";
+
     renderHeaders(
         columnOrder,
         {
@@ -322,7 +329,20 @@ async function renderCurrentPatentTable(
             compactAbstract:
                 compactPatentAbstract,
 
-            selectedPatentIds
+            selectedPatentIds,
+
+            referenceIdRenderer:
+                renumberReferences
+                    ? (
+                        (
+                            patent,
+                            index
+                        ) => index + 1
+                      )
+                    : (
+                        patent =>
+                            patent.referenceId
+                      )
         }
     );
 
@@ -1147,33 +1167,11 @@ function enableColumnDragDrop() {
                         order
                     );
 
-                    renderHeaders(
-                        order,
-                        {
-                            allSelected:
-                                areAllTablePatentsSelected()
-                        }
+                    await renderCurrentPatentTable(
+                        currentTablePatents
                     );
-
-                    renderPatentTable(
-						currentTablePatents,
-						order,
-						{
-							compactTitle:
-								compactPatentTitle,
-					
-							compactAbstract:
-								compactPatentAbstract,
-
-                            selectedPatentIds
-						}
-					);
                     
                     await renderEditFields();
-
-                    setupEditButtons();
-                    setupPatentSelectionControls();
-                    setupPatentFieldControls();
 
                     enableColumnDragDrop();
                 }
@@ -1379,15 +1377,17 @@ async function init() {
 					let value =
 						cell.innerText;
 						
-					if (
-						patent
-						&&
-						cellIndex === 0
-					) {
-					
-						value =
-							patent.referenceId;
-					}
+				if (
+					patent
+					&&
+					cellIndex === 0
+				) {
+				
+					value =
+						cell.dataset
+                            .referenceId ||
+						patent.referenceId;
+				}
 					
 					if (
 						patent

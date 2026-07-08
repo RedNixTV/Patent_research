@@ -327,6 +327,13 @@ export function renderPatentTable(
                 getPatentSelectionId
             )
         );
+
+    const referenceIdRenderer =
+        options.referenceIdRenderer ||
+        (
+            patent =>
+                patent.referenceId
+        );
     
     columnOrder =
         columnOrder ||
@@ -355,9 +362,18 @@ export function renderPatentTable(
                     patent
                 );
 
+            const displayReferenceId =
+                referenceIdRenderer(
+                    patent,
+                    index
+                );
+
             let html = `
 			
-				<td class="patentReferenceCell">
+				<td
+                    class="patentReferenceCell"
+                    data-reference-id="${escapeAttribute(displayReferenceId)}"
+                >
 
                     <input
                         type="checkbox"
@@ -378,7 +394,7 @@ export function renderPatentTable(
 						✏️
 					</span>
 			
-					${patent.referenceId}
+					${displayReferenceId}
 			
 				</td>
 			`;
