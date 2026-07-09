@@ -5,10 +5,13 @@ from "./storage.js";
 
 export async function exportData(
     filename =
-        "patent-universe.json"
+        "patent-universe.json",
+    patentsToExport =
+        null
 ) {
 
     const patents =
+        patentsToExport ||
         await getPatents();
 
     const exportRows =

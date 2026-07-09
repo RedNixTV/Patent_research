@@ -5,7 +5,8 @@ import {
     switchProject,
     createProject,
     deleteProject,
-    getCurrentProject
+    getCurrentProject,
+    getPatentLibrary
 }
 from "../storage/storage.js";
 
@@ -71,6 +72,14 @@ const PATENT_COMPARISON_STAGES =
 const PATENT_REVIEW_SELECTION_STAGES =
     new Set([
         "universe"
+    ]);
+
+const PATENT_LIST_STAGES =
+    new Set([
+        "landscapeScan",
+        "referenceList",
+        "universe",
+        "finalReferences"
     ]);
 
 function shouldShowPatentComparisonColumns(
@@ -941,8 +950,40 @@ async function getPatentsForCurrentStage() {
     const project =
         await getCurrentProject();
 
+    const stageId =
+        project?.workflow?.currentStage;
+
     if (
-        project?.workflow?.currentStage ===
+        PATENT_LIST_STAGES.has(
+            stageId
+        )
+        && Array.isArray(
+            project?.stages?.[
+                stageId
+            ]
+        )
+        && project.stages[
+            stageId
+        ].length > 0
+    ) {
+
+        const patentLibrary =
+            await getPatentLibrary();
+
+        return project.stages[
+            stageId
+        ]
+            .map(
+                patentNumber =>
+                    patentLibrary[
+                        patentNumber
+                    ]
+            )
+            .filter(Boolean);
+    }
+
+    if (
+        stageId ===
         "universeReview"
     ) {
 
@@ -1139,15 +1180,28 @@ async function saveHistogramColumnOrder(
 }
 
 function buildExportFilename(
-    project
+    project,
+    stageId
 ) {
 
     const name =
         project?.name
         || "patent-universe";
 
+    const stage =
+        WORKFLOW_STAGES.find(
+            candidate =>
+                candidate.id ===
+                stageId
+        );
+
+    const exportName =
+        stage
+            ? `${name} - ${stage.title}`
+            : name;
+
     const safeName =
-        name
+        exportName
             .trim()
             .replace(
                 /[\\/:*?"<>|]+/g,
@@ -1654,13 +1708,25 @@ async function init() {
 		.onclick =
 		async () => {
 
+			const project =
+				await getCurrentProject();
+
+			const stageId =
+				project?.workflow?.currentStage ||
+				"landscapeScan";
+
 			const filename =
 				buildExportFilename(
-					await getCurrentProject()
+					project,
+					stageId
 				);
 
+			const stagePatents =
+				await getPatentsForCurrentStage();
+
 			await exportData(
-				filename
+				filename,
+				stagePatents
 			);
 		};
 
