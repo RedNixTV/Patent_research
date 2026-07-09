@@ -66,6 +66,8 @@ const STAGE_ONLY_PATENT_COLUMNS =
         "overlap",
         "claims",
         "challengingClaimNumbers",
+        "bullseyeScore",
+        "bullseye",
         "whyItMatters"
     ];
 
@@ -175,6 +177,12 @@ function getPatentColumnOrderForStage(
                     ||
                     column ===
                     "challengingClaimNumbers"
+                    ||
+                    column ===
+                    "bullseyeScore"
+                    ||
+                    column ===
+                    "bullseye"
                 ) {
 
                     return stage ===
@@ -1157,8 +1165,119 @@ function showReviewConceptScoringDefinitionsDialog(
                             input.dataset
                                 .conceptId
                         );
-            }
+        }
+    );
+}
+
+function showReviewConceptBullseyeDefinitionsDialog(
+    concepts
+) {
+
+    document
+        .querySelector(
+            ".reviewConceptBullseyeDefinitionsOverlay"
+        )
+        ?.remove();
+
+    const overlay =
+        document.createElement(
+            "div"
         );
+
+    overlay.className =
+        "modalOverlay reviewConceptBullseyeDefinitionsOverlay";
+
+    overlay.innerHTML = `
+        <div class="reviewConceptDefinitionsDialog reviewConceptBullseyeDialog">
+            <h3>
+                Bulleyes
+            </h3>
+
+            <div class="reviewConceptDefinitionsList">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>
+                                Total
+                            </th>
+
+                            <th>
+                                Classification
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>
+                                12 to 14
+                            </td>
+
+                            <td>
+                                Bullseye
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                9 to 11
+                            </td>
+
+                            <td>
+                                Inner Ring
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                6 to 8
+                            </td>
+
+                            <td>
+                                Middle Ring
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                3 to 5
+                            </td>
+
+                            <td>
+                                Outer Ring
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                0 to 2
+                            </td>
+
+                            <td>
+                                Miss
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+    overlay.onclick =
+        event => {
+
+            if (
+                event.target ===
+                overlay
+            ) {
+
+                overlay.remove();
+            }
+        };
+
+    document.body.appendChild(
+        overlay
+    );
 }
 
 function setupPatentSelectionControls() {
@@ -1377,6 +1496,12 @@ function setupPatentFieldControls() {
                         if (
                             field ===
                             "universeReviewSelected"
+                            ||
+                            field ===
+                            "conceptScores"
+                            ||
+                            field ===
+                            "conceptCoverage"
                         ) {
 
                             await renderCurrentPatentTable(
@@ -1794,6 +1919,10 @@ async function renderCurrentStage() {
                         <button id="showReviewConceptScoringDefinitions">
                             Scoring
                         </button>
+
+                        <button id="showReviewConceptBullseyeDefinitions">
+                            Bulleyes
+                        </button>
                     </div>
                 </div>
             `;
@@ -1822,6 +1951,16 @@ async function renderCurrentStage() {
                 .onclick =
                 () =>
                     showReviewConceptScoringDefinitionsDialog(
+                        reviewConcepts
+                    );
+
+            document
+                .getElementById(
+                    "showReviewConceptBullseyeDefinitions"
+                )
+                .onclick =
+                () =>
+                    showReviewConceptBullseyeDefinitionsDialog(
                         reviewConcepts
                     );
 

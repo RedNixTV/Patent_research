@@ -359,3 +359,20 @@
 	box-sizing: border-box;
 	resize: vertical;
 }
+
+.reviewConceptBullseyeDialog {
+	width: fit-content;
+	max-width: 90vw;
+}
+
+.reviewConceptBullseyeDialog table {
+	border-collapse: collapse;
+	width: auto;
+}
+
+.reviewConceptBullseyeDialog th,
+.reviewConceptBullseyeDialog td {
+	padding: 4px 12px 4px 0;
+	white-space: nowrap;
+	text-align: left;
+}

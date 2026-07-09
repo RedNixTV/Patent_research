@@ -74,7 +74,21 @@ export async function exportData(
                             )
                         ]
                     )
-                )
+                ),
+
+                "Bullseye Score":
+                    getBullseyeScore(
+                        patent,
+                        reviewConcepts
+                    ),
+
+                "Bullseye":
+                    getBullseyeLabel(
+                        getBullseyeScore(
+                            patent,
+                            reviewConcepts
+                        )
+                    )
 			})
 		);
 	
@@ -101,4 +115,63 @@ export async function exportData(
         filename:
             filename
     });
+}
+
+function getBullseyeScore(
+    patent,
+    reviewConcepts
+) {
+
+    return reviewConcepts.reduce(
+        (
+            total,
+            concept
+        ) => {
+
+            const score =
+                patent.conceptScores?.[
+                    concept.id
+                ] ??
+                (
+                    patent.conceptCoverage?.[
+                        concept.id
+                    ]
+                        ? "2"
+                        : "0"
+                );
+
+            return total +
+                (
+                    Number.parseInt(
+                        score,
+                        10
+                    ) ||
+                    0
+                );
+        },
+        0
+    );
+}
+
+function getBullseyeLabel(
+    score
+) {
+
+    if (score >= 12) {
+        return "Bullseye";
+    }
+
+    if (score >= 9) {
+        return "Inner Ring";
+    }
+
+    if (score >= 6) {
+        return "Middle Ring";
+    }
+
+    if (score >= 3) {
+        return "Outer Ring";
+    }
+
+    return "Miss";
 }

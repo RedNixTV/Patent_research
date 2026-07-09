@@ -15,6 +15,8 @@ export const DEFAULT_COLUMNS = [
     "overlap",
     "claims",
     "challengingClaimNumbers",
+    "bullseyeScore",
+    "bullseye",
     "whyItMatters"
 ];
 
@@ -81,6 +83,14 @@ export const COLUMN_DEFINITIONS = {
 
     challengingClaimNumbers: {
         label: "Challenge Claims"
+    },
+
+    bullseyeScore: {
+        label: "Score"
+    },
+
+    bullseye: {
+        label: "Bullseye"
     },
 
     whyItMatters: {
@@ -634,6 +644,34 @@ function getColumnRenderer(
         };
     }
 
+    if (
+        column ===
+        "bullseyeScore"
+    ) {
+
+        return patent =>
+            String(
+                getBullseyeScore(
+                    patent,
+                    reviewConcepts
+                )
+            );
+    }
+
+    if (
+        column ===
+        "bullseye"
+    ) {
+
+        return patent =>
+            getBullseyeLabel(
+                getBullseyeScore(
+                    patent,
+                    reviewConcepts
+                )
+            );
+    }
+
     return COLUMN_RENDERERS[column];
 }
 
@@ -705,6 +743,80 @@ function getConceptCellTitle(
         .filter(Boolean)
         .join("\n\n") ||
         "Score this concept";
+}
+
+function getBullseyeScore(
+    patent,
+    reviewConcepts
+) {
+
+    return reviewConcepts.reduce(
+        (
+            total,
+            concept
+        ) => {
+
+            const conceptId =
+                concept?.id;
+
+            const score =
+                patent.conceptScores?.[
+                    conceptId
+                ] ??
+                (
+                    patent.conceptCoverage?.[
+                        conceptId
+                    ]
+                        ? "2"
+                        : "0"
+                );
+
+            return total +
+                (
+                    Number.parseInt(
+                        score,
+                        10
+                    ) ||
+                    0
+                );
+        },
+        0
+    );
+}
+
+function getBullseyeLabel(
+    score
+) {
+
+    if (
+        score >= 12
+    ) {
+
+        return "Bullseye";
+    }
+
+    if (
+        score >= 9
+    ) {
+
+        return "Inner Ring";
+    }
+
+    if (
+        score >= 6
+    ) {
+
+        return "Middle Ring";
+    }
+
+    if (
+        score >= 3
+    ) {
+
+        return "Outer Ring";
+    }
+
+    return "Miss";
 }
 
 function getPatentSelectionId(
