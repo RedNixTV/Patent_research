@@ -635,15 +635,14 @@ function showReviewConceptActionDialog({
                 placeholder="Define this concept"
             >${escapeHtml(definition || "")}</textarea>
 
+            <div
+                id="reviewConceptSaveStatus"
+                class="reviewConceptSaveStatus"
+            >
+                Saved
+            </div>
+
             <div class="reviewConceptActionButtons">
-                <button id="renameReviewConcept">
-                    Rename
-                </button>
-
-                <button id="defineReviewConcept">
-                    Define
-                </button>
-
                 <button id="deleteReviewConcept">
                     Delete
                 </button>
@@ -667,45 +666,73 @@ function showReviewConceptActionDialog({
         overlay
     );
 
-    document
-        .getElementById(
-            "renameReviewConcept"
-        )
-        .onclick =
+    const titleInput =
+        document.getElementById(
+            "reviewConceptTitleEdit"
+        );
+
+    const definitionInput =
+        document.getElementById(
+            "reviewConceptDefinitionEdit"
+        );
+
+    const status =
+        document.getElementById(
+            "reviewConceptSaveStatus"
+        );
+
+    let saveTimer = null;
+
+    const saveConceptChanges =
         async () => {
+
+            const nextLabel =
+                titleInput.value.trim();
+
+            if (!nextLabel) {
+
+                status.textContent =
+                    "Column name required";
+
+                return;
+            }
 
             await renameReviewConcept(
                 conceptId,
-                document
-                    .getElementById(
-                        "reviewConceptTitleEdit"
-                    )
-                    .value
-                    .trim()
+                nextLabel
             );
-
-            overlay.remove();
-        };
-
-    document
-        .getElementById(
-            "defineReviewConcept"
-        )
-        .onclick =
-        async () => {
 
             await defineReviewConcept(
                 conceptId,
-                document
-                    .getElementById(
-                        "reviewConceptDefinitionEdit"
-                    )
-                    .value
-                    .trim()
+                definitionInput.value.trim()
             );
 
-            overlay.remove();
+            status.textContent =
+                "Saved";
         };
+
+    const scheduleConceptSave =
+        () => {
+
+            status.textContent =
+                "Saving...";
+
+            clearTimeout(
+                saveTimer
+            );
+
+            saveTimer =
+                setTimeout(
+                    saveConceptChanges,
+                    600
+                );
+        };
+
+    titleInput.oninput =
+        scheduleConceptSave;
+
+    definitionInput.oninput =
+        scheduleConceptSave;
 
     document
         .getElementById(
@@ -729,6 +756,192 @@ function showReviewConceptActionDialog({
 
             overlay.remove();
         };
+}
+
+function showReviewConceptDefinitionsDialog(
+    concepts
+) {
+
+    document
+        .querySelector(
+            ".reviewConceptDefinitionsOverlay"
+        )
+        ?.remove();
+
+    const overlay =
+        document.createElement(
+            "div"
+        );
+
+    overlay.className =
+        "modalOverlay reviewConceptDefinitionsOverlay";
+
+    overlay.innerHTML = `
+        <div class="reviewConceptDefinitionsDialog">
+            <h3>
+                Concept Definitions
+            </h3>
+
+            <button id="copyReviewConceptDefinitions">
+                Copy
+            </button>
+
+            <div
+                id="reviewConceptDefinitionsSaveStatus"
+                class="reviewConceptSaveStatus"
+            >
+                Saved
+            </div>
+
+            <div class="reviewConceptDefinitionsList">
+                ${
+                    concepts.length
+                        ? concepts
+                            .map(
+                                concept => `
+                                    <div class="reviewConceptDefinitionItem">
+                                        <input
+                                            class="reviewConceptDefinitionTitleInput"
+                                            data-concept-id="${escapeAttribute(concept.id)}"
+                                            value="${escapeAttribute(concept.label)}"
+                                        >
+
+                                        <textarea
+                                            class="reviewConceptDefinitionTextInput"
+                                            data-concept-id="${escapeAttribute(concept.id)}"
+                                            placeholder="No definition yet."
+                                        >${escapeHtml(concept.definition || "")}</textarea>
+                                    </div>
+                                `
+                            )
+                            .join("")
+                        : `
+                            <p>
+                                No concepts have been added yet.
+                            </p>
+                        `
+                }
+            </div>
+        </div>
+    `;
+
+    overlay.onclick =
+        event => {
+
+            if (
+                event.target ===
+                overlay
+            ) {
+
+                overlay.remove();
+            }
+        };
+
+    document.body.appendChild(
+        overlay
+    );
+
+    document
+        .getElementById(
+            "copyReviewConceptDefinitions"
+        )
+        .onclick =
+        async () => {
+
+            const text =
+                getUniverseReviewConcepts(
+                    await getCurrentProject()
+                )
+                    .map(
+                        concept =>
+                            `${concept.label}: ${concept.definition || ""}`
+                    )
+                    .join("\n");
+
+            await navigator.clipboard.writeText(
+                text
+            );
+        };
+
+    const status =
+        document.getElementById(
+            "reviewConceptDefinitionsSaveStatus"
+        );
+
+    const saveTimers =
+        new Map();
+
+    const scheduleDefinitionSave =
+        conceptId => {
+
+            status.textContent =
+                "Saving...";
+
+            clearTimeout(
+                saveTimers.get(
+                    conceptId
+                )
+            );
+
+            saveTimers.set(
+                conceptId,
+                setTimeout(
+                    async () => {
+
+                        const titleInput =
+                            overlay.querySelector(
+                                `.reviewConceptDefinitionTitleInput[data-concept-id="${CSS.escape(conceptId)}"]`
+                            );
+
+                        const definitionInput =
+                            overlay.querySelector(
+                                `.reviewConceptDefinitionTextInput[data-concept-id="${CSS.escape(conceptId)}"]`
+                            );
+
+                        const label =
+                            titleInput.value.trim();
+
+                        if (!label) {
+
+                            status.textContent =
+                                "Column name required";
+
+                            return;
+                        }
+
+                        await updateReviewConceptMetadata(
+                            conceptId,
+                            {
+                                label,
+                                definition:
+                                    definitionInput.value
+                                        .trim()
+                            }
+                        );
+
+                        status.textContent =
+                            "Saved";
+                    },
+                    600
+                )
+            );
+        };
+
+    overlay
+        .querySelectorAll(
+            ".reviewConceptDefinitionTitleInput, .reviewConceptDefinitionTextInput"
+        )
+        .forEach(
+            input => {
+
+                input.oninput =
+                    () =>
+                        scheduleDefinitionSave(
+                            input.dataset
+                                .conceptId
+                        );
+            }
+        );
 }
 
 function setupPatentSelectionControls() {
@@ -1352,6 +1565,10 @@ async function renderCurrentStage() {
                         <button id="addReviewConcept">
                             Add Column
                         </button>
+
+                        <button id="showReviewConceptDefinitions">
+                            Definition
+                        </button>
                     </div>
                 </div>
             `;
@@ -1362,6 +1579,16 @@ async function renderCurrentStage() {
                 )
                 .onclick =
                 addReviewConcept;
+
+            document
+                .getElementById(
+                    "showReviewConceptDefinitions"
+                )
+                .onclick =
+                () =>
+                    showReviewConceptDefinitionsDialog(
+                        reviewConcepts
+                    );
 
             break;
 
@@ -1483,18 +1710,11 @@ async function defineReviewConcept(
         return;
     }
 
-    await updateUniverseReviewConcepts(
-        concepts =>
-            concepts.map(
-                concept =>
-                    concept.id ===
-                    conceptId
-                        ? {
-                            ...concept,
-                            definition
-                        }
-                        : concept
-            )
+    await updateReviewConceptMetadata(
+        conceptId,
+        {
+            definition
+        }
     );
 }
 
@@ -1511,17 +1731,32 @@ async function renameReviewConcept(
         return;
     }
 
+    await updateReviewConceptMetadata(
+        conceptId,
+        {
+            label
+        }
+    );
+}
+
+async function updateReviewConceptMetadata(
+    conceptId,
+    updates
+) {
+
     await updateUniverseReviewConcepts(
         concepts => {
 
             if (
+                updates.label
+                &&
                 concepts.some(
                     concept =>
                         concept.id !==
                         conceptId
                         &&
                         concept.label ===
-                        label
+                        updates.label
                 )
             ) {
 
@@ -1534,7 +1769,7 @@ async function renameReviewConcept(
                     conceptId
                         ? {
                             ...concept,
-                            label
+                            ...updates
                         }
                         : concept
             );

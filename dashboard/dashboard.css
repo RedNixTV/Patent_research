@@ -288,9 +288,57 @@
 	box-sizing: border-box;
 }
 
+.reviewConceptSaveStatus {
+	margin-top: 6px;
+	font-size: 12px;
+	color: #555;
+}
+
 .reviewConceptActionButtons {
 	display: flex;
 	gap: 8px;
 	justify-content: flex-end;
 	margin-top: 10px;
+}
+
+.reviewConceptDefinitionsDialog {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: white;
+	border: 1px solid #ccc;
+	padding: 16px;
+	z-index: 999999;
+	width: min(620px, 90vw);
+	max-height: 80vh;
+	overflow-y: auto;
+	box-sizing: border-box;
+}
+
+.reviewConceptDefinitionsDialog h3 {
+	margin-top: 0;
+}
+
+.reviewConceptDefinitionItem {
+	border-bottom: 1px solid #ddd;
+	padding: 8px 0;
+}
+
+.reviewConceptDefinitionItem:last-child {
+	border-bottom: 0;
+}
+
+.reviewConceptDefinitionTitleInput {
+	width: 100%;
+	box-sizing: border-box;
+	font-weight: bold;
+	margin-bottom: 6px;
+}
+
+.reviewConceptDefinitionTextInput {
+	width: 100%;
+	height: 90px;
+	box-sizing: border-box;
+	resize: vertical;
 }
