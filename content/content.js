@@ -68,6 +68,9 @@ function extractPatent() {
         abstract:
             extractAbstract(),
 
+        claims:
+            getClaimsInputValue(),
+
         assignee:
             extractAssignee(),
             
@@ -161,6 +164,35 @@ function createLandscapePanel() {
 
     panel.innerHTML = `
 
+        <div
+            id="claimsInputContainer"
+            style="
+                display:none;
+                margin-bottom:8px;
+            "
+        >
+            <label
+                for="claimsInput"
+                style="
+                    display:block;
+                    font-weight:bold;
+                    margin-bottom:4px;
+                "
+            >
+                What is claimed is
+            </label>
+
+            <textarea
+                id="claimsInput"
+                style="
+                    width:320px;
+                    height:180px;
+                    display:block;
+                    margin-bottom:8px;
+                "
+            ></textarea>
+        </div>
+
         <button id="saveStrong">
             Strong
         </button>
@@ -172,6 +204,14 @@ function createLandscapePanel() {
         <button id="saveWeak">
             Weak
         </button>
+
+        <button
+            id="submitClaims"
+            style="display:none;"
+        >
+            Submit
+        </button>
+
         <button id="openDashboard">
 			Dashboard
 		</button>
@@ -191,6 +231,16 @@ function createLandscapePanel() {
 	);
 
     return panel;
+}
+
+function getClaimsInputValue() {
+
+    return document
+        .getElementById(
+            "claimsInput"
+        )
+        ?.value
+        .trim() || "";
 }
 
 function createReferenceListPanel() {
@@ -574,9 +624,21 @@ async function savePatent(
     const patentLibrary =
         result.patents || {};
 
+    const existingPatent =
+        patentLibrary[
+            patent.patentNumber
+        ] || {};
+
     patentLibrary[
         patent.patentNumber
-    ] = patent;
+    ] = {
+        ...existingPatent,
+        ...patent,
+        claims:
+            patent.claims ||
+            existingPatent.claims ||
+            ""
+    };
 
     const projects =
         result.projects || [];
@@ -2343,6 +2405,17 @@ async function savePatentWithRelevance(
 			`${relevance} Saved`
 		);
 	}
+
+async function savePatentClaims() {
+
+    await savePatent(
+        extractPatent()
+    );
+
+    alert(
+        "Claims Saved"
+    );
+}
 	
 async function renderPanel() {
 	
@@ -2465,6 +2538,50 @@ async function renderPanel() {
 		}
 	
 		createLandscapePanel();
+
+        if (
+            stage ===
+            "universeReview"
+            &&
+            location.hostname ===
+            "www.freepatentsonline.com"
+        ) {
+
+            document
+                .getElementById(
+                    "claimsInputContainer"
+                )
+                .style.display =
+                "";
+
+            document
+                .getElementById(
+                    "saveStrong"
+                )
+                .style.display =
+                "none";
+
+            document
+                .getElementById(
+                    "savePartial"
+                )
+                .style.display =
+                "none";
+
+            document
+                .getElementById(
+                    "saveWeak"
+                )
+                .style.display =
+                "none";
+
+            document
+                .getElementById(
+                    "submitClaims"
+                )
+                .style.display =
+                "";
+        }
 	
 		document
 			.getElementById(
@@ -2495,6 +2612,13 @@ async function renderPanel() {
 				savePatentWithRelevance(
 					"weak"
 				);
+
+        document
+            .getElementById(
+                "submitClaims"
+            )
+            .onclick =
+            savePatentClaims;
 	
 		document
 			.getElementById(

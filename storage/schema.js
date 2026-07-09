@@ -11,6 +11,7 @@ export function createPatent() {
 		universeReviewSelected: false,
 	
 		abstract: "",
+		claims: "",
 	
 		inventorName: "",
 		assignee: "",

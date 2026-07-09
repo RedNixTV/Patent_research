@@ -26,6 +26,9 @@ export async function exportData(
 	
 				"Abstract":
 					patent.abstract,
+
+                "Claims":
+                    patent.claims,
 	
 				"Primary Class":
 					patent.primaryClass,

@@ -13,6 +13,7 @@ export const DEFAULT_COLUMNS = [
     "relevance",
     "universeReviewSelected",
     "overlap",
+    "claims",
     "whyItMatters"
 ];
 
@@ -68,6 +69,10 @@ export const COLUMN_DEFINITIONS = {
 
     overlap: {
         label: "Overlap"
+    },
+
+    claims: {
+        label: "Claims"
     },
 
     whyItMatters: {
@@ -236,6 +241,15 @@ const COLUMN_RENDERERS = {
                 data-field="whyItMatters"
                 data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
             >${escapeHtml(patent.whyItMatters || "")}</textarea>
+        `,
+
+    claims:
+        patent => `
+            <textarea
+                class="patentFieldControl patentClaimsTextarea"
+                data-field="claims"
+                data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
+            >${escapeHtml(patent.claims || "")}</textarea>
         `
 };
 

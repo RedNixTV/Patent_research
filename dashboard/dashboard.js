@@ -63,6 +63,7 @@ const STAGE_ONLY_PATENT_COLUMNS =
     [
         "universeReviewSelected",
         "overlap",
+        "claims",
         "whyItMatters"
     ];
 
@@ -98,16 +99,30 @@ function getPatentColumnOrderForStage(
 
     const visibleStageOnlyColumns =
         STAGE_ONLY_PATENT_COLUMNS.filter(
-            column =>
-                (
-                    column !==
+            column => {
+
+                if (
+                    column ===
                     "universeReviewSelected"
-                )
-                ? shouldShowPatentComparisonColumns(
+                ) {
+
+                    return PATENT_REVIEW_SELECTION_STAGES
+                        .has(stage);
+                }
+
+                if (
+                    column ===
+                    "claims"
+                ) {
+
+                    return stage ===
+                        "universeReview";
+                }
+
+                return shouldShowPatentComparisonColumns(
                     stage
-                  )
-                : PATENT_REVIEW_SELECTION_STAGES
-                    .has(stage)
+                );
+            }
         );
 
     const baseColumns =
@@ -549,7 +564,8 @@ function setupPatentFieldControls() {
                                 "relevance",
                                 "overlap",
                                 "whyItMatters",
-                                "universeReviewSelected"
+                                "universeReviewSelected",
+                                "claims"
                             ].includes(field)
                         ) {
 
@@ -728,6 +744,13 @@ const EDIT_FIELD_MAP = {
 
         label: "Abstract",
         id: "editAbstract",
+        type: "textarea"
+    },
+
+    claims: {
+
+        label: "Claims",
+        id: "editClaims",
         type: "textarea"
     },
 
@@ -1147,11 +1170,162 @@ async function saveColumnOrder(
     order
 ) {
 
+    const result =
+        await chrome.storage.local.get(
+            "columnOrder"
+        );
+
+    const existingOrder =
+        normalizeColumnOrder(
+            result.columnOrder ||
+            DEFAULT_COLUMNS
+        );
+
+    const visibleOrder =
+        normalizeVisibleColumnOrder(
+            order
+        );
+
+    const visibleColumns =
+        new Set(
+            visibleOrder
+        );
+
+    const mergedOrder = [];
+    let visibleIndex = 0;
+
+    for (
+        const column
+        of existingOrder
+    ) {
+
+        if (
+            visibleColumns.has(
+                column
+            )
+        ) {
+
+            if (
+                visibleIndex <
+                visibleOrder.length
+            ) {
+
+                mergedOrder.push(
+                    visibleOrder[
+                        visibleIndex
+                    ]
+                );
+
+                visibleIndex++;
+            }
+        }
+
+        else {
+
+            mergedOrder.push(
+                column
+            );
+        }
+    }
+
+    for (
+        ;
+        visibleIndex <
+        visibleOrder.length;
+        visibleIndex++
+    ) {
+
+        mergedOrder.push(
+            visibleOrder[
+                visibleIndex
+            ]
+        );
+    }
+
     await chrome.storage.local.set({
 
         columnOrder:
-            order
+            normalizeColumnOrder(
+                mergedOrder
+            )
     });
+}
+
+function normalizeColumnOrder(
+    order
+) {
+
+    const columns = [];
+
+    for (
+        const column
+        of order
+    ) {
+
+        if (
+            DEFAULT_COLUMNS.includes(
+                column
+            )
+            &&
+            !columns.includes(
+                column
+            )
+        ) {
+
+            columns.push(
+                column
+            );
+        }
+    }
+
+    for (
+        const column
+        of DEFAULT_COLUMNS
+    ) {
+
+        if (
+            !columns.includes(
+                column
+            )
+        ) {
+
+            columns.push(
+                column
+            );
+        }
+    }
+
+    return columns;
+}
+
+function normalizeVisibleColumnOrder(
+    order
+) {
+
+    const columns = [];
+
+    for (
+        const column
+        of order
+    ) {
+
+        if (
+            DEFAULT_COLUMNS.includes(
+                column
+            )
+            &&
+            !columns.includes(
+                column
+            )
+        ) {
+
+            columns.push(
+                column
+            );
+        }
+    }
+
+    return columns;
 }
 
 async function getHistogramColumnOrder() {
@@ -3881,6 +4055,20 @@ function setupEditButtons() {
 							)
 							.value =
 							patent.abstract || "";
+
+                        if (
+                            document.getElementById(
+                                "editClaims"
+                            )
+                        ) {
+
+                            document
+                                .getElementById(
+                                    "editClaims"
+                                )
+                                .value =
+                                patent.claims || "";
+                        }
 						
 						document
 							.getElementById(
@@ -4248,6 +4436,21 @@ function setupEditDialog() {
 					)
 					.value
 					.trim();
+
+            if (
+                document.getElementById(
+                    "editClaims"
+                )
+            ) {
+
+                patent.claims =
+                    document
+                        .getElementById(
+                            "editClaims"
+                        )
+                        .value
+                        .trim();
+            }
 			
 			patent.inventorName =
 				document
@@ -4329,6 +4532,60 @@ async function refreshCurrentView() {
     await updateCurrentHistogram();
 }
 
+async function refreshCurrentPatentTableFromStorage() {
+
+    const visiblePatentIds =
+        new Set(
+            currentTablePatents.map(
+                getPatentSelectionId
+            )
+        );
+
+    patents =
+        await getPatents();
+
+    patents.forEach(
+        (
+            patent,
+            index
+        ) => {
+
+            patent.referenceId =
+                index + 1;
+        }
+    );
+
+    for (
+        const patent
+        of patents
+    ) {
+
+        selectedPatentIds.add(
+            getPatentSelectionId(
+                patent
+            )
+        );
+    }
+
+    const stagePatents =
+        await getPatentsForCurrentStage();
+
+    await renderCurrentPatentTable(
+        activeClassificationFilter
+            ? stagePatents.filter(
+                patent =>
+                    visiblePatentIds.has(
+                        getPatentSelectionId(
+                            patent
+                        )
+                    )
+              )
+            : stagePatents
+    );
+
+    await renderEditFields();
+}
+
 chrome.storage.onChanged.addListener(
 
     async (
@@ -4348,6 +4605,13 @@ chrome.storage.onChanged.addListener(
         ) {
 
             await refreshCurrentView();
+        }
+
+        if (
+            changes.patents
+        ) {
+
+            await refreshCurrentPatentTableFromStorage();
         }
     }
 );
