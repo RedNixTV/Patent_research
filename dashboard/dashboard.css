@@ -256,5 +256,41 @@
 }
 
 .reviewConceptInput {
-	width: min(520px, 100%);
+	width: min(220px, 100%);
+}
+
+.reviewConceptActionDialog {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: white;
+	border: 1px solid #ccc;
+	padding: 16px;
+	z-index: 999999;
+	width: min(520px, 90vw);
+	box-sizing: border-box;
+}
+
+.reviewConceptActionDialog h3 {
+	margin-top: 0;
+}
+
+.reviewConceptTitleEdit {
+	width: 100%;
+	box-sizing: border-box;
+	margin-bottom: 8px;
+}
+
+.reviewConceptActionDialog textarea {
+	width: 100%;
+	height: 120px;
+	box-sizing: border-box;
+}
+
+.reviewConceptActionButtons {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+	margin-top: 10px;
 }

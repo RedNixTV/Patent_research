@@ -380,8 +380,9 @@ export function renderHeaders(
                     draggable="true"
                     data-column="${column}"
                     data-concept-id="${escapeAttribute(concept?.id || "")}"
+                    data-concept-definition="${escapeAttribute(concept?.definition || "")}"
                     class="patentReviewConceptHeader"
-                    title="Click to delete this concept column"
+                    title="${escapeAttribute(getConceptHeaderTitle(concept))}"
                 >
                     ${
                         getColumnLabel(
@@ -597,7 +598,7 @@ function getColumnRenderer(
                 data-concept-id="${escapeAttribute(concept?.id || "")}"
                 data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
                 ${patent.conceptCoverage?.[concept?.id] ? "checked" : ""}
-                title="Patent covers this concept"
+                title="${escapeAttribute(getConceptCellTitle(concept))}"
             >
         `;
     }
@@ -625,6 +626,31 @@ function getReviewConceptForColumn(
                 candidate.id
             ) === column
     );
+}
+
+function getConceptHeaderTitle(
+    concept
+) {
+
+    const definition =
+        concept?.definition
+            ?.trim();
+
+    return definition
+        ? `${definition}\nClick to define or delete this concept column`
+        : "Click to define or delete this concept column";
+}
+
+function getConceptCellTitle(
+    concept
+) {
+
+    const definition =
+        concept?.definition
+            ?.trim();
+
+    return definition ||
+        "Patent covers this concept";
 }
 
 function getPatentSelectionId(

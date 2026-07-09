@@ -582,21 +582,153 @@ function setupReviewConceptColumnControls() {
                             header.textContent
                                 .trim();
 
-                        if (
-                            !confirm(
-                                `Delete concept column "${label}"?`
-                            )
-                        ) {
+                        const definition =
+                            header.dataset
+                                .conceptDefinition;
 
-                            return;
-                        }
-
-                        await deleteReviewConcept(
-                            conceptId
+                        showReviewConceptActionDialog(
+                            {
+                                conceptId,
+                                label,
+                                definition
+                            }
                         );
                     };
             }
         );
+}
+
+function showReviewConceptActionDialog({
+    conceptId,
+    label,
+    definition
+}) {
+
+    document
+        .querySelector(
+            ".reviewConceptActionOverlay"
+        )
+        ?.remove();
+
+    const overlay =
+        document.createElement(
+            "div"
+        );
+
+    overlay.className =
+        "modalOverlay reviewConceptActionOverlay";
+
+    overlay.innerHTML = `
+        <div class="reviewConceptActionDialog">
+            <h3>
+                ${escapeHtml(label)}
+            </h3>
+
+            <input
+                id="reviewConceptTitleEdit"
+                class="reviewConceptTitleEdit"
+                value="${escapeAttribute(label)}"
+            >
+
+            <textarea
+                id="reviewConceptDefinitionEdit"
+                placeholder="Define this concept"
+            >${escapeHtml(definition || "")}</textarea>
+
+            <div class="reviewConceptActionButtons">
+                <button id="renameReviewConcept">
+                    Rename
+                </button>
+
+                <button id="defineReviewConcept">
+                    Define
+                </button>
+
+                <button id="deleteReviewConcept">
+                    Delete
+                </button>
+            </div>
+        </div>
+    `;
+
+    overlay.onclick =
+        event => {
+
+            if (
+                event.target ===
+                overlay
+            ) {
+
+                overlay.remove();
+            }
+        };
+
+    document.body.appendChild(
+        overlay
+    );
+
+    document
+        .getElementById(
+            "renameReviewConcept"
+        )
+        .onclick =
+        async () => {
+
+            await renameReviewConcept(
+                conceptId,
+                document
+                    .getElementById(
+                        "reviewConceptTitleEdit"
+                    )
+                    .value
+                    .trim()
+            );
+
+            overlay.remove();
+        };
+
+    document
+        .getElementById(
+            "defineReviewConcept"
+        )
+        .onclick =
+        async () => {
+
+            await defineReviewConcept(
+                conceptId,
+                document
+                    .getElementById(
+                        "reviewConceptDefinitionEdit"
+                    )
+                    .value
+                    .trim()
+            );
+
+            overlay.remove();
+        };
+
+    document
+        .getElementById(
+            "deleteReviewConcept"
+        )
+        .onclick =
+        async () => {
+
+            if (
+                !confirm(
+                    `Delete concept column "${label}"?`
+                )
+            ) {
+
+                return;
+            }
+
+            await deleteReviewConcept(
+                conceptId
+            );
+
+            overlay.remove();
+        };
 }
 
 function setupPatentSelectionControls() {
@@ -1214,6 +1346,7 @@ async function renderCurrentStage() {
                         <input
                             id="newReviewConcept"
                             class="reviewConceptInput"
+                            placeholder="Column name"
                         >
 
                         <button id="addReviewConcept">
@@ -1332,9 +1465,79 @@ async function addReviewConcept() {
                 {
                     id:
                         crypto.randomUUID(),
-                    label
+                    label,
+                    definition: ""
                 }
             ];
+        }
+    );
+}
+
+async function defineReviewConcept(
+    conceptId,
+    definition
+) {
+
+    if (!conceptId) {
+
+        return;
+    }
+
+    await updateUniverseReviewConcepts(
+        concepts =>
+            concepts.map(
+                concept =>
+                    concept.id ===
+                    conceptId
+                        ? {
+                            ...concept,
+                            definition
+                        }
+                        : concept
+            )
+    );
+}
+
+async function renameReviewConcept(
+    conceptId,
+    label
+) {
+
+    if (
+        !conceptId ||
+        !label
+    ) {
+
+        return;
+    }
+
+    await updateUniverseReviewConcepts(
+        concepts => {
+
+            if (
+                concepts.some(
+                    concept =>
+                        concept.id !==
+                        conceptId
+                        &&
+                        concept.label ===
+                        label
+                )
+            ) {
+
+                return concepts;
+            }
+
+            return concepts.map(
+                concept =>
+                    concept.id ===
+                    conceptId
+                        ? {
+                            ...concept,
+                            label
+                        }
+                        : concept
+            );
         }
     );
 }
