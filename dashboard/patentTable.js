@@ -18,6 +18,9 @@ export const DEFAULT_COLUMNS = [
     "whyItMatters"
 ];
 
+const REVIEW_CONCEPT_COLUMN_PREFIX =
+    "reviewConcept:";
+
 export const COLUMN_DEFINITIONS = {
 
     patentNumber: {
@@ -309,6 +312,9 @@ export function renderHeaders(
     const someReviewSelected =
         options.someReviewSelected ?? false;
 
+    const reviewConcepts =
+        options.reviewConcepts || [];
+
     headerRow.innerHTML = `
         <th class="patentSelectionHeader">
             <input
@@ -345,8 +351,44 @@ export function renderHeaders(
                         ${allReviewSelected ? "checked" : ""}
                     >
                     <span>
-                        ${COLUMN_DEFINITIONS[column].label}
+                        ${getColumnLabel(
+                            column,
+                            reviewConcepts
+                        )}
                     </span>
+                </th>
+            `;
+
+            continue;
+        }
+
+        if (
+            isReviewConceptColumn(
+                column
+            )
+        ) {
+
+            const concept =
+                getReviewConceptForColumn(
+                    column,
+                    reviewConcepts
+                );
+
+            headerRow.innerHTML += `
+
+                <th
+                    draggable="true"
+                    data-column="${column}"
+                    data-concept-id="${escapeAttribute(concept?.id || "")}"
+                    class="patentReviewConceptHeader"
+                    title="Click to delete this concept column"
+                >
+                    ${
+                        getColumnLabel(
+                            column,
+                            reviewConcepts
+                        )
+                    }
                 </th>
             `;
 
@@ -360,9 +402,10 @@ export function renderHeaders(
                 data-column="${column}"
             >
                 ${
-                    COLUMN_DEFINITIONS[
-                        column
-                    ].label
+                    getColumnLabel(
+                        column,
+                        reviewConcepts
+                    )
                 }
             </th>
         `;
@@ -395,6 +438,9 @@ export function renderPatentTable(
             patent =>
                 patent.referenceId
         );
+
+    const reviewConcepts =
+        options.reviewConcepts || [];
     
     columnOrder =
         columnOrder ||
@@ -466,7 +512,10 @@ export function renderPatentTable(
 				) {
 				
 					const value =
-							COLUMN_RENDERERS[column](
+							getColumnRenderer(
+                                column,
+                                reviewConcepts
+                            )(
 								patent,
 								{
 									compactTitle,
@@ -488,6 +537,93 @@ export function renderPatentTable(
                 row
             );
         }
+    );
+}
+
+export function getReviewConceptColumnKey(
+    conceptId
+) {
+
+    return `${REVIEW_CONCEPT_COLUMN_PREFIX}${conceptId}`;
+}
+
+function getColumnLabel(
+    column,
+    reviewConcepts
+) {
+
+    if (
+        isReviewConceptColumn(
+            column
+        )
+    ) {
+
+        const concept =
+            getReviewConceptForColumn(
+                column,
+                reviewConcepts
+            );
+
+        return concept?.label || "Concept";
+    }
+
+    return COLUMN_DEFINITIONS[
+        column
+    ]?.label || column;
+}
+
+function getColumnRenderer(
+    column,
+    reviewConcepts
+) {
+
+    if (
+        isReviewConceptColumn(
+            column
+        )
+    ) {
+
+        const concept =
+            getReviewConceptForColumn(
+                column,
+                reviewConcepts
+            );
+
+        return patent => `
+            <input
+                type="checkbox"
+                class="patentFieldControl patentConceptCoverageCheckbox"
+                data-field="conceptCoverage"
+                data-concept-id="${escapeAttribute(concept?.id || "")}"
+                data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
+                ${patent.conceptCoverage?.[concept?.id] ? "checked" : ""}
+                title="Patent covers this concept"
+            >
+        `;
+    }
+
+    return COLUMN_RENDERERS[column];
+}
+
+function isReviewConceptColumn(
+    column
+) {
+
+    return column.startsWith(
+        REVIEW_CONCEPT_COLUMN_PREFIX
+    );
+}
+
+function getReviewConceptForColumn(
+    column,
+    reviewConcepts
+) {
+
+    return reviewConcepts.find(
+        candidate =>
+            getReviewConceptColumnKey(
+                candidate.id
+            ) === column
     );
 }
 

@@ -219,7 +219,8 @@ export async function createProject(
 			universeReview: {
 	
 				excludedPatentIds: [],
-				notes: ""
+				notes: "",
+                concepts: []
 			},
 	
 			finalReferences: []
@@ -286,7 +287,8 @@ export async function deleteProject(
 					universeReview: {
 			
 						excludedPatentIds: [],
-						notes: ""
+						notes: "",
+                        concepts: []
 					},
 			
 					finalReferences: []
@@ -386,7 +388,8 @@ export async function getPatents() {
                         universeReview: {
 
                             excludedPatentIds: [],
-                            notes: ""
+                            notes: "",
+                            concepts: []
                         },
 
                         finalReferences: []
@@ -435,7 +438,8 @@ export async function getPatents() {
                         universeReview: {
 
                             excludedPatentIds: [],
-                            notes: ""
+                            notes: "",
+                            concepts: []
                         },
 
                         finalReferences: []
@@ -493,7 +497,8 @@ export async function getPatents() {
 					universeReview: {
 		
 						excludedPatentIds: [],
-						notes: ""
+						notes: "",
+                        concepts: []
 					},
 		
 					finalReferences: []

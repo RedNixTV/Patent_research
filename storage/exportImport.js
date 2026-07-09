@@ -7,7 +7,9 @@ export async function exportData(
     filename =
         "patent-universe.json",
     patentsToExport =
-        null
+        null,
+    reviewConcepts =
+        []
 ) {
 
     const patents =
@@ -54,7 +56,20 @@ export async function exportData(
 					patent.filingDate,
 	
 				"Publication Date":
-					patent.publicationDate
+					patent.publicationDate,
+
+                ...Object.fromEntries(
+                    reviewConcepts.map(
+                        concept => [
+                            concept.label,
+                            patent.conceptCoverage?.[
+                                concept.id
+                            ]
+                                ? "Yes"
+                                : "No"
+                        ]
+                    )
+                )
 			})
 		);
 	

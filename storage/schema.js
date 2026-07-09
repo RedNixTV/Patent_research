@@ -13,6 +13,7 @@ export function createPatent() {
 		abstract: "",
 		claims: "",
 		challengingClaimNumbers: "",
+		conceptCoverage: {},
 	
 		inventorName: "",
 		assignee: "",
@@ -113,7 +114,8 @@ export function createProject(
             universeReview: {
 
                 excludedPatentIds: [],
-                notes: ""
+                notes: "",
+                concepts: []
             },
 
             finalReferences: []

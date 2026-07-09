@@ -60,11 +60,16 @@
 
 .patentSelectionCheckbox,
 .patentReviewCheckbox,
+.patentConceptCoverageCheckbox,
 #selectAllPatents,
 #selectAllReviewPatents {
 	margin: 0;
 	margin-right: 0px;
 	vertical-align: middle;
+}
+
+.patentReviewConceptHeader {
+	cursor: pointer;
 }
 
 #patentTable th:nth-child(2),
@@ -233,4 +238,23 @@
 	height: 16px;
 	min-height: 16px;
 	resize: vertical;
+}
+
+.reviewConceptEditor {
+	margin: 12px 0;
+}
+
+.reviewConceptHeader {
+	font-weight: bold;
+	margin-bottom: 6px;
+}
+
+.reviewConceptAddRow {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.reviewConceptInput {
+	width: min(520px, 100%);
 }

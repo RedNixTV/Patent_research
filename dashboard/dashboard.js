@@ -25,7 +25,8 @@ from "./histogram.js";
 import {
     renderPatentTable,
     renderHeaders,
-    DEFAULT_COLUMNS
+    DEFAULT_COLUMNS,
+    getReviewConceptColumnKey
 }
 from "./patentTable.js";
 
@@ -93,9 +94,66 @@ function shouldShowPatentComparisonColumns(
     );
 }
 
+function getUniverseReviewConcepts(
+    project
+) {
+
+    const concepts =
+        project?.stages?.universeReview
+            ?.concepts;
+
+    return Array.isArray(
+        concepts
+    )
+        ? concepts
+        : [];
+}
+
+function getUniverseReviewConceptColumns(
+    project
+) {
+
+    if (
+        project?.workflow?.currentStage !==
+        "universeReview"
+    ) {
+
+        return [];
+    }
+
+    return getUniverseReviewConcepts(
+        project
+    ).map(
+        concept =>
+            getReviewConceptColumnKey(
+                concept.id
+            )
+    );
+}
+
+function escapeHtml(
+    value
+) {
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+function escapeAttribute(
+    value
+) {
+
+    return escapeHtml(
+        value
+    ).replace(/"/g, "&quot;");
+}
+
 function getPatentColumnOrderForStage(
     columnOrder,
-    stage
+    stage,
+    reviewConceptColumns = []
 ) {
 
     const visibleStageOnlyColumns =
@@ -132,14 +190,21 @@ function getPatentColumnOrderForStage(
     const baseColumns =
         columnOrder.filter(
             column =>
-                !STAGE_ONLY_PATENT_COLUMNS
-                    .includes(column)
-                ||
-                visibleStageOnlyColumns
-                    .includes(column)
+                isReviewConceptColumn(
+                    column
+                )
+                    ? reviewConceptColumns
+                        .includes(column)
+                    : (
+                        !STAGE_ONLY_PATENT_COLUMNS
+                            .includes(column)
+                        ||
+                        visibleStageOnlyColumns
+                            .includes(column)
+                    )
         );
 
-    return [
+    const stageColumnOrder = [
         ...baseColumns,
         ...visibleStageOnlyColumns.filter(
             column =>
@@ -148,6 +213,59 @@ function getPatentColumnOrderForStage(
                 )
         )
     ];
+
+    if (
+        reviewConceptColumns.length === 0
+    ) {
+
+        return stageColumnOrder;
+    }
+
+    const missingReviewConceptColumns =
+        reviewConceptColumns.filter(
+            column =>
+                !stageColumnOrder.includes(
+                    column
+                )
+        );
+
+    if (
+        missingReviewConceptColumns.length ===
+        0
+    ) {
+
+        return stageColumnOrder;
+    }
+
+    const conceptInsertIndex =
+        stageColumnOrder.includes(
+            "whyItMatters"
+        )
+            ? stageColumnOrder.indexOf(
+                "whyItMatters"
+              )
+            : stageColumnOrder.length;
+
+    return [
+        ...stageColumnOrder.slice(
+            0,
+            conceptInsertIndex
+        ),
+        ...missingReviewConceptColumns,
+        ...stageColumnOrder.slice(
+            conceptInsertIndex
+        )
+    ];
+}
+
+function isReviewConceptColumn(
+    column
+) {
+
+    return String(column)
+        .startsWith(
+            "reviewConcept:"
+        );
 }
 
 function getPatentSelectionId(
@@ -358,6 +476,11 @@ async function renderCurrentPatentTable(
         project?.workflow?.currentStage ===
         "universeReview";
 
+    const reviewConcepts =
+        getUniverseReviewConcepts(
+            project
+        );
+
     renderHeaders(
         columnOrder,
         {
@@ -368,7 +491,9 @@ async function renderCurrentPatentTable(
                 areAllTablePatentsSelectedForReview(),
 
             someReviewSelected:
-                areSomeTablePatentsSelectedForReview()
+                areSomeTablePatentsSelectedForReview(),
+
+            reviewConcepts
         }
     );
 
@@ -395,13 +520,83 @@ async function renderCurrentPatentTable(
                     : (
                         patent =>
                             patent.referenceId
-                      )
+                      ),
+
+            reviewConcepts
         }
     );
 
     setupEditButtons();
     setupPatentSelectionControls();
     setupPatentFieldControls();
+    setupReviewConceptColumnControls();
+}
+
+function setupReviewConceptColumnControls() {
+
+    document
+        .querySelectorAll(
+            ".patentReviewConceptHeader"
+        )
+        .forEach(
+            header => {
+
+                let pointerStart = null;
+
+                header.onpointerdown =
+                    event => {
+
+                        pointerStart = {
+                            x: event.clientX,
+                            y: event.clientY
+                        };
+                    };
+
+                header.onclick =
+                    async event => {
+
+                        if (
+                            pointerStart
+                            &&
+                            (
+                                Math.abs(
+                                    event.clientX -
+                                    pointerStart.x
+                                ) > 4
+                                ||
+                                Math.abs(
+                                    event.clientY -
+                                    pointerStart.y
+                                ) > 4
+                            )
+                        ) {
+
+                            return;
+                        }
+
+                        const conceptId =
+                            header.dataset
+                                .conceptId;
+
+                        const label =
+                            header.textContent
+                                .trim();
+
+                        if (
+                            !confirm(
+                                `Delete concept column "${label}"?`
+                            )
+                        ) {
+
+                            return;
+                        }
+
+                        await deleteReviewConcept(
+                            conceptId
+                        );
+                    };
+            }
+        );
 }
 
 function setupPatentSelectionControls() {
@@ -554,6 +749,10 @@ function setupPatentFieldControls() {
                             event.target.dataset
                                 .patentId;
 
+                        const conceptId =
+                            event.target.dataset
+                                .conceptId;
+
                         const patent =
                             patents.find(
                                 candidate =>
@@ -570,18 +769,40 @@ function setupPatentFieldControls() {
                                 "whyItMatters",
                                 "universeReviewSelected",
                                 "claims",
-                                "challengingClaimNumbers"
+                                "challengingClaimNumbers",
+                                "conceptCoverage"
                             ].includes(field)
                         ) {
 
                             return;
                         }
 
-                        patent[field] =
-                            event.target.type ===
-                                "checkbox"
-                                ? event.target.checked
-                                : event.target.value;
+                        if (
+                            field ===
+                            "conceptCoverage"
+                        ) {
+
+                            if (!conceptId) {
+
+                                return;
+                            }
+
+                            patent.conceptCoverage ??= {};
+
+                            patent.conceptCoverage[
+                                conceptId
+                            ] =
+                                event.target.checked;
+                        }
+
+                        else {
+
+                            patent[field] =
+                                event.target.type ===
+                                    "checkbox"
+                                    ? event.target.checked
+                                    : event.target.value;
+                        }
 
                         await savePatents(
                             patents
@@ -973,11 +1194,168 @@ async function renderCurrentStage() {
 
             break;
 
+        case "universeReview":
+
+            currentView = "cpc";
+
+            const reviewConcepts =
+                getUniverseReviewConcepts(
+                    project
+                );
+
+            container.innerHTML = `
+
+                <div class="reviewConceptEditor">
+                    <div class="reviewConceptHeader">
+                        Review Concepts
+                    </div>
+
+                    <div class="reviewConceptAddRow">
+                        <input
+                            id="newReviewConcept"
+                            class="reviewConceptInput"
+                        >
+
+                        <button id="addReviewConcept">
+                            Add Column
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document
+                .getElementById(
+                    "addReviewConcept"
+                )
+                .onclick =
+                addReviewConcept;
+
+            break;
+
         default:
 
             currentView = "cpc";
             container.innerHTML = "";
     }
+}
+
+async function updateUniverseReviewConcepts(
+    updater
+) {
+
+    const result =
+        await chrome.storage.local.get([
+            "projects",
+            "currentProjectId"
+        ]);
+
+    const projects =
+        result.projects || [];
+
+    const project =
+        projects.find(
+            candidate =>
+                candidate.id ===
+                result.currentProjectId
+        );
+
+    if (!project) {
+
+        return;
+    }
+
+    project.stages ??= {};
+    project.stages.universeReview ??= {
+        excludedPatentIds: [],
+        notes: "",
+        concepts: []
+    };
+
+    project.stages.universeReview.concepts =
+        updater(
+            getUniverseReviewConcepts(
+                project
+            )
+        );
+
+    await chrome.storage.local.set({
+        projects
+    });
+
+    await refreshUniverseReviewConceptColumns();
+}
+
+async function refreshUniverseReviewConceptColumns() {
+
+    await renderCurrentStage();
+
+    await renderCurrentPatentTable(
+        await getPatentsForCurrentStage()
+    );
+
+    await renderEditFields();
+
+    enableColumnDragDrop();
+}
+
+async function addReviewConcept() {
+
+    const input =
+        document.getElementById(
+            "newReviewConcept"
+        );
+
+    const label =
+        input.value.trim();
+
+    if (!label) {
+
+        return;
+    }
+
+    await updateUniverseReviewConcepts(
+        concepts => {
+
+            if (
+                concepts.some(
+                    concept =>
+                        concept.label ===
+                        label
+                )
+            ) {
+
+                return concepts;
+            }
+
+            return [
+                ...concepts,
+                {
+                    id:
+                        crypto.randomUUID(),
+                    label
+                }
+            ];
+        }
+    );
+}
+
+async function deleteReviewConcept(
+    conceptId
+) {
+
+    if (!conceptId) {
+
+        return;
+    }
+
+    await updateUniverseReviewConcepts(
+        concepts =>
+            concepts.filter(
+                concept =>
+                    concept.id !==
+                    conceptId
+            )
+    );
 }
 
 async function getPatentsForCurrentStage() {
@@ -1174,7 +1552,10 @@ async function getColumnOrder() {
     return getPatentColumnOrderForStage(
         result.columnOrder ||
         DEFAULT_COLUMNS,
-        project?.workflow?.currentStage
+        project?.workflow?.currentStage,
+        getUniverseReviewConceptColumns(
+            project
+        )
     );
 }
 
@@ -1187,15 +1568,25 @@ async function saveColumnOrder(
             "columnOrder"
         );
 
+    const project =
+        await getCurrentProject();
+
+    const reviewConceptColumns =
+        getUniverseReviewConceptColumns(
+            project
+        );
+
     const existingOrder =
         normalizeColumnOrder(
             result.columnOrder ||
-            DEFAULT_COLUMNS
+            DEFAULT_COLUMNS,
+            reviewConceptColumns
         );
 
     const visibleOrder =
         normalizeVisibleColumnOrder(
-            order
+            order,
+            reviewConceptColumns
         );
 
     const visibleColumns =
@@ -1258,16 +1649,23 @@ async function saveColumnOrder(
 
         columnOrder:
             normalizeColumnOrder(
-                mergedOrder
+                mergedOrder,
+                reviewConceptColumns
             )
     });
 }
 
 function normalizeColumnOrder(
-    order
+    order,
+    reviewConceptColumns = []
 ) {
 
     const columns = [];
+    const validColumns =
+        [
+            ...DEFAULT_COLUMNS,
+            ...reviewConceptColumns
+        ];
 
     for (
         const column
@@ -1275,7 +1673,7 @@ function normalizeColumnOrder(
     ) {
 
         if (
-            DEFAULT_COLUMNS.includes(
+            validColumns.includes(
                 column
             )
             &&
@@ -1292,7 +1690,7 @@ function normalizeColumnOrder(
 
     for (
         const column
-        of DEFAULT_COLUMNS
+        of validColumns
     ) {
 
         if (
@@ -1311,10 +1709,16 @@ function normalizeColumnOrder(
 }
 
 function normalizeVisibleColumnOrder(
-    order
+    order,
+    reviewConceptColumns = []
 ) {
 
     const columns = [];
+    const validColumns =
+        [
+            ...DEFAULT_COLUMNS,
+            ...reviewConceptColumns
+        ];
 
     for (
         const column
@@ -1322,7 +1726,7 @@ function normalizeVisibleColumnOrder(
     ) {
 
         if (
-            DEFAULT_COLUMNS.includes(
+            validColumns.includes(
                 column
             )
             &&
@@ -1912,7 +2316,10 @@ async function init() {
 
 			await exportData(
 				filename,
-				stagePatents
+				stagePatents,
+                getUniverseReviewConcepts(
+                    project
+                )
 			);
 		};
 

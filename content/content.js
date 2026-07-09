@@ -677,7 +677,8 @@ async function savePatent(
 				universeReview: {
 	
 					excludedPatentIds: [],
-					notes: ""
+					notes: "",
+                    concepts: []
 				},
 	
 				finalReferences: []
