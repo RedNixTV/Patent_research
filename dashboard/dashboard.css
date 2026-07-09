@@ -72,6 +72,10 @@
 	cursor: pointer;
 }
 
+.patentConceptScoreSelect {
+	min-width: 48px;
+}
+
 #patentTable th:nth-child(2),
 #patentTable td:nth-child(2) {
 	width: 120px;
@@ -339,6 +343,19 @@
 .reviewConceptDefinitionTextInput {
 	width: 100%;
 	height: 90px;
+	box-sizing: border-box;
+	resize: vertical;
+}
+
+.reviewConceptDefinitionItem label {
+	display: block;
+	font-weight: bold;
+	margin: 8px 0 4px;
+}
+
+.reviewConceptScoreDefinitionInput {
+	width: 100%;
+	height: 64px;
 	box-sizing: border-box;
 	resize: vertical;
 }

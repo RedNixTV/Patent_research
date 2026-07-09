@@ -62,11 +62,16 @@ export async function exportData(
                     reviewConcepts.map(
                         concept => [
                             concept.label,
-                            patent.conceptCoverage?.[
+                            patent.conceptScores?.[
                                 concept.id
-                            ]
-                                ? "Yes"
-                                : "No"
+                            ] ??
+                            (
+                                patent.conceptCoverage?.[
+                                    concept.id
+                                ]
+                                    ? "2"
+                                    : "0"
+                            )
                         ]
                     )
                 )

@@ -14,6 +14,7 @@ export function createPatent() {
 		claims: "",
 		challengingClaimNumbers: "",
 		conceptCoverage: {},
+		conceptScores: {},
 	
 		inventorName: "",
 		assignee: "",

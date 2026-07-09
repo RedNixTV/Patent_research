@@ -944,6 +944,223 @@ function showReviewConceptDefinitionsDialog(
         );
 }
 
+function showReviewConceptScoringDefinitionsDialog(
+    concepts
+) {
+
+    document
+        .querySelector(
+            ".reviewConceptScoringDefinitionsOverlay"
+        )
+        ?.remove();
+
+    const overlay =
+        document.createElement(
+            "div"
+        );
+
+    overlay.className =
+        "modalOverlay reviewConceptScoringDefinitionsOverlay";
+
+    overlay.innerHTML = `
+        <div class="reviewConceptDefinitionsDialog">
+            <h3>
+                Scoring
+            </h3>
+
+            <button id="copyReviewConceptScoringDefinitions">
+                Copy
+            </button>
+
+            <div
+                id="reviewConceptScoringSaveStatus"
+                class="reviewConceptSaveStatus"
+            >
+                Saved
+            </div>
+
+            <div class="reviewConceptDefinitionsList">
+                ${
+                    concepts.length
+                        ? concepts
+                            .map(
+                                concept => {
+
+                                    const scoring =
+                                        concept.scoring || {};
+
+                                    return `
+                                        <div class="reviewConceptDefinitionItem">
+                                            <strong>
+                                                ${escapeHtml(concept.label)}
+                                            </strong>
+
+                                            <label>
+                                                Score 2
+                                            </label>
+
+                                            <textarea
+                                                class="reviewConceptScoreDefinitionInput"
+                                                data-concept-id="${escapeAttribute(concept.id)}"
+                                                data-score="2"
+                                            >${escapeHtml(scoring["2"] || "")}</textarea>
+
+                                            <label>
+                                                Score 1
+                                            </label>
+
+                                            <textarea
+                                                class="reviewConceptScoreDefinitionInput"
+                                                data-concept-id="${escapeAttribute(concept.id)}"
+                                                data-score="1"
+                                            >${escapeHtml(scoring["1"] || "")}</textarea>
+
+                                            <label>
+                                                Score 0
+                                            </label>
+
+                                            <textarea
+                                                class="reviewConceptScoreDefinitionInput"
+                                                data-concept-id="${escapeAttribute(concept.id)}"
+                                                data-score="0"
+                                            >${escapeHtml(scoring["0"] || "")}</textarea>
+                                        </div>
+                                    `;
+                                }
+                            )
+                            .join("")
+                        : `
+                            <p>
+                                No concepts have been added yet.
+                            </p>
+                        `
+                }
+            </div>
+        </div>
+    `;
+
+    overlay.onclick =
+        event => {
+
+            if (
+                event.target ===
+                overlay
+            ) {
+
+                overlay.remove();
+            }
+        };
+
+    document.body.appendChild(
+        overlay
+    );
+
+    document
+        .getElementById(
+            "copyReviewConceptScoringDefinitions"
+        )
+        .onclick =
+        async () => {
+
+            const text =
+                getUniverseReviewConcepts(
+                    await getCurrentProject()
+                )
+                    .map(
+                        concept => {
+
+                            const scoring =
+                                concept.scoring || {};
+
+                            return [
+                                `${concept.label}`,
+                                `Score 2: ${scoring["2"] || ""}`,
+                                `Score 1: ${scoring["1"] || ""}`,
+                                `Score 0: ${scoring["0"] || ""}`
+                            ].join("\n");
+                        }
+                    )
+                    .join("\n\n");
+
+            await navigator.clipboard.writeText(
+                text
+            );
+        };
+
+    const status =
+        document.getElementById(
+            "reviewConceptScoringSaveStatus"
+        );
+
+    const saveTimers =
+        new Map();
+
+    const scheduleScoringSave =
+        conceptId => {
+
+            status.textContent =
+                "Saving...";
+
+            clearTimeout(
+                saveTimers.get(
+                    conceptId
+                )
+            );
+
+            saveTimers.set(
+                conceptId,
+                setTimeout(
+                    async () => {
+
+                        const scoring = {};
+
+                        overlay
+                            .querySelectorAll(
+                                `.reviewConceptScoreDefinitionInput[data-concept-id="${CSS.escape(conceptId)}"]`
+                            )
+                            .forEach(
+                                input => {
+
+                                    scoring[
+                                        input.dataset
+                                            .score
+                                    ] =
+                                        input.value.trim();
+                                }
+                            );
+
+                        await updateReviewConceptMetadata(
+                            conceptId,
+                            {
+                                scoring
+                            }
+                        );
+
+                        status.textContent =
+                            "Saved";
+                    },
+                    600
+                )
+            );
+        };
+
+    overlay
+        .querySelectorAll(
+            ".reviewConceptScoreDefinitionInput"
+        )
+        .forEach(
+            input => {
+
+                input.oninput =
+                    () =>
+                        scheduleScoringSave(
+                            input.dataset
+                                .conceptId
+                        );
+            }
+        );
+}
+
 function setupPatentSelectionControls() {
 
     const selectAll =
@@ -1115,7 +1332,8 @@ function setupPatentFieldControls() {
                                 "universeReviewSelected",
                                 "claims",
                                 "challengingClaimNumbers",
-                                "conceptCoverage"
+                                "conceptCoverage",
+                                "conceptScores"
                             ].includes(field)
                         ) {
 
@@ -1125,6 +1343,9 @@ function setupPatentFieldControls() {
                         if (
                             field ===
                             "conceptCoverage"
+                            ||
+                            field ===
+                            "conceptScores"
                         ) {
 
                             if (!conceptId) {
@@ -1132,12 +1353,12 @@ function setupPatentFieldControls() {
                                 return;
                             }
 
-                            patent.conceptCoverage ??= {};
+                            patent.conceptScores ??= {};
 
-                            patent.conceptCoverage[
+                            patent.conceptScores[
                                 conceptId
                             ] =
-                                event.target.checked;
+                                event.target.value;
                         }
 
                         else {
@@ -1569,6 +1790,10 @@ async function renderCurrentStage() {
                         <button id="showReviewConceptDefinitions">
                             Definition
                         </button>
+
+                        <button id="showReviewConceptScoringDefinitions">
+                            Scoring
+                        </button>
                     </div>
                 </div>
             `;
@@ -1587,6 +1812,16 @@ async function renderCurrentStage() {
                 .onclick =
                 () =>
                     showReviewConceptDefinitionsDialog(
+                        reviewConcepts
+                    );
+
+            document
+                .getElementById(
+                    "showReviewConceptScoringDefinitions"
+                )
+                .onclick =
+                () =>
+                    showReviewConceptScoringDefinitionsDialog(
                         reviewConcepts
                     );
 

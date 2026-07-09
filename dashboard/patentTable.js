@@ -590,17 +590,48 @@ function getColumnRenderer(
                 reviewConcepts
             );
 
-        return patent => `
-            <input
-                type="checkbox"
-                class="patentFieldControl patentConceptCoverageCheckbox"
-                data-field="conceptCoverage"
-                data-concept-id="${escapeAttribute(concept?.id || "")}"
-                data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
-                ${patent.conceptCoverage?.[concept?.id] ? "checked" : ""}
-                title="${escapeAttribute(getConceptCellTitle(concept))}"
-            >
-        `;
+        return patent => {
+
+            const conceptId =
+                concept?.id;
+
+            const value =
+                patent.conceptScores?.[
+                    conceptId
+                ] ??
+                (
+                    patent.conceptCoverage?.[
+                        conceptId
+                    ]
+                        ? "2"
+                        : "0"
+                );
+
+            return `
+                <select
+                    class="patentFieldControl patentConceptScoreSelect"
+                    data-field="conceptScores"
+                    data-concept-id="${escapeAttribute(conceptId || "")}"
+                    data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
+                    title="${escapeAttribute(getConceptCellTitle(concept))}"
+                >
+                    ${
+                        ["2", "1", "0"]
+                            .map(
+                                score => `
+                                    <option
+                                        value="${score}"
+                                        ${String(value) === score ? "selected" : ""}
+                                    >
+                                        ${score}
+                                    </option>
+                                `
+                            )
+                            .join("")
+                    }
+                </select>
+            `;
+        };
     }
 
     return COLUMN_RENDERERS[column];
@@ -649,8 +680,31 @@ function getConceptCellTitle(
         concept?.definition
             ?.trim();
 
-    return definition ||
-        "Patent covers this concept";
+    const scoring =
+        concept?.scoring || {};
+
+    const scoringText =
+        [
+            scoring["2"]
+                ? `Score 2: ${scoring["2"]}`
+                : "",
+            scoring["1"]
+                ? `Score 1: ${scoring["1"]}`
+                : "",
+            scoring["0"]
+                ? `Score 0: ${scoring["0"]}`
+                : ""
+        ]
+            .filter(Boolean)
+            .join("\n");
+
+    return [
+        definition,
+        scoringText
+    ]
+        .filter(Boolean)
+        .join("\n\n") ||
+        "Score this concept";
 }
 
 function getPatentSelectionId(
