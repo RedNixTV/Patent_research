@@ -221,6 +221,13 @@
 	resize: vertical;
 }
 
+.patentChallengeClaimsTextarea {
+	width: 180px;
+	height: 16px;
+	min-height: 16px;
+	resize: vertical;
+}
+
 .patentWhyItMattersTextarea {
 	width: 260px;
 	height: 16px;

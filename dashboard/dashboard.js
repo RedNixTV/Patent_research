@@ -64,6 +64,7 @@ const STAGE_ONLY_PATENT_COLUMNS =
         "universeReviewSelected",
         "overlap",
         "claims",
+        "challengingClaimNumbers",
         "whyItMatters"
     ];
 
@@ -113,6 +114,9 @@ function getPatentColumnOrderForStage(
                 if (
                     column ===
                     "claims"
+                    ||
+                    column ===
+                    "challengingClaimNumbers"
                 ) {
 
                     return stage ===
@@ -565,7 +569,8 @@ function setupPatentFieldControls() {
                                 "overlap",
                                 "whyItMatters",
                                 "universeReviewSelected",
-                                "claims"
+                                "claims",
+                                "challengingClaimNumbers"
                             ].includes(field)
                         ) {
 
@@ -751,6 +756,13 @@ const EDIT_FIELD_MAP = {
 
         label: "Claims",
         id: "editClaims",
+        type: "textarea"
+    },
+
+    challengingClaimNumbers: {
+
+        label: "Challenge Claims",
+        id: "editChallengingClaimNumbers",
         type: "textarea"
     },
 
@@ -4069,6 +4081,20 @@ function setupEditButtons() {
                                 .value =
                                 patent.claims || "";
                         }
+
+                        if (
+                            document.getElementById(
+                                "editChallengingClaimNumbers"
+                            )
+                        ) {
+
+                            document
+                                .getElementById(
+                                    "editChallengingClaimNumbers"
+                                )
+                                .value =
+                                patent.challengingClaimNumbers || "";
+                        }
 						
 						document
 							.getElementById(
@@ -4447,6 +4473,21 @@ function setupEditDialog() {
                     document
                         .getElementById(
                             "editClaims"
+                        )
+                        .value
+                        .trim();
+            }
+
+            if (
+                document.getElementById(
+                    "editChallengingClaimNumbers"
+                )
+            ) {
+
+                patent.challengingClaimNumbers =
+                    document
+                        .getElementById(
+                            "editChallengingClaimNumbers"
                         )
                         .value
                         .trim();

@@ -29,6 +29,9 @@ export async function exportData(
 
                 "Claims":
                     patent.claims,
+
+                "Challenge Claims":
+                    patent.challengingClaimNumbers,
 	
 				"Primary Class":
 					patent.primaryClass,
