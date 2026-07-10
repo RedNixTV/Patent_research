@@ -34,6 +34,10 @@ export async function exportData(
 
                 "Challenge Claims":
                     patent.challengingClaimNumbers,
+
+                "Final Reference":
+                    patent.finalReferenceSelected ===
+                    true,
 	
 				"Primary Class":
 					patent.primaryClass,
@@ -222,6 +226,21 @@ export function importData(
                 "challengingClaimNumbers"
             );
 
+            if (
+                Object.hasOwn(
+                    row,
+                    "Final Reference"
+                )
+            ) {
+
+                patent.finalReferenceSelected =
+                    normalizeImportedBoolean(
+                        row[
+                            "Final Reference"
+                        ]
+                    );
+            }
+
             importField(
                 row,
                 "Primary Class",
@@ -382,6 +401,30 @@ function normalizeOtherClasses(
                 .filter(Boolean)
         )
     ];
+}
+
+function normalizeImportedBoolean(
+    value
+) {
+
+    if (
+        typeof value ===
+        "string"
+    ) {
+
+        return [
+            "true",
+            "yes",
+            "1",
+            "selected"
+        ].includes(
+            value.trim()
+                .toLowerCase()
+        );
+    }
+
+    return value === true ||
+        value === 1;
 }
 
 function getBullseyeScore(
