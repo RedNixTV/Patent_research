@@ -2482,6 +2482,43 @@ async function renderCurrentStage() {
 
             break;
 
+        case "finalReferences": {
+
+            currentView = "cpc";
+
+            const finalReviewConcepts =
+                getUniverseReviewConcepts(
+                    project
+                );
+
+            container.innerHTML = `
+                <div class="reviewConceptEditor">
+                    <div class="reviewConceptHeader">
+                        Final References
+                    </div>
+
+                    <div class="reviewConceptAddRow">
+                        <button id="showFinalReferencesSummary">
+                            Summary
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document
+                .getElementById(
+                    "showFinalReferencesSummary"
+                )
+                .onclick =
+                () =>
+                    showReviewCoverageSummaryDialog(
+                        finalReviewConcepts,
+                        currentTablePatents
+                    );
+
+            break;
+        }
+
         default:
 
             currentView = "cpc";
