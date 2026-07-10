@@ -12,6 +12,7 @@ export const DEFAULT_COLUMNS = [
     "otherClasses",
     "relevance",
     "universeReviewSelected",
+    "finalReferenceSelected",
     "overlap",
     "claims",
     "challengingClaimNumbers",
@@ -71,6 +72,10 @@ export const COLUMN_DEFINITIONS = {
 
     universeReviewSelected: {
         label: "Review"
+    },
+
+    finalReferenceSelected: {
+        label: "Final Reference"
     },
 
     overlap: {
@@ -220,6 +225,18 @@ const COLUMN_RENDERERS = {
             >
         `,
 
+    finalReferenceSelected:
+        patent => `
+            <input
+                type="checkbox"
+                class="patentFieldControl patentFinalReferenceCheckbox"
+                data-field="finalReferenceSelected"
+                data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
+                ${patent.finalReferenceSelected ? "checked" : ""}
+                title="Select for Final References (maximum 20)"
+            >
+        `,
+
     overlap:
         patent => {
 
@@ -329,6 +346,10 @@ export function renderHeaders(
         options.scoreSortDirection ||
         null;
 
+    const finalReferenceSelectedCount =
+        options.finalReferenceSelectedCount ||
+        0;
+
     headerRow.innerHTML = `
         <th class="patentSelectionHeader">
             <input
@@ -404,6 +425,25 @@ export function renderHeaders(
                             reviewConcepts
                         )
                     }
+                </th>
+            `;
+
+            continue;
+        }
+
+        if (
+            column ===
+            "finalReferenceSelected"
+        ) {
+
+            headerRow.innerHTML += `
+
+                <th
+                    draggable="true"
+                    data-column="${column}"
+                    title="Select up to 20 patents for Final References"
+                >
+                    Final (${finalReferenceSelectedCount}/20)
                 </th>
             `;
 

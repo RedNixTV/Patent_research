@@ -66,6 +66,7 @@ let scoreSortDirection = null;
 const STAGE_ONLY_PATENT_COLUMNS =
     [
         "universeReviewSelected",
+        "finalReferenceSelected",
         "overlap",
         "claims",
         "challengingClaimNumbers",
@@ -86,8 +87,7 @@ const PATENT_LIST_STAGES =
     new Set([
         "landscapeScan",
         "referenceList",
-        "universe",
-        "finalReferences"
+        "universe"
     ]);
 
 function shouldShowPatentComparisonColumns(
@@ -119,8 +119,13 @@ function getUniverseReviewConceptColumns(
 ) {
 
     if (
-        project?.workflow?.currentStage !==
-        "universeReview"
+        ![
+            "universeReview",
+            "finalReferences"
+        ].includes(
+            project?.workflow
+                ?.currentStage
+        )
     ) {
 
         return [];
@@ -176,6 +181,15 @@ function getPatentColumnOrderForStage(
 
                 if (
                     column ===
+                    "finalReferenceSelected"
+                ) {
+
+                    return stage ===
+                        "universeReview";
+                }
+
+                if (
+                    column ===
                     "claims"
                     ||
                     column ===
@@ -188,8 +202,10 @@ function getPatentColumnOrderForStage(
                     "bullseye"
                 ) {
 
-                    return stage ===
-                        "universeReview";
+                    return [
+                        "universeReview",
+                        "finalReferences"
+                    ].includes(stage);
                 }
 
                 return shouldShowPatentComparisonColumns(
@@ -481,8 +497,13 @@ async function renderCurrentPatentTable(
         await getCurrentProject();
 
     const renumberReferences =
-        project?.workflow?.currentStage ===
-        "universeReview";
+        [
+            "universeReview",
+            "finalReferences"
+        ].includes(
+            project?.workflow
+                ?.currentStage
+        );
 
     const reviewConcepts =
         getUniverseReviewConcepts(
@@ -530,7 +551,14 @@ async function renderCurrentPatentTable(
 
             reviewConcepts,
 
-            scoreSortDirection
+            scoreSortDirection,
+
+            finalReferenceSelectedCount:
+                patents.filter(
+                    patent =>
+                        patent.finalReferenceSelected ===
+                        true
+                ).length
         }
     );
 
@@ -1852,12 +1880,40 @@ function setupPatentFieldControls() {
                                 "overlap",
                                 "whyItMatters",
                                 "universeReviewSelected",
+                                "finalReferenceSelected",
                                 "claims",
                                 "challengingClaimNumbers",
                                 "conceptCoverage",
                                 "conceptScores"
                             ].includes(field)
                         ) {
+
+                            return;
+                        }
+
+                        if (
+                            field ===
+                                "finalReferenceSelected"
+                            &&
+                            event.target.checked
+                            &&
+                            patents.filter(
+                                candidate =>
+                                    candidate !==
+                                        patent
+                                    &&
+                                    candidate
+                                        .finalReferenceSelected ===
+                                        true
+                            ).length >= 20
+                        ) {
+
+                            event.target.checked =
+                                false;
+
+                            alert(
+                                "You can select a maximum of 20 Final References."
+                            );
 
                             return;
                         }
@@ -1899,6 +1955,9 @@ function setupPatentFieldControls() {
                         if (
                             field ===
                             "universeReviewSelected"
+                            ||
+                            field ===
+                            "finalReferenceSelected"
                             ||
                             field ===
                             "conceptScores"
@@ -2595,6 +2654,18 @@ async function getPatentsForCurrentStage() {
 
     const stageId =
         project?.workflow?.currentStage;
+
+    if (
+        stageId ===
+        "finalReferences"
+    ) {
+
+        return patents.filter(
+            patent =>
+                patent.finalReferenceSelected ===
+                true
+        );
+    }
 
     if (
         PATENT_LIST_STAGES.has(

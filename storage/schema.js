@@ -9,6 +9,7 @@ export function createPatent() {
 		overlap: "None",
 		whyItMatters: "",
 		universeReviewSelected: false,
+		finalReferenceSelected: false,
 	
 		abstract: "",
 		claims: "",
