@@ -1065,6 +1065,23 @@ function showReviewConceptScoringDefinitionsDialog(
                 Scoring
             </h3>
 
+            <div class="reviewConceptColorLegend">
+                <span class="reviewConceptColorLegendItem">
+                    <span class="reviewConceptColorSwatch reviewConceptColorSwatchRed"></span>
+                    Red = Score 2
+                </span>
+
+                <span class="reviewConceptColorLegendItem">
+                    <span class="reviewConceptColorSwatch reviewConceptColorSwatchYellow"></span>
+                    Yellow = Score 1
+                </span>
+
+                <span class="reviewConceptColorLegendItem">
+                    <span class="reviewConceptColorSwatch reviewConceptColorSwatchGreen"></span>
+                    Green = Score 0
+                </span>
+            </div>
+
             <button id="copyReviewConceptScoringDefinitions">
                 Copy
             </button>
@@ -1093,7 +1110,7 @@ function showReviewConceptScoringDefinitionsDialog(
                                             </strong>
 
                                             <label>
-                                                Score 2
+                                                Red (Score 2)
                                             </label>
 
                                             <textarea
@@ -1103,7 +1120,7 @@ function showReviewConceptScoringDefinitionsDialog(
                                             >${escapeHtml(scoring["2"] || "")}</textarea>
 
                                             <label>
-                                                Score 1
+                                                Yellow (Score 1)
                                             </label>
 
                                             <textarea
@@ -1113,7 +1130,7 @@ function showReviewConceptScoringDefinitionsDialog(
                                             >${escapeHtml(scoring["1"] || "")}</textarea>
 
                                             <label>
-                                                Score 0
+                                                Green (Score 0)
                                             </label>
 
                                             <textarea
@@ -1171,9 +1188,9 @@ function showReviewConceptScoringDefinitionsDialog(
 
                             return [
                                 `${concept.label}`,
-                                `Score 2: ${scoring["2"] || ""}`,
-                                `Score 1: ${scoring["1"] || ""}`,
-                                `Score 0: ${scoring["0"] || ""}`
+                                `Red (Score 2): ${scoring["2"] || ""}`,
+                                `Yellow (Score 1): ${scoring["1"] || ""}`,
+                                `Green (Score 0): ${scoring["0"] || ""}`
                             ].join("\n");
                         }
                     )

@@ -655,23 +655,52 @@ function getColumnRenderer(
                         : "0"
                 );
 
+            const scoreOptions = [
+                {
+                    value: "2",
+                    label: "Red",
+                    color: "red"
+                },
+                {
+                    value: "1",
+                    label: "Yellow",
+                    color: "yellow"
+                },
+                {
+                    value: "0",
+                    label: "Green",
+                    color: "green"
+                }
+            ];
+
+            const selectedColor =
+                scoreOptions.find(
+                    option =>
+                        option.value ===
+                        String(value)
+                )?.color ||
+                "green";
+
             return `
                 <select
-                    class="patentFieldControl patentConceptScoreSelect"
+                    class="patentFieldControl patentConceptScoreSelect patentConceptScore-${selectedColor}"
                     data-field="conceptScores"
                     data-concept-id="${escapeAttribute(conceptId || "")}"
                     data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
+                    aria-label="${scoreOptions.find(option => option.value === String(value))?.label || "Green"} concept score"
                     title="${escapeAttribute(getConceptCellTitle(concept))}"
                 >
                     ${
-                        ["2", "1", "0"]
+                        scoreOptions
                             .map(
-                                score => `
+                                option => `
                                     <option
-                                        value="${score}"
-                                        ${String(value) === score ? "selected" : ""}
+                                        value="${option.value}"
+                                        class="patentConceptScoreOption-${option.color}"
+                                        aria-label="${option.label} (Score ${option.value})"
+                                        ${String(value) === option.value ? "selected" : ""}
                                     >
-                                        ${score}
+                                        ${option.label}
                                     </option>
                                 `
                             )
@@ -762,13 +791,13 @@ function getConceptCellTitle(
     const scoringText =
         [
             scoring["2"]
-                ? `Score 2: ${scoring["2"]}`
+                ? `Red (Score 2): ${scoring["2"]}`
                 : "",
             scoring["1"]
-                ? `Score 1: ${scoring["1"]}`
+                ? `Yellow (Score 1): ${scoring["1"]}`
                 : "",
             scoring["0"]
-                ? `Score 0: ${scoring["0"]}`
+                ? `Green (Score 0): ${scoring["0"]}`
                 : ""
         ]
             .filter(Boolean)

@@ -78,7 +78,38 @@
 }
 
 .patentConceptScoreSelect {
-	min-width: 48px;
+	min-width: 24px;
+	color: transparent;
+}
+
+.patentConceptScore-red {
+	background: #f8d7da;
+}
+
+.patentConceptScore-yellow {
+	background: #fff3cd;
+}
+
+.patentConceptScore-green {
+	background: #d1e7dd;
+}
+
+.patentConceptScoreOption-red {
+	background: #f8d7da;
+	color: #842029;
+	font-size: 13px;
+}
+
+.patentConceptScoreOption-yellow {
+	background: #fff3cd;
+	color: #664d03;
+	font-size: 13px;
+}
+
+.patentConceptScoreOption-green {
+	background: #d1e7dd;
+	color: #0f5132;
+	font-size: 13px;
 }
 
 #patentTable th:nth-child(2),
@@ -363,6 +394,43 @@
 	height: 64px;
 	box-sizing: border-box;
 	resize: vertical;
+}
+
+.reviewConceptColorLegend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 16px;
+	margin-bottom: 12px;
+	padding: 8px;
+	border: 1px solid #ddd;
+	background: #fafafa;
+}
+
+.reviewConceptColorLegendItem {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-weight: bold;
+}
+
+.reviewConceptColorSwatch {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border: 1px solid #777;
+	border-radius: 2px;
+}
+
+.reviewConceptColorSwatchRed {
+	background: #dc3545;
+}
+
+.reviewConceptColorSwatchYellow {
+	background: #ffc107;
+}
+
+.reviewConceptColorSwatchGreen {
+	background: #198754;
 }
 
 .reviewConceptBullseyeDialog {
