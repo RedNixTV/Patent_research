@@ -36,7 +36,8 @@ import {
 from "./workflow.js";
 
 import {
-    exportData
+    exportData,
+    importData
 }
 from "../storage/exportImport.js";
 
@@ -3134,6 +3135,72 @@ async function init() {
                 )
 			);
 		};
+
+    const importDataFile =
+        document.getElementById(
+            "importDataFile"
+        );
+
+    document
+        .getElementById(
+            "importData"
+        )
+        .onclick =
+        () => {
+
+            importDataFile.value =
+                "";
+
+            importDataFile.click();
+        };
+
+    importDataFile.onchange =
+        async () => {
+
+            const file =
+                importDataFile.files?.[0];
+
+            if (!file) {
+
+                return;
+            }
+
+            try {
+
+                const project =
+                    await getCurrentProject();
+
+                const importedPatents =
+                    importData(
+                        await file.text(),
+                        patents,
+                        getUniverseReviewConcepts(
+                            project
+                        )
+                    );
+
+                await savePatents(
+                    importedPatents
+                );
+
+                alert(
+                    `${importedPatents.length} patent record(s) imported.`
+                );
+
+                location.reload();
+            }
+            catch (error) {
+
+                console.error(
+                    "Patent import failed",
+                    error
+                );
+
+                alert(
+                    `Import failed: ${error.message}`
+                );
+            }
+        };
 
     document
 		.getElementById(
