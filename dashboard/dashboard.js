@@ -26,6 +26,7 @@ import {
     renderPatentTable,
     renderHeaders,
     DEFAULT_COLUMNS,
+    COLUMN_DEFINITIONS,
     getReviewConceptColumnKey,
     getPatentReviewScore
 }
@@ -3360,6 +3361,320 @@ function enableColumnDragDrop() {
     );
 }
 
+function getColumnDialogLabel(
+    column,
+    project
+) {
+
+    if (
+        isReviewConceptColumn(
+            column
+        )
+    ) {
+
+        const conceptId =
+            column.slice(
+                "reviewConcept:".length
+            );
+
+        return getUniverseReviewConcepts(
+            project
+        ).find(
+            concept =>
+                String(concept.id) ===
+                conceptId
+        )?.label || "Concept";
+    }
+
+    return COLUMN_DEFINITIONS[
+        column
+    ]?.label || column;
+}
+
+async function renderColumnDialog() {
+
+    const columnOrder =
+        await getColumnOrder();
+
+    const project =
+        await getCurrentProject();
+
+    const list =
+        document.getElementById(
+            "columnOrderList"
+        );
+
+    list.innerHTML = "";
+
+    for (
+        const column
+        of columnOrder
+    ) {
+
+        const item =
+            document.createElement(
+                "button"
+            );
+
+        item.type = "button";
+        item.className =
+            "columnOrderItem";
+        item.draggable = true;
+        item.dataset.column = column;
+        item.textContent =
+            getColumnDialogLabel(
+                column,
+                project
+            );
+
+        item.onclick = () => {
+
+            list.querySelectorAll(
+                ".columnOrderItem"
+            ).forEach(
+                candidate =>
+                    candidate.classList.remove(
+                        "selected"
+                    )
+            );
+
+            item.classList.add(
+                "selected"
+            );
+        };
+
+        item.addEventListener(
+            "dragstart",
+            event => {
+
+                event.dataTransfer.setData(
+                    "text/plain",
+                    column
+                );
+            }
+        );
+
+        item.addEventListener(
+            "dragover",
+            event =>
+                event.preventDefault()
+        );
+
+        item.addEventListener(
+            "drop",
+            async event => {
+
+                event.preventDefault();
+
+                const draggedColumn =
+                    event.dataTransfer.getData(
+                        "text/plain"
+                    );
+
+                if (
+                    draggedColumn === column
+                ) {
+
+                    return;
+                }
+
+                const order =
+                    await getColumnOrder();
+
+                const from =
+                    order.indexOf(
+                        draggedColumn
+                    );
+
+                const to =
+                    order.indexOf(
+                        column
+                    );
+
+                if (
+                    from < 0
+                    ||
+                    to < 0
+                ) {
+
+                    return;
+                }
+
+                const [moved] =
+                    order.splice(
+                        from,
+                        1
+                    );
+
+                order.splice(
+                    to,
+                    0,
+                    moved
+                );
+
+                await applyColumnDialogOrder(
+                    order,
+                    draggedColumn
+                );
+            }
+        );
+
+        list.appendChild(
+            item
+        );
+    }
+}
+
+async function applyColumnDialogOrder(
+    order,
+    selectedColumn
+) {
+
+    await saveColumnOrder(
+        order
+    );
+
+    await renderCurrentPatentTable(
+        currentTablePatents
+    );
+
+    enableColumnDragDrop();
+
+    await renderColumnDialog();
+
+    document.querySelector(
+        `.columnOrderItem[data-column="${CSS.escape(selectedColumn)}"]`
+    )?.classList.add(
+        "selected"
+    );
+}
+
+async function moveSelectedColumn(
+    direction
+) {
+
+    const selected =
+        document.querySelector(
+            ".columnOrderItem.selected"
+        );
+
+    if (!selected) {
+
+        return;
+    }
+
+    const order =
+        await getColumnOrder();
+
+    const from =
+        order.indexOf(
+            selected.dataset.column
+        );
+
+    const to =
+        from + direction;
+
+    if (
+        from < 0
+        ||
+        to < 0
+        ||
+        to >= order.length
+    ) {
+
+        return;
+    }
+
+    [
+        order[from],
+        order[to]
+    ] = [
+        order[to],
+        order[from]
+    ];
+
+    await applyColumnDialogOrder(
+        order,
+        selected.dataset.column
+    );
+}
+
+function setupColumnDialog() {
+
+    const dialog =
+        document.getElementById(
+            "columnDialog"
+        );
+
+    document.getElementById(
+        "openColumnDialog"
+    ).onclick = async () => {
+
+        await renderColumnDialog();
+        dialog.showModal();
+    };
+
+    document.getElementById(
+        "moveColumnLeft"
+    ).onclick = () =>
+        moveSelectedColumn(-1);
+
+    document.getElementById(
+        "moveColumnRight"
+    ).onclick = () =>
+        moveSelectedColumn(1);
+
+    document.getElementById(
+        "resetColumnOrder"
+    ).onclick = async () => {
+
+        const project =
+            await getCurrentProject();
+
+        const defaultOrder =
+            getPatentColumnOrderForStage(
+                normalizeColumnOrder(
+                    DEFAULT_COLUMNS,
+                    getUniverseReviewConceptColumns(
+                        project
+                    )
+                ),
+                project?.workflow?.currentStage,
+                getUniverseReviewConceptColumns(
+                    project
+                )
+            );
+
+        await applyColumnDialogOrder(
+            defaultOrder,
+            defaultOrder[0]
+        );
+    };
+
+    dialog.addEventListener(
+        "click",
+        event => {
+
+            const bounds =
+                dialog.getBoundingClientRect();
+
+            const outsideDialog =
+                event.clientX < bounds.left
+                ||
+                event.clientX > bounds.right
+                ||
+                event.clientY < bounds.top
+                ||
+                event.clientY > bounds.bottom;
+
+            if (outsideDialog) {
+
+                dialog.close();
+            }
+        }
+    );
+}
+
 function enableHistogramDragDrop() {
 
     const headers =
@@ -3484,6 +3799,7 @@ async function init() {
     
     enableColumnDragDrop();
 	setupEditDialog();
+	setupColumnDialog();
 	
 	document
 		.getElementById(

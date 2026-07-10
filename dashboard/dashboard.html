@@ -134,12 +134,29 @@
 					</label>
 				
 					<button
+						id="openColumnDialog"
+					>
+						Columns
+					</button>
+
+					<button
 						id="copyPatentTable"
 					>
 						Copy
 					</button>
 				
 				</div>
+
+				<dialog id="columnDialog">
+					<h3>Arrange columns</h3>
+					<p>Select a column, use Left or Right, or drag columns into place.</p>
+					<div id="columnOrderList"></div>
+					<div class="columnDialogActions">
+						<button id="moveColumnLeft" type="button" title="Move column left">L</button>
+						<button id="moveColumnRight" type="button" title="Move column right">R</button>
+						<button id="resetColumnOrder" type="button">Reset</button>
+					</div>
+				</dialog>
 				
 				<div id="tableContainer">
 				
