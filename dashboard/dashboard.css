@@ -449,3 +449,160 @@
 	white-space: nowrap;
 	text-align: left;
 }
+
+.reviewCoverageSummaryDialog {
+	width: min(720px, 92vw);
+}
+
+.reviewCoverageMetrics {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 10px;
+	margin-bottom: 16px;
+}
+
+.reviewCoverageMetrics > div {
+	padding: 10px;
+	border: 1px solid #ddd;
+	background: #fafafa;
+}
+
+.reviewCoverageMetrics strong,
+.reviewCoverageMetrics span {
+	display: block;
+}
+
+.reviewCoverageMetrics span {
+	margin-top: 4px;
+	font-size: 18px;
+}
+
+.reviewCoverageConceptRow {
+	margin-bottom: 14px;
+}
+
+.reviewCoverageRowHeader {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 5px;
+}
+
+.reviewCoverageScoreLegend {
+	display: flex;
+	gap: 16px;
+	margin: 14px 0;
+	font-size: 12px;
+}
+
+.reviewCoverageScoreLegend span {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.reviewCoverageScoreLegend i {
+	display: inline-block;
+	width: 12px;
+	height: 12px;
+	border: 1px solid #777;
+}
+
+.reviewCoverageScoreGreen,
+.reviewCoverageSegment-green {
+	background: #d1e7dd;
+}
+
+.reviewCoverageScoreYellow,
+.reviewCoverageSegment-yellow {
+	background: #fff3cd;
+}
+
+.reviewCoverageScoreRed,
+.reviewCoverageSegment-red {
+	background: #f8d7da;
+}
+
+.reviewCoverageSummaryDialog h4 {
+	margin: 20px 0 8px;
+}
+
+.reviewCoverageTable {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.reviewCoverageTable th,
+.reviewCoverageTable td {
+	padding: 5px 8px;
+	border-bottom: 1px solid #ddd;
+	text-align: left;
+}
+
+.reviewCoverageTable th:not(:first-child),
+.reviewCoverageTable td:not(:first-child) {
+	text-align: right;
+}
+
+.reviewCoverageRankedRow,
+.reviewCoverageScoreRow {
+	display: grid;
+	align-items: center;
+	gap: 8px;
+	margin: 5px 0;
+}
+
+.reviewCoverageRankedRow {
+	grid-template-columns: minmax(90px, 140px) 1fr 36px;
+}
+
+.reviewCoverageScoreRow {
+	grid-template-columns: 16px 1fr 36px;
+	max-width: 520px;
+}
+
+.reviewCoverageRankedTrack,
+.reviewCoverageScoreTrack {
+	height: 18px;
+	overflow: hidden;
+	border: 1px solid #999;
+	background: #f3f3f3;
+	box-sizing: border-box;
+}
+
+.reviewCoverageRankedFill {
+	height: 100%;
+	background: #4f81bd;
+}
+
+.reviewCoverageScoreFill {
+	height: 100%;
+}
+
+.reviewCoverageRankedRow strong,
+.reviewCoverageScoreRow strong {
+	text-align: right;
+	font-size: 12px;
+}
+
+.reviewCoverageConceptRow > .reviewCoverageRowHeader {
+	margin-top: 12px;
+}
+
+.reviewCoverageConceptList {
+	padding-bottom: 4px;
+}
+
+.reviewCoverageTable tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+.reviewCoverageRankedTotals {
+	margin-bottom: 4px;
+}
+
+@media (max-width: 600px) {
+	.reviewCoverageMetrics {
+		grid-template-columns: 1fr;
+	}
+}

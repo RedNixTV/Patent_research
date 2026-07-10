@@ -1386,6 +1386,303 @@ function showReviewConceptBullseyeDefinitionsDialog(
     );
 }
 
+function showReviewCoverageSummaryDialog(
+    concepts,
+    reviewPatents
+) {
+
+    document
+        .querySelector(
+            ".reviewCoverageSummaryOverlay"
+        )
+        ?.remove();
+
+    const patentCount =
+        reviewPatents.length;
+
+    const conceptSummaries =
+        concepts.map(
+            concept => {
+
+                const counts = {
+                    "0": 0,
+                    "1": 0,
+                    "2": 0
+                };
+
+                let total = 0;
+
+                for (
+                    const patent
+                    of reviewPatents
+                ) {
+
+                    const score =
+                        String(
+                            patent.conceptScores?.[
+                                concept.id
+                            ] ??
+                            (
+                                patent.conceptCoverage?.[
+                                    concept.id
+                                ]
+                                    ? "2"
+                                    : "0"
+                            )
+                        );
+
+                    const normalizedScore =
+                        ["0", "1", "2"]
+                            .includes(score)
+                            ? score
+                            : "0";
+
+                    counts[
+                        normalizedScore
+                    ]++;
+
+                    total +=
+                        Number(
+                            normalizedScore
+                        );
+                }
+
+                const maximum =
+                    patentCount * 2;
+
+                return {
+                    concept,
+                    counts,
+                    total,
+                    coverage:
+                        maximum
+                            ? total /
+                                maximum *
+                                100
+                            : 0
+                };
+            }
+        );
+
+    const totalScore =
+        conceptSummaries.reduce(
+            (
+                total,
+                summary
+            ) =>
+                total +
+                summary.total,
+            0
+        );
+
+    const averageScore =
+        patentCount
+            ? totalScore /
+                patentCount
+            : 0;
+
+    const rankedConceptSummaries =
+        [...conceptSummaries]
+            .sort(
+                (
+                    first,
+                    second
+                ) =>
+                    second.total -
+                    first.total
+            );
+
+    const highestConceptTotal =
+        rankedConceptSummaries[0]
+            ?.total ||
+        0;
+
+    const overlay =
+        document.createElement(
+            "div"
+        );
+
+    overlay.className =
+        "modalOverlay reviewCoverageSummaryOverlay";
+
+    overlay.innerHTML = `
+        <div class="reviewConceptDefinitionsDialog reviewCoverageSummaryDialog">
+            <h3>
+                Coverage Summary
+            </h3>
+
+            <div class="reviewCoverageMetrics">
+                <div>
+                    <strong>Total Score</strong>
+                    <span>${totalScore}</span>
+                </div>
+
+                <div>
+                    <strong>Average per Patent</strong>
+                    <span>${averageScore.toFixed(2)}</span>
+                </div>
+
+                <div>
+                    <strong>Patents</strong>
+                    <span>${patentCount}</span>
+                </div>
+            </div>
+
+            <h4>Concept Score Summary</h4>
+
+            <table class="reviewCoverageTable">
+                <thead>
+                    <tr>
+                        <th>Concept</th>
+                        <th>Total Score</th>
+                        <th>Average</th>
+                        <th>Coverage</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${
+                        rankedConceptSummaries.map(
+                            summary => `
+                                <tr>
+                                    <td>${escapeHtml(summary.concept.label)}</td>
+                                    <td>${summary.total}</td>
+                                    <td>${patentCount ? (summary.total / patentCount).toFixed(2) : "0.00"}</td>
+                                    <td>${summary.coverage.toFixed(1)}%</td>
+                                </tr>
+                            `
+                        ).join("")
+                    }
+                </tbody>
+            </table>
+
+            <h4>Total Score by Concept</h4>
+
+            <div class="reviewCoverageRankedTotals">
+                ${
+                    rankedConceptSummaries.map(
+                        summary => {
+
+                            const width =
+                                highestConceptTotal
+                                    ? summary.total /
+                                        highestConceptTotal *
+                                        100
+                                    : 0;
+
+                            return `
+                                <div class="reviewCoverageRankedRow">
+                                    <span>${escapeHtml(summary.concept.label)}</span>
+                                    <div class="reviewCoverageRankedTrack">
+                                        <div
+                                            class="reviewCoverageRankedFill"
+                                            style="width:${width}%"
+                                        ></div>
+                                    </div>
+                                    <strong>${summary.total}</strong>
+                                </div>
+                            `;
+                        }
+                    ).join("")
+                }
+            </div>
+
+            <div class="reviewCoverageScoreLegend">
+                <span><i class="reviewCoverageScoreGreen"></i>Green / 0</span>
+                <span><i class="reviewCoverageScoreYellow"></i>Yellow / 1</span>
+                <span><i class="reviewCoverageScoreRed"></i>Red / 2</span>
+            </div>
+
+            <h4>Score Distribution</h4>
+
+            <div class="reviewCoverageConceptList">
+                ${
+                    conceptSummaries.length
+                        ? conceptSummaries
+                            .map(
+                                summary => `
+                                    <div class="reviewCoverageConceptRow">
+                                        <div class="reviewCoverageRowHeader">
+                                            <strong>${escapeHtml(summary.concept.label)}</strong>
+                                        </div>
+
+                                        ${renderCoverageScoreBar(
+                                            "red",
+                                            "2",
+                                            summary.counts["2"],
+                                            patentCount
+                                        )}
+                                        ${renderCoverageScoreBar(
+                                            "yellow",
+                                            "1",
+                                            summary.counts["1"],
+                                            patentCount
+                                        )}
+                                        ${renderCoverageScoreBar(
+                                            "green",
+                                            "0",
+                                            summary.counts["0"],
+                                            patentCount
+                                        )}
+                                    </div>
+                                `
+                            )
+                            .join("")
+                        : `
+                            <p>No review concepts have been added.</p>
+                        `
+                }
+            </div>
+
+        </div>
+    `;
+
+    overlay.onclick =
+        event => {
+
+            if (
+                event.target ===
+                overlay
+            ) {
+
+                overlay.remove();
+            }
+        };
+
+    document.body.appendChild(
+        overlay
+    );
+}
+
+function renderCoverageScoreBar(
+    color,
+    score,
+    count,
+    total
+) {
+
+    const percentage =
+        total
+            ? count /
+                total *
+                100
+            : 0;
+
+    return `
+        <div class="reviewCoverageScoreRow">
+            <span>${score}</span>
+            <div class="reviewCoverageScoreTrack">
+                <div
+                    class="reviewCoverageScoreFill reviewCoverageSegment-${color}"
+                    style="width:${percentage}%"
+                    title="Score ${score}: ${count} patent(s), ${percentage.toFixed(1)}%"
+                ></div>
+            </div>
+            <strong>${count}</strong>
+        </div>
+    `;
+}
+
 function setupPatentSelectionControls() {
 
     const selectAll =
@@ -2029,6 +2326,10 @@ async function renderCurrentStage() {
                         <button id="showReviewConceptBullseyeDefinitions">
                             Bulleyes
                         </button>
+
+                        <button id="showReviewCoverageSummary">
+                            Summary
+                        </button>
                     </div>
                 </div>
             `;
@@ -2068,6 +2369,17 @@ async function renderCurrentStage() {
                 () =>
                     showReviewConceptBullseyeDefinitionsDialog(
                         reviewConcepts
+                    );
+
+            document
+                .getElementById(
+                    "showReviewCoverageSummary"
+                )
+                .onclick =
+                () =>
+                    showReviewCoverageSummaryDialog(
+                        reviewConcepts,
+                        currentTablePatents
                     );
 
             break;
