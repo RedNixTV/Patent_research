@@ -324,6 +324,11 @@ export function importData(
                 Object.hasOwn(
                     row,
                     "Other Class"
+                ) &&
+                hasImportedValue(
+                    row[
+                        "Other Class"
+                    ]
                 )
             ) {
 
@@ -438,6 +443,11 @@ function importField(
         Object.hasOwn(
             row,
             exportName
+        ) &&
+        hasImportedValue(
+            row[
+                exportName
+            ]
         )
     ) {
 
@@ -448,6 +458,36 @@ function importField(
                 exportName
             ] ?? "";
     }
+}
+
+function hasImportedValue(
+    value
+) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return false;
+    }
+
+    if (
+        typeof value ===
+        "string"
+    ) {
+
+        return value.trim() !== "";
+    }
+
+    if (
+        Array.isArray(value)
+    ) {
+
+        return value.length > 0;
+    }
+
+    return true;
 }
 
 function normalizeOtherClasses(

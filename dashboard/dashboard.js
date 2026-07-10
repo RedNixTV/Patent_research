@@ -3822,17 +3822,49 @@ async function init() {
                 const project =
                     await getCurrentProject();
 
+                const patentLibrary =
+                    await getPatentLibrary();
+
                 const importedPatents =
                     importData(
                         await file.text(),
-                        patents,
+                        Object.values(
+                            patentLibrary
+                        ),
                         getUniverseReviewConcepts(
                             project
                         )
                     );
 
+                const importedByPatentNumber =
+                    new Map(
+                        importedPatents.map(
+                            patent => [
+                                patent.patentNumber,
+                                patent
+                            ]
+                        )
+                    );
+
+                const mergedPatents = [
+                    ...patents.map(
+                        patent =>
+                            importedByPatentNumber.get(
+                                patent.patentNumber
+                            ) || patent
+                    ),
+                    ...importedPatents.filter(
+                        patent =>
+                            !patents.some(
+                                existingPatent =>
+                                    existingPatent.patentNumber ===
+                                        patent.patentNumber
+                            )
+                    )
+                ];
+
                 await savePatents(
-                    importedPatents
+                    mergedPatents
                 );
 
                 alert(
