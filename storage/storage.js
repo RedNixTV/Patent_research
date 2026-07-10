@@ -223,7 +223,9 @@ export async function createProject(
                 concepts: []
 			},
 	
-			finalReferences: []
+			finalReferences: [],
+
+			citationResearch: []
 		}
 	});
 

@@ -47,5 +47,11 @@ export const WORKFLOW_STAGES = [
         id: "finalReferences",
         title: "Final References",
         reason: "Select the strongest prior art references against the invention. Narrow the universe to approximately 15 to 20 best prior art examples. Select references that collectively represent: Different structures, implementations, and combinations of features. Choose roughly 5 to 6 key references for detailed discussion."
+    },
+
+    {
+        id: "citationResearch",
+        title: "Citation Research",
+        reason: "Research the patents that cite each selected high-value prior-art reference and the earlier patents cited by that reference. Review both forward and backward citations to identify related implementations, patent families, improvements, and stronger prior art."
     }
 ];

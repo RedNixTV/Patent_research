@@ -13,6 +13,7 @@ export function createPatent() {
 		finalReferenceComment: "",
 		finalReferenceReason: "",
 		finalReferencePriorityPoints: 0,
+		citationResearchSelected: false,
 	
 		abstract: "",
 		claims: "",
@@ -123,7 +124,9 @@ export function createProject(
                 concepts: []
             },
 
-            finalReferences: []
+            finalReferences: [],
+
+            citationResearch: []
         }
     };
 }

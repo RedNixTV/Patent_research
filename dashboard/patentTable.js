@@ -16,6 +16,7 @@ export const DEFAULT_COLUMNS = [
     "finalReferenceComment",
     "finalReferenceReason",
     "finalReferencePriorityPoints",
+    "citationResearchSelected",
     "overlap",
     "claims",
     "challengingClaimNumbers",
@@ -91,6 +92,10 @@ export const COLUMN_DEFINITIONS = {
 
     finalReferencePriorityPoints: {
         label: "Additional Points"
+    },
+
+    citationResearchSelected: {
+        label: "Cite"
     },
 
     overlap: {
@@ -283,6 +288,18 @@ const COLUMN_RENDERERS = {
                 data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
                 value="${escapeAttribute(normalizePriorityPoints(patent.finalReferencePriorityPoints))}"
                 title="Points added to this patent's concept score"
+            >
+        `,
+
+    citationResearchSelected:
+        patent => `
+            <input
+                type="checkbox"
+                class="patentFieldControl patentCitationResearchCheckbox"
+                data-field="citationResearchSelected"
+                data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
+                ${patent.citationResearchSelected ? "checked" : ""}
+                title="Select this patent for backward and forward citation research"
             >
         `,
 

@@ -51,6 +51,10 @@ export async function exportData(
                     normalizePriorityPoints(
                         patent.finalReferencePriorityPoints
                     ),
+
+                "Citation Research":
+                    patent.citationResearchSelected ===
+                    true,
 	
 				"Primary Class":
 					patent.primaryClass,
@@ -250,6 +254,21 @@ export function importData(
                     normalizeImportedBoolean(
                         row[
                             "Final Reference"
+                        ]
+                    );
+            }
+
+            if (
+                Object.hasOwn(
+                    row,
+                    "Citation Research"
+                )
+            ) {
+
+                patent.citationResearchSelected =
+                    normalizeImportedBoolean(
+                        row[
+                            "Citation Research"
                         ]
                     );
             }

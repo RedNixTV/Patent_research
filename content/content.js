@@ -724,7 +724,9 @@ async function savePatent(
                     concepts: []
 				},
 	
-				finalReferences: []
+				finalReferences: [],
+
+				citationResearch: []
 			}
 		});
 	

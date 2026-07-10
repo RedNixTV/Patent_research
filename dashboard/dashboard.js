@@ -70,6 +70,7 @@ const STAGE_ONLY_PATENT_COLUMNS =
         "finalReferenceComment",
         "finalReferenceReason",
         "finalReferencePriorityPoints",
+        "citationResearchSelected",
         "overlap",
         "claims",
         "challengingClaimNumbers",
@@ -79,7 +80,12 @@ const STAGE_ONLY_PATENT_COLUMNS =
     ];
 
 const PATENT_COMPARISON_STAGES =
-    new Set(["universe","universeReview", "finalReferences"]);
+    new Set([
+        "universe",
+        "universeReview",
+        "finalReferences",
+        "citationResearch"
+    ]);
 
 const PATENT_REVIEW_SELECTION_STAGES =
     new Set([
@@ -124,7 +130,8 @@ function getUniverseReviewConceptColumns(
     if (
         ![
             "universeReview",
-            "finalReferences"
+            "finalReferences",
+            "citationResearch"
         ].includes(
             project?.workflow
                 ?.currentStage
@@ -202,6 +209,17 @@ function getPatentColumnOrderForStage(
                         "finalReferencePriorityPoints"
                 ) {
 
+                    return [
+                        "finalReferences",
+                        "citationResearch"
+                    ].includes(stage);
+                }
+
+                if (
+                    column ===
+                    "citationResearchSelected"
+                ) {
+
                     return stage ===
                         "finalReferences";
                 }
@@ -222,7 +240,8 @@ function getPatentColumnOrderForStage(
 
                     return [
                         "universeReview",
-                        "finalReferences"
+                        "finalReferences",
+                        "citationResearch"
                     ].includes(stage);
                 }
 
@@ -517,7 +536,8 @@ async function renderCurrentPatentTable(
     const renumberReferences =
         [
             "universeReview",
-            "finalReferences"
+            "finalReferences",
+            "citationResearch"
         ].includes(
             project?.workflow
                 ?.currentStage
@@ -1902,6 +1922,7 @@ function setupPatentFieldControls() {
                                 "finalReferenceComment",
                                 "finalReferenceReason",
                                 "finalReferencePriorityPoints",
+                                "citationResearchSelected",
                                 "claims",
                                 "challengingClaimNumbers",
                                 "conceptCoverage",
@@ -1963,6 +1984,9 @@ function setupPatentFieldControls() {
                         else if (
                             field ===
                             "finalReferencePriorityPoints"
+                            ||
+                            field ===
+                            "citationResearchSelected"
                         ) {
 
                             patent[field] =
@@ -2519,6 +2543,24 @@ async function renderCurrentStage() {
             break;
         }
 
+        case "citationResearch":
+
+            currentView = "cpc";
+
+            container.innerHTML = `
+                <div class="reviewConceptEditor">
+                    <div class="reviewConceptHeader">
+                        Citation Research
+                    </div>
+
+                    <p>
+                        Review backward citations listed by each selected patent and forward citations that reference it.
+                    </p>
+                </div>
+            `;
+
+            break;
+
         default:
 
             currentView = "cpc";
@@ -2739,6 +2781,18 @@ async function getPatentsForCurrentStage() {
         return patents.filter(
             patent =>
                 patent.finalReferenceSelected ===
+                true
+        );
+    }
+
+    if (
+        stageId ===
+        "citationResearch"
+    ) {
+
+        return patents.filter(
+            patent =>
+                patent.citationResearchSelected ===
                 true
         );
     }
