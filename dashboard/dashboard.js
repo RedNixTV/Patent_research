@@ -3007,6 +3007,29 @@ async function clearClassificationFilter() {
 
 async function getColumnOrder() {
 
+    const columnOrder =
+        await getStageColumnOrder();
+
+    const result =
+        await chrome.storage.local.get(
+            "hiddenPatentColumns"
+        );
+
+    const hiddenColumns =
+        new Set(
+            result.hiddenPatentColumns || []
+        );
+
+    return columnOrder.filter(
+        column =>
+            !hiddenColumns.has(
+                column
+            )
+    );
+}
+
+async function getStageColumnOrder() {
+
     const result =
         await chrome.storage.local.get(
             "columnOrder"
@@ -3023,6 +3046,42 @@ async function getColumnOrder() {
             project
         )
     );
+}
+
+async function setColumnVisibility(
+    column,
+    visible
+) {
+
+    const result =
+        await chrome.storage.local.get(
+            "hiddenPatentColumns"
+        );
+
+    const hiddenColumns =
+        new Set(
+            result.hiddenPatentColumns || []
+        );
+
+    if (visible) {
+
+        hiddenColumns.delete(
+            column
+        );
+    }
+
+    else {
+
+        hiddenColumns.add(
+            column
+        );
+    }
+
+    await chrome.storage.local.set({
+
+        hiddenPatentColumns:
+            [...hiddenColumns]
+    });
 }
 
 async function saveColumnOrder(
@@ -3394,7 +3453,15 @@ function getColumnDialogLabel(
 async function renderColumnDialog() {
 
     const columnOrder =
+        await getStageColumnOrder();
+
+    const visibleColumnOrder =
         await getColumnOrder();
+
+    const visibleColumns =
+        new Set(
+            visibleColumnOrder
+        );
 
     const project =
         await getCurrentProject();
@@ -3413,19 +3480,63 @@ async function renderColumnDialog() {
 
         const item =
             document.createElement(
-                "button"
+                "div"
             );
 
-        item.type = "button";
         item.className =
             "columnOrderItem";
         item.draggable = true;
         item.dataset.column = column;
-        item.textContent =
+
+        const visibility =
+            document.createElement(
+                "input"
+            );
+
+        visibility.type = "checkbox";
+        visibility.className =
+            "columnVisibilityCheckbox";
+        visibility.checked =
+            visibleColumns.has(
+                column
+            );
+        visibility.title =
+            "Show column";
+
+        const label =
+            document.createElement(
+                "span"
+            );
+
+        label.textContent =
             getColumnDialogLabel(
                 column,
                 project
             );
+
+        item.append(
+            visibility,
+            label
+        );
+
+        visibility.onclick =
+            event =>
+                event.stopPropagation();
+
+        visibility.onchange = async () => {
+
+            await setColumnVisibility(
+                column,
+                visibility.checked
+            );
+
+            await renderCurrentPatentTable(
+                currentTablePatents
+            );
+
+            enableColumnDragDrop();
+            updateSelectAllColumnsCheckbox();
+        };
 
         item.onclick = () => {
 
@@ -3479,7 +3590,7 @@ async function renderColumnDialog() {
                 }
 
                 const order =
-                    await getColumnOrder();
+                    await getStageColumnOrder();
 
                 const from =
                     order.indexOf(
@@ -3523,6 +3634,37 @@ async function renderColumnDialog() {
             item
         );
     }
+
+    updateSelectAllColumnsCheckbox();
+}
+
+function updateSelectAllColumnsCheckbox() {
+
+    const checkboxes =
+        [...document.querySelectorAll(
+            ".columnVisibilityCheckbox"
+        )];
+
+    const selectAll =
+        document.getElementById(
+            "selectAllColumns"
+        );
+
+    selectAll.checked =
+        checkboxes.length > 0
+        &&
+        checkboxes.every(
+            checkbox =>
+                checkbox.checked
+        );
+
+    selectAll.indeterminate =
+        checkboxes.some(
+            checkbox =>
+                checkbox.checked
+        )
+        &&
+        !selectAll.checked;
 }
 
 async function applyColumnDialogOrder(
@@ -3564,7 +3706,7 @@ async function moveSelectedColumn(
     }
 
     const order =
-        await getColumnOrder();
+        await getStageColumnOrder();
 
     const from =
         order.indexOf(
@@ -3645,10 +3787,66 @@ function setupColumnDialog() {
                 )
             );
 
+        await chrome.storage.local.set({
+
+            hiddenPatentColumns: []
+        });
+
         await applyColumnDialogOrder(
             defaultOrder,
             defaultOrder[0]
         );
+    };
+
+    document.getElementById(
+        "selectAllColumns"
+    ).onchange = async event => {
+
+        const allColumns =
+            await getStageColumnOrder();
+
+        const result =
+            await chrome.storage.local.get(
+                "hiddenPatentColumns"
+            );
+
+        const hiddenColumns =
+            new Set(
+                result.hiddenPatentColumns || []
+            );
+
+        for (
+            const column
+            of allColumns
+        ) {
+
+            if (event.target.checked) {
+
+                hiddenColumns.delete(
+                    column
+                );
+            }
+
+            else {
+
+                hiddenColumns.add(
+                    column
+                );
+            }
+        }
+
+        await chrome.storage.local.set({
+
+            hiddenPatentColumns:
+                [...hiddenColumns]
+        });
+
+        await renderCurrentPatentTable(
+            currentTablePatents
+        );
+
+        enableColumnDragDrop();
+        await renderColumnDialog();
     };
 
     dialog.addEventListener(

@@ -249,12 +249,25 @@
 }
 
 .columnOrderItem {
+	display: flex;
+	align-items: center;
+	gap: 6px;
 	flex: 0 0 auto;
 	cursor: grab;
 	padding: 7px 10px;
 	background: #f5f5f5;
 	border: 1px solid #bbb;
 	border-radius: 4px;
+}
+
+.columnVisibilityCheckbox {
+	margin: 0;
+}
+
+.selectAllColumnsLabel {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
 }
 
 .columnOrderItem.selected {
