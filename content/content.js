@@ -54,6 +54,9 @@ function extractPatent() {
     const uspc =
         extractUspc();
 
+    const internationalClasses =
+        extractInternationalClasses();
+
     return {
 
         patentNumber:
@@ -99,11 +102,14 @@ function extractPatent() {
 			uspc?.[0] ||
 			"",
 		
-		otherClasses:
-			[
-				...uspc.slice(1),
-				...cpc.slice(1)
-			],
+        otherClasses:
+            [
+                ...new Set([
+                    ...uspc.slice(1),
+                    ...internationalClasses,
+                    ...cpc.slice(1)
+                ])
+            ],
 
         classifications:
             buildClassifications(
@@ -562,6 +568,43 @@ function extractCpc() {
             matches || []
         )
     ];
+}
+
+function extractInternationalClasses() {
+
+    const row =
+        [
+            ...document.querySelectorAll(
+                ".row-fluid"
+            )
+        ].find(
+            candidate =>
+                candidate
+                    .querySelector(
+                        ".muted"
+                    )
+                    ?.textContent
+                    .trim()
+                    .toLowerCase() ===
+                "intl. classes:"
+        );
+
+    const value =
+        row
+            ?.querySelector(
+                ".span9"
+            )
+            ?.textContent
+            .trim() ||
+        "";
+
+    return value
+        .split(/[;,]/)
+        .map(
+            className =>
+                className.trim()
+        )
+        .filter(Boolean);
 }
 
 function extractUspc() {
