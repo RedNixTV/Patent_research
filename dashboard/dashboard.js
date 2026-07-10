@@ -2543,9 +2543,14 @@ async function renderCurrentStage() {
             break;
         }
 
-        case "citationResearch":
+        case "citationResearch": {
 
             currentView = "cpc";
+
+            const citationReviewConcepts =
+                getUniverseReviewConcepts(
+                    project
+                );
 
             container.innerHTML = `
                 <div class="reviewConceptEditor">
@@ -2556,10 +2561,28 @@ async function renderCurrentStage() {
                     <p>
                         Review backward citations listed by each selected patent and forward citations that reference it.
                     </p>
+
+                    <div class="reviewConceptAddRow">
+                        <button id="showCitationResearchSummary">
+                            Summary
+                        </button>
+                    </div>
                 </div>
             `;
 
+            document
+                .getElementById(
+                    "showCitationResearchSummary"
+                )
+                .onclick =
+                () =>
+                    showReviewCoverageSummaryDialog(
+                        citationReviewConcepts,
+                        currentTablePatents
+                    );
+
             break;
+        }
 
         default:
 
