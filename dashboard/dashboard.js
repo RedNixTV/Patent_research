@@ -26,7 +26,8 @@ import {
     renderPatentTable,
     renderHeaders,
     DEFAULT_COLUMNS,
-    getReviewConceptColumnKey
+    getReviewConceptColumnKey,
+    getBullseyeScore
 }
 from "./patentTable.js";
 
@@ -60,6 +61,7 @@ let compactPatentTitle = true;
 let compactPatentAbstract = true;
 let suppressArtUnitLookupDialog = false;
 let artUnitLookupDialogOpen = false;
+let scoreSortDirection = null;
 
 const STAGE_ONLY_PATENT_COLUMNS =
     [
@@ -472,9 +474,6 @@ async function renderCurrentPatentTable(
     tablePatents = currentTablePatents
 ) {
 
-    currentTablePatents =
-        tablePatents;
-
     const columnOrder =
         await getColumnOrder();
 
@@ -490,6 +489,33 @@ async function renderCurrentPatentTable(
             project
         );
 
+    currentTablePatents =
+        scoreSortDirection
+            ? [...tablePatents]
+                .sort(
+                    (
+                        first,
+                        second
+                    ) => {
+
+                        const difference =
+                            getBullseyeScore(
+                                first,
+                                reviewConcepts
+                            ) -
+                            getBullseyeScore(
+                                second,
+                                reviewConcepts
+                            );
+
+                        return scoreSortDirection ===
+                            "ascending"
+                                ? difference
+                                : -difference;
+                    }
+                )
+            : tablePatents;
+
     renderHeaders(
         columnOrder,
         {
@@ -502,7 +528,9 @@ async function renderCurrentPatentTable(
             someReviewSelected:
                 areSomeTablePatentsSelectedForReview(),
 
-            reviewConcepts
+            reviewConcepts,
+
+            scoreSortDirection
         }
     );
 
@@ -539,6 +567,66 @@ async function renderCurrentPatentTable(
     setupPatentSelectionControls();
     setupPatentFieldControls();
     setupReviewConceptColumnControls();
+    setupPatentScoreSortControl();
+}
+
+function setupPatentScoreSortControl() {
+
+    const header =
+        document.querySelector(
+            ".patentScoreHeader"
+        );
+
+    if (!header) {
+
+        return;
+    }
+
+    let pointerStart = null;
+
+    header.onpointerdown =
+        event => {
+
+            pointerStart = {
+                x: event.clientX,
+                y: event.clientY
+            };
+        };
+
+    header.onclick =
+        async event => {
+
+            if (
+                pointerStart
+                &&
+                (
+                    Math.abs(
+                        event.clientX -
+                        pointerStart.x
+                    ) > 4
+                    ||
+                    Math.abs(
+                        event.clientY -
+                        pointerStart.y
+                    ) > 4
+                )
+            ) {
+
+                return;
+            }
+
+            scoreSortDirection =
+                scoreSortDirection ===
+                    "descending"
+                    ? "ascending"
+                    : "descending";
+
+            await renderCurrentPatentTable(
+                currentTablePatents
+            );
+
+            enableColumnDragDrop();
+        };
 }
 
 function setupReviewConceptColumnControls() {

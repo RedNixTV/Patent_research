@@ -325,6 +325,10 @@ export function renderHeaders(
     const reviewConcepts =
         options.reviewConcepts || [];
 
+    const scoreSortDirection =
+        options.scoreSortDirection ||
+        null;
+
     headerRow.innerHTML = `
         <th class="patentSelectionHeader">
             <input
@@ -400,6 +404,40 @@ export function renderHeaders(
                             reviewConcepts
                         )
                     }
+                </th>
+            `;
+
+            continue;
+        }
+
+        if (
+            column ===
+            "bullseyeScore"
+        ) {
+
+            const sortIndicator =
+                scoreSortDirection ===
+                    "descending"
+                    ? " ▼"
+                    : scoreSortDirection ===
+                        "ascending"
+                        ? " ▲"
+                        : "";
+
+            headerRow.innerHTML += `
+
+                <th
+                    draggable="true"
+                    data-column="${column}"
+                    class="patentScoreHeader"
+                    title="Sort patents by score"
+                >
+                    ${
+                        getColumnLabel(
+                            column,
+                            reviewConcepts
+                        )
+                    }${sortIndicator}
                 </th>
             `;
 
@@ -745,7 +783,7 @@ function getConceptCellTitle(
         "Score this concept";
 }
 
-function getBullseyeScore(
+export function getBullseyeScore(
     patent,
     reviewConcepts
 ) {

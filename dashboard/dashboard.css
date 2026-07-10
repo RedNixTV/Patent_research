@@ -72,6 +72,11 @@
 	cursor: pointer;
 }
 
+.patentScoreHeader {
+	cursor: pointer;
+	user-select: none;
+}
+
 .patentConceptScoreSelect {
 	min-width: 48px;
 }
