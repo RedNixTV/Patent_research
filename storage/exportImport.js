@@ -55,6 +55,10 @@ export async function exportData(
                 "Citation Research":
                     patent.citationResearchSelected ===
                     true,
+
+                "Why Cite":
+                    patent.citationResearchReason ||
+                    "",
 	
 				"Primary Class":
 					patent.primaryClass,
@@ -257,6 +261,13 @@ export function importData(
                         ]
                     );
             }
+
+            importField(
+                row,
+                "Why Cite",
+                patent,
+                "citationResearchReason"
+            );
 
             if (
                 Object.hasOwn(

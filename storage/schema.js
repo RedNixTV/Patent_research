@@ -14,6 +14,7 @@ export function createPatent() {
 		finalReferenceReason: "",
 		finalReferencePriorityPoints: 0,
 		citationResearchSelected: false,
+		citationResearchReason: "",
 	
 		abstract: "",
 		claims: "",

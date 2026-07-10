@@ -71,6 +71,7 @@ const STAGE_ONLY_PATENT_COLUMNS =
         "finalReferenceReason",
         "finalReferencePriorityPoints",
         "citationResearchSelected",
+        "citationResearchReason",
         "overlap",
         "claims",
         "challengingClaimNumbers",
@@ -222,6 +223,15 @@ function getPatentColumnOrderForStage(
 
                     return stage ===
                         "finalReferences";
+                }
+
+                if (
+                    column ===
+                    "citationResearchReason"
+                ) {
+
+                    return stage ===
+                        "citationResearch";
                 }
 
                 if (
@@ -1923,6 +1933,7 @@ function setupPatentFieldControls() {
                                 "finalReferenceReason",
                                 "finalReferencePriorityPoints",
                                 "citationResearchSelected",
+                                "citationResearchReason",
                                 "claims",
                                 "challengingClaimNumbers",
                                 "conceptCoverage",

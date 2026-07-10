@@ -17,6 +17,7 @@ export const DEFAULT_COLUMNS = [
     "finalReferenceReason",
     "finalReferencePriorityPoints",
     "citationResearchSelected",
+    "citationResearchReason",
     "overlap",
     "claims",
     "challengingClaimNumbers",
@@ -96,6 +97,10 @@ export const COLUMN_DEFINITIONS = {
 
     citationResearchSelected: {
         label: "Cite"
+    },
+
+    citationResearchReason: {
+        label: "Why Cite"
     },
 
     overlap: {
@@ -301,6 +306,16 @@ const COLUMN_RENDERERS = {
                 ${patent.citationResearchSelected ? "checked" : ""}
                 title="Select this patent for backward and forward citation research"
             >
+        `,
+
+    citationResearchReason:
+        patent => `
+            <textarea
+                class="patentFieldControl patentCitationResearchReasonTextarea"
+                data-field="citationResearchReason"
+                data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
+                placeholder=" "
+            >${escapeHtml(patent.citationResearchReason || "")}</textarea>
         `,
 
     overlap:

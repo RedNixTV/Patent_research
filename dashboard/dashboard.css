@@ -97,7 +97,8 @@
 }
 
 .patentFinalReferenceCommentTextarea,
-.patentFinalReferenceReasonTextarea {
+.patentFinalReferenceReasonTextarea,
+.patentCitationResearchReasonTextarea {
 	width: 220px;
 	height: 16px;
 	min-height: 16px;
