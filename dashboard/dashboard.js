@@ -27,7 +27,7 @@ import {
     renderHeaders,
     DEFAULT_COLUMNS,
     getReviewConceptColumnKey,
-    getBullseyeScore
+    getPatentReviewScore
 }
 from "./patentTable.js";
 
@@ -68,6 +68,8 @@ const STAGE_ONLY_PATENT_COLUMNS =
         "universeReviewSelected",
         "finalReferenceSelected",
         "finalReferenceComment",
+        "finalReferenceReason",
+        "finalReferencePriorityPoints",
         "overlap",
         "claims",
         "challengingClaimNumbers",
@@ -192,6 +194,12 @@ function getPatentColumnOrderForStage(
                 if (
                     column ===
                     "finalReferenceComment"
+                    ||
+                    column ===
+                        "finalReferenceReason"
+                    ||
+                    column ===
+                        "finalReferencePriorityPoints"
                 ) {
 
                     return stage ===
@@ -530,11 +538,11 @@ async function renderCurrentPatentTable(
                     ) => {
 
                         const difference =
-                            getBullseyeScore(
+                            getPatentReviewScore(
                                 first,
                                 reviewConcepts
                             ) -
-                            getBullseyeScore(
+                            getPatentReviewScore(
                                 second,
                                 reviewConcepts
                             );
@@ -1892,6 +1900,8 @@ function setupPatentFieldControls() {
                                 "universeReviewSelected",
                                 "finalReferenceSelected",
                                 "finalReferenceComment",
+                                "finalReferenceReason",
+                                "finalReferencePriorityPoints",
                                 "claims",
                                 "challengingClaimNumbers",
                                 "conceptCoverage",
@@ -1950,6 +1960,21 @@ function setupPatentFieldControls() {
                                 event.target.value;
                         }
 
+                        else if (
+                            field ===
+                            "finalReferencePriorityPoints"
+                        ) {
+
+                            patent[field] =
+                                Math.max(
+                                    0,
+                                    Number.parseInt(
+                                        event.target.value,
+                                        10
+                                    ) || 0
+                                );
+                        }
+
                         else {
 
                             patent[field] =
@@ -1969,6 +1994,9 @@ function setupPatentFieldControls() {
                             ||
                             field ===
                             "finalReferenceSelected"
+                            ||
+                            field ===
+                            "finalReferencePriorityPoints"
                             ||
                             field ===
                             "conceptScores"

@@ -14,6 +14,8 @@ export const DEFAULT_COLUMNS = [
     "universeReviewSelected",
     "finalReferenceSelected",
     "finalReferenceComment",
+    "finalReferenceReason",
+    "finalReferencePriorityPoints",
     "overlap",
     "claims",
     "challengingClaimNumbers",
@@ -81,6 +83,14 @@ export const COLUMN_DEFINITIONS = {
 
     finalReferenceComment: {
         label: "Comment"
+    },
+
+    finalReferenceReason: {
+        label: "Why Selected"
+    },
+
+    finalReferencePriorityPoints: {
+        label: "Additional Points"
     },
 
     overlap: {
@@ -248,8 +258,32 @@ const COLUMN_RENDERERS = {
                 class="patentFieldControl patentFinalReferenceCommentTextarea"
                 data-field="finalReferenceComment"
                 data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
-                placeholder="Add final-reference comment"
+                placeholder=" "
             >${escapeHtml(patent.finalReferenceComment || "")}</textarea>
+        `,
+
+    finalReferenceReason:
+        patent => `
+            <textarea
+                class="patentFieldControl patentFinalReferenceReasonTextarea"
+                data-field="finalReferenceReason"
+                data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
+                placeholder=" "
+            >${escapeHtml(patent.finalReferenceReason || "")}</textarea>
+        `,
+
+    finalReferencePriorityPoints:
+        patent => `
+            <input
+                type="number"
+                min="0"
+                step="1"
+                class="patentFieldControl patentFinalReferencePriorityInput"
+                data-field="finalReferencePriorityPoints"
+                data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
+                value="${escapeAttribute(normalizePriorityPoints(patent.finalReferencePriorityPoints))}"
+                title="Points added to this patent's concept score"
+            >
         `,
 
     overlap:
@@ -771,13 +805,25 @@ function getColumnRenderer(
         "bullseyeScore"
     ) {
 
-        return patent =>
-            String(
+        return patent => {
+
+            const conceptScore =
                 getBullseyeScore(
                     patent,
                     reviewConcepts
-                )
-            );
+                );
+
+            const priorityBonus =
+                normalizePriorityPoints(
+                    patent.finalReferencePriorityPoints
+                );
+
+            return `
+                <span title="Concept score ${conceptScore}${priorityBonus ? ` + additional points ${priorityBonus}` : ""}">
+                    ${conceptScore + priorityBonus}
+                </span>
+            `;
+        };
     }
 
     if (
@@ -904,6 +950,34 @@ export function getBullseyeScore(
         },
         0
     );
+}
+
+export function getPatentReviewScore(
+    patent,
+    reviewConcepts
+) {
+
+    return getBullseyeScore(
+        patent,
+        reviewConcepts
+    ) + normalizePriorityPoints(
+        patent.finalReferencePriorityPoints
+    );
+}
+
+function normalizePriorityPoints(
+    value
+) {
+
+    const points =
+        Number.parseInt(
+            value,
+            10
+        );
+
+    return Number.isFinite(points)
+        ? Math.max(0, points)
+        : 0;
 }
 
 function getBullseyeLabel(

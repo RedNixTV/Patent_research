@@ -11,6 +11,8 @@ export function createPatent() {
 		universeReviewSelected: false,
 		finalReferenceSelected: false,
 		finalReferenceComment: "",
+		finalReferenceReason: "",
+		finalReferencePriorityPoints: 0,
 	
 		abstract: "",
 		claims: "",

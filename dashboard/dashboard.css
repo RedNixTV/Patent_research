@@ -95,7 +95,8 @@
 	background: #d1e7dd;
 }
 
-.patentFinalReferenceCommentTextarea {
+.patentFinalReferenceCommentTextarea,
+.patentFinalReferenceReasonTextarea {
 	width: 220px;
 	height: 16px;
 	min-height: 16px;
@@ -273,6 +274,11 @@
 	height: 16px;
 	min-height: 16px;
 	resize: vertical;
+}
+
+.patentFinalReferencePriorityInput {
+	width: 80px;
+	box-sizing: border-box;
 }
 
 .patentChallengeClaimsTextarea {

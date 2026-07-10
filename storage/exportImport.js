@@ -42,6 +42,15 @@ export async function exportData(
                 "Final Reference Comment":
                     patent.finalReferenceComment ||
                     "",
+
+                "Final Reference Reason":
+                    patent.finalReferenceReason ||
+                    "",
+
+                "Additional Points":
+                    normalizePriorityPoints(
+                        patent.finalReferencePriorityPoints
+                    ),
 	
 				"Primary Class":
 					patent.primaryClass,
@@ -85,7 +94,7 @@ export async function exportData(
                 ),
 
                 "Bullseye Score":
-                    getBullseyeScore(
+                    getPatentReviewScore(
                         patent,
                         reviewConcepts
                     ),
@@ -251,6 +260,28 @@ export function importData(
                 patent,
                 "finalReferenceComment"
             );
+
+            importField(
+                row,
+                "Final Reference Reason",
+                patent,
+                "finalReferenceReason"
+            );
+
+            if (
+                Object.hasOwn(
+                    row,
+                    "Additional Points"
+                )
+            ) {
+
+                patent.finalReferencePriorityPoints =
+                    normalizePriorityPoints(
+                        row[
+                            "Additional Points"
+                        ]
+                    );
+            }
 
             importField(
                 row,
@@ -472,6 +503,34 @@ function getBullseyeScore(
         },
         0
     );
+}
+
+function getPatentReviewScore(
+    patent,
+    reviewConcepts
+) {
+
+    return getBullseyeScore(
+        patent,
+        reviewConcepts
+    ) + normalizePriorityPoints(
+        patent.finalReferencePriorityPoints
+    );
+}
+
+function normalizePriorityPoints(
+    value
+) {
+
+    const points =
+        Number.parseInt(
+            value,
+            10
+        );
+
+    return Number.isFinite(points)
+        ? Math.max(0, points)
+        : 0;
 }
 
 function getBullseyeLabel(
