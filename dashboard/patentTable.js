@@ -13,6 +13,7 @@ export const DEFAULT_COLUMNS = [
     "relevance",
     "universeReviewSelected",
     "finalReferenceSelected",
+    "finalReferenceComment",
     "overlap",
     "claims",
     "challengingClaimNumbers",
@@ -76,6 +77,10 @@ export const COLUMN_DEFINITIONS = {
 
     finalReferenceSelected: {
         label: "Final Reference"
+    },
+
+    finalReferenceComment: {
+        label: "Comment"
     },
 
     overlap: {
@@ -235,6 +240,16 @@ const COLUMN_RENDERERS = {
                 ${patent.finalReferenceSelected ? "checked" : ""}
                 title="Select for Final References (maximum 20)"
             >
+        `,
+
+    finalReferenceComment:
+        patent => `
+            <textarea
+                class="patentFieldControl patentFinalReferenceCommentTextarea"
+                data-field="finalReferenceComment"
+                data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
+                placeholder="Add final-reference comment"
+            >${escapeHtml(patent.finalReferenceComment || "")}</textarea>
         `,
 
     overlap:

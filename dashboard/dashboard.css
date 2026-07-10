@@ -95,6 +95,14 @@
 	background: #d1e7dd;
 }
 
+.patentFinalReferenceCommentTextarea {
+	width: 220px;
+	height: 16px;
+	min-height: 16px;
+	resize: vertical;
+	box-sizing: border-box;
+}
+
 .patentConceptScoreOption-red {
 	background: #f8d7da;
 	color: #842029;

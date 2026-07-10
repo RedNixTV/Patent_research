@@ -10,6 +10,7 @@ export function createPatent() {
 		whyItMatters: "",
 		universeReviewSelected: false,
 		finalReferenceSelected: false,
+		finalReferenceComment: "",
 	
 		abstract: "",
 		claims: "",

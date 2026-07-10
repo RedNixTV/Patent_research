@@ -38,6 +38,10 @@ export async function exportData(
                 "Final Reference":
                     patent.finalReferenceSelected ===
                     true,
+
+                "Final Reference Comment":
+                    patent.finalReferenceComment ||
+                    "",
 	
 				"Primary Class":
 					patent.primaryClass,
@@ -240,6 +244,13 @@ export function importData(
                         ]
                     );
             }
+
+            importField(
+                row,
+                "Final Reference Comment",
+                patent,
+                "finalReferenceComment"
+            );
 
             importField(
                 row,

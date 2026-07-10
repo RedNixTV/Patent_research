@@ -67,6 +67,7 @@ const STAGE_ONLY_PATENT_COLUMNS =
     [
         "universeReviewSelected",
         "finalReferenceSelected",
+        "finalReferenceComment",
         "overlap",
         "claims",
         "challengingClaimNumbers",
@@ -186,6 +187,15 @@ function getPatentColumnOrderForStage(
 
                     return stage ===
                         "universeReview";
+                }
+
+                if (
+                    column ===
+                    "finalReferenceComment"
+                ) {
+
+                    return stage ===
+                        "finalReferences";
                 }
 
                 if (
@@ -1881,6 +1891,7 @@ function setupPatentFieldControls() {
                                 "whyItMatters",
                                 "universeReviewSelected",
                                 "finalReferenceSelected",
+                                "finalReferenceComment",
                                 "claims",
                                 "challengingClaimNumbers",
                                 "conceptCoverage",
