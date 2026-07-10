@@ -2409,9 +2409,45 @@ async function savePatentWithRelevance(
 
 async function savePatentClaims() {
 
-    await savePatent(
-        extractPatent()
-    );
+    const patentNumber =
+        extractPatentNumber();
+
+    const claims =
+        getClaimsInputValue();
+
+    const result =
+        await chrome.storage.local.get(
+            "patents"
+        );
+
+    const patentLibrary =
+        result.patents || {};
+
+    const existingPatent =
+        patentLibrary[
+            patentNumber
+        ];
+
+    if (!existingPatent) {
+
+        alert(
+            "Patent record not found. Save the patent before adding claims."
+        );
+
+        return;
+    }
+
+    patentLibrary[
+        patentNumber
+    ] = {
+        ...existingPatent,
+        claims
+    };
+
+    await chrome.storage.local.set({
+        patents:
+            patentLibrary
+    });
 
     alert(
         "Claims Saved"
