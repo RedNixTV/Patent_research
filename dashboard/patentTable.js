@@ -202,8 +202,14 @@ const COLUMN_RENDERERS = {
 
     otherClasses:
         patent =>
-            (patent.otherClasses || [])
-                .slice(0, 3)
+            [...new Set(
+                patent.uspc || []
+            )]
+                .filter(
+                    classification =>
+                        classification !==
+                        patent.primaryClass
+                )
                 .join(", "),
 
     relevance:

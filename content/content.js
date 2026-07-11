@@ -54,9 +54,6 @@ function extractPatent() {
     const uspc =
         extractUspc();
 
-    const internationalClasses =
-        extractInternationalClasses();
-
     return {
 
         patentNumber:
@@ -103,13 +100,13 @@ function extractPatent() {
 			"",
 		
         otherClasses:
-            [
-                ...new Set([
-                    ...uspc.slice(1),
-                    ...internationalClasses,
-                    ...cpc.slice(1)
-                ])
-            ],
+            [...new Set(
+                uspc.filter(
+                    classification =>
+                        classification !==
+                        uspc[0]
+                )
+            )],
 
         classifications:
             buildClassifications(
