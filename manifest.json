@@ -1,42 +1,31 @@
 {
-  "manifest_version": 3,
+    "manifest_version": 3,
 
-  "name": "Classification Discovery Tool",
+    "name": "Classification Discovery Tool",
 
-  "version": "1.1.0",
+    "version": "1.1.0",
 
-  "permissions": [
-    "storage",
-    "downloads"
-  ],
+    "permissions": ["storage", "downloads"],
 
-  "host_permissions": [
-    "https://www.freepatentsonline.com/*"
-  ],
+    "host_permissions": ["https://www.freepatentsonline.com/*"],
 
-  "action": {  },
+    "action": {},
 
-  "content_scripts": [
-    {
-      "matches": [
-        "https://www.freepatentsonline.com/*",
-        "https://www.uspto.gov/web/patents/classification/*",
-        "https://portal.uspto.gov/EmployeeSearch/*"
-      ],
-      "js": [
-        "content/content.js"
-      ]
-    }
-  ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.freepatentsonline.com/*",
+                "https://www.uspto.gov/web/patents/classification/*",
+                "https://portal.uspto.gov/EmployeeSearch/*"
+            ],
+            "js": ["content/content.js"]
+        }
+    ],
 
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "dashboard/*"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
-    }
-  ]
+    "web_accessible_resources": [
+        {
+            "resources": ["dashboard/*"],
+            "matches": ["<all_urls>"]
+        }
+    ]
 }

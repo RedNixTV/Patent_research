@@ -1,55 +1,51 @@
 export function createPatent() {
+    return {
+        patentNumber: "",
+        title: "",
+        url: "",
+        relevance: "",
+        overlap: "None",
+        whyItMatters: "",
+        universeReviewSelected: false,
+        finalReferenceSelected: false,
+        finalReferenceComment: "",
+        finalReferenceReason: "",
+        finalReferencePriorityPoints: 0,
+        citationResearchSelected: false,
+        citationResearchReason: "",
 
-   return {
-	
-		patentNumber: "",
-		title: "",
-		url: "",
-		relevance: "",
-		overlap: "None",
-		whyItMatters: "",
-		universeReviewSelected: false,
-		finalReferenceSelected: false,
-		finalReferenceComment: "",
-		finalReferenceReason: "",
-		finalReferencePriorityPoints: 0,
-		citationResearchSelected: false,
-		citationResearchReason: "",
-	
-		abstract: "",
-		claims: "",
-		challengingClaimNumbers: "",
-		conceptCoverage: {},
-		conceptScores: {},
-	
-		inventorName: "",
-		assignee: "",
-	
-		applicationNumber: "",
-		filingDate: "",
-		publicationDate: "",
-	
-		primaryClass: "",
-		otherClasses: [],
-	
-		imageCount: 0,
-	
-		cpc: [],
-		primaryCpc: [],
-		uspc: [],
-		
-		savedDate: ""
-	};
+        abstract: "",
+        claims: "",
+        challengingClaimNumbers: "",
+        conceptCoverage: {},
+        conceptScores: {},
+
+        inventorName: "",
+        assignee: "",
+
+        applicationNumber: "",
+        filingDate: "",
+        publicationDate: "",
+
+        primaryClass: "",
+        otherClasses: [],
+
+        imageCount: 0,
+
+        cpc: [],
+        primaryCpc: [],
+        uspc: [],
+
+        savedDate: "",
+    };
 }
 
 export function createClassification() {
-
     return {
-
         classTitle: "",
 
         subclassTitle: "",
-        
+
         artUnit: "",
 
         artUnitReason: "",
@@ -57,77 +53,65 @@ export function createClassification() {
         pickArtUnit: false,
 
         employee: "",
-		
-		phone: "",
-		
-		comment: "",
+
+        phone: "",
+
+        comment: "",
 
         status: "pending",
 
         keep: false,
-        
+
         confidence: "None",
-		
-		researchTier: "None",
-		
-		reason: ""
+
+        researchTier: "None",
+
+        reason: "",
     };
 }
 
 export function createStorageSchema() {
-
     return {
-
         currentProjectId: "",
 
         projects: [],
 
         patents: {},
 
-        classifications: {}
+        classifications: {},
     };
 }
 
-export function createProject(
-    id,
-    name
-) {
-
+export function createProject(id, name) {
     return {
-
         id,
         name,
-        
+
         workflow: {
-		
-			currentStage:
-				"landscapeScan"
-		},
+            currentStage: "landscapeScan",
+        },
 
         stages: {
-
             landscapeScan: [],
 
             referenceList: [],
 
             classificationAnalysis: {
-
                 selectedClasses: [],
-                selectedSubclasses: []
+                selectedSubclasses: [],
             },
 
             universe: [],
 
             universeReview: {
-
                 excludedPatentIds: [],
                 notes: "",
-                concepts: []
+                concepts: [],
             },
 
             finalReferences: [],
 
-            citationResearch: []
-        }
+            citationResearch: [],
+        },
     };
 }

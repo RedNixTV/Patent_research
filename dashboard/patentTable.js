@@ -1,5 +1,4 @@
 export const DEFAULT_COLUMNS = [
-
     "patentNumber",
     "title",
     "abstract",
@@ -24,122 +23,117 @@ export const DEFAULT_COLUMNS = [
     "challengingClaimNumbers",
     "bullseyeScore",
     "bullseye",
-    "whyItMatters"
+    "whyItMatters",
 ];
 
-const REVIEW_CONCEPT_COLUMN_PREFIX =
-    "reviewConcept:";
+const REVIEW_CONCEPT_COLUMN_PREFIX = "reviewConcept:";
 
 export const COLUMN_DEFINITIONS = {
-
     patentNumber: {
-        label: "Doc Num"
+        label: "Doc Num",
     },
 
     title: {
-        label: "Title"
+        label: "Title",
     },
 
     abstract: {
-        label: "Abstract"
+        label: "Abstract",
     },
 
     inventorName: {
-        label: "Inventor"
+        label: "Inventor",
     },
 
     assignee: {
-        label: "Assignee"
+        label: "Assignee",
     },
 
     applicationNumber: {
-        label: "Application"
+        label: "Application",
     },
 
     filingDate: {
-        label: "Filing Date"
+        label: "Filing Date",
     },
 
     publicationDate: {
-        label: "Pub Date"
+        label: "Pub Date",
     },
 
     primaryClass: {
-        label: "Primary Class"
+        label: "Primary Class",
     },
 
     otherClasses: {
-        label: "Other Classes"
+        label: "Other Classes",
     },
 
     cpc: {
-        label: "CPC"
+        label: "CPC",
     },
 
     relevance: {
-        label: "Relevance"
+        label: "Relevance",
     },
 
     universeReviewSelected: {
-        label: "Review"
+        label: "Review",
     },
 
     finalReferenceSelected: {
-        label: "Final Reference"
+        label: "Final Reference",
     },
 
     finalReferenceComment: {
-        label: "Comment"
+        label: "Comment",
     },
 
     finalReferenceReason: {
-        label: "Why Selected"
+        label: "Why Selected",
     },
 
     finalReferencePriorityPoints: {
-        label: "Additional Points"
+        label: "Additional Points",
     },
 
     citationResearchSelected: {
-        label: "Cite"
+        label: "Cite",
     },
 
     citationResearchReason: {
-        label: "Why Cite"
+        label: "Why Cite",
     },
 
     overlap: {
-        label: "Overlap"
+        label: "Overlap",
     },
 
     claims: {
-        label: "Claims"
+        label: "Claims",
     },
 
     challengingClaimNumbers: {
-        label: "Challenge Claims"
+        label: "Challenge Claims",
     },
 
     bullseyeScore: {
-        label: "Score"
+        label: "Score",
     },
 
     bullseye: {
-        label: "Bullseye"
+        label: "Bullseye",
     },
 
     whyItMatters: {
-        label: "Why it matters"
-    }
+        label: "Why it matters",
+    },
 };
 
 const COLUMN_RENDERERS = {
-
-    patentNumber:
-		patent =>
-			patent.url
-	
-				? `
+    patentNumber: (patent) =>
+        patent.url
+            ? `
 					<a
 						href="${patent.url}"
 						target="_blank"
@@ -148,100 +142,47 @@ const COLUMN_RENDERERS = {
 						${patent.patentNumber || ""}
 					</a>
 				  `
-	
-				: (patent.patentNumber || ""),
+            : patent.patentNumber || "",
 
-    title:
-		(
-			patent,
-			options
-		) =>
-	
-			options.compactTitle
-	
-				? truncate(
-					patent.title,
-					30
-				  )
-	
-				: (patent.title || ""),
+    title: (patent, options) =>
+        options.compactTitle ? truncate(patent.title, 30) : patent.title || "",
 
-    abstract:
-			(
-				patent,
-				options
-			) =>
-		
-				options.compactAbstract
-		
-					? truncate(
-						patent.abstract,
-						60
-					  )
-		
-					: (patent.abstract || ""),
+    abstract: (patent, options) =>
+        options.compactAbstract ? truncate(patent.abstract, 60) : patent.abstract || "",
 
-    inventorName:
-        patent =>
-            patent.inventorName || "",
+    inventorName: (patent) => patent.inventorName || "",
 
-    assignee:
-        patent =>
-            patent.assignee || "",
+    assignee: (patent) => patent.assignee || "",
 
-    applicationNumber:
-        patent =>
-            patent.applicationNumber || "",
+    applicationNumber: (patent) => patent.applicationNumber || "",
 
-    filingDate:
-        patent =>
-            patent.filingDate || "",
+    filingDate: (patent) => patent.filingDate || "",
 
-    publicationDate:
-        patent =>
-            patent.publicationDate || "",
+    publicationDate: (patent) => patent.publicationDate || "",
 
-    primaryClass:
-        patent =>
-            patent.primaryClass || "",
+    primaryClass: (patent) => patent.primaryClass || "",
 
-    otherClasses:
-        patent =>
-            [...new Set(
-                patent.uspc || []
-            )]
-                .filter(
-                    classification =>
-                        classification !==
-                        patent.primaryClass
-                )
-                .join(", "),
+    otherClasses: (patent) =>
+        [...new Set(patent.uspc || [])]
+            .filter((classification) => classification !== patent.primaryClass)
+            .join(", "),
 
-    cpc:
-        patent =>
-            [...new Set(
-                patent.cpc || []
-            )]
-                .join(", "),
+    cpc: (patent) => [...new Set(patent.cpc || [])].join(", "),
 
-    relevance:
-        patent => {
+    relevance: (patent) => {
+        const value = patent.relevance || "none";
 
-            const value =
-                patent.relevance || "none";
+        const options = ["none", "weak", "partial", "strong"];
 
-            const options = ["none", "weak","partial","strong"];
-
-            return `
+        return `
                 <select
                     class="patentFieldControl patentRelevanceSelect"
                     data-field="relevance"
                     data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
                 >
-                    ${
-                        options
-                            .map(
-                                option => `
+                    ${options
+                        .map(
+                            (option) => `
                                     <option
                                         value="${escapeAttribute(option)}"
                                         ${option === value ? "selected" : ""}
@@ -249,15 +190,13 @@ const COLUMN_RENDERERS = {
                                         ${option}
                                     </option>
                                 `
-                            )
-                            .join("")
-                    }
+                        )
+                        .join("")}
                 </select>
             `;
-        },
+    },
 
-    universeReviewSelected:
-        patent => `
+    universeReviewSelected: (patent) => `
             <input
                 type="checkbox"
                 class="patentFieldControl patentReviewCheckbox"
@@ -268,8 +207,7 @@ const COLUMN_RENDERERS = {
             >
         `,
 
-    finalReferenceSelected:
-        patent => `
+    finalReferenceSelected: (patent) => `
             <input
                 type="checkbox"
                 class="patentFieldControl patentFinalReferenceCheckbox"
@@ -280,8 +218,7 @@ const COLUMN_RENDERERS = {
             >
         `,
 
-    finalReferenceComment:
-        patent => `
+    finalReferenceComment: (patent) => `
             <textarea
                 class="patentFieldControl patentFinalReferenceCommentTextarea"
                 data-field="finalReferenceComment"
@@ -290,8 +227,7 @@ const COLUMN_RENDERERS = {
             >${escapeHtml(patent.finalReferenceComment || "")}</textarea>
         `,
 
-    finalReferenceReason:
-        patent => `
+    finalReferenceReason: (patent) => `
             <textarea
                 class="patentFieldControl patentFinalReferenceReasonTextarea"
                 data-field="finalReferenceReason"
@@ -300,8 +236,7 @@ const COLUMN_RENDERERS = {
             >${escapeHtml(patent.finalReferenceReason || "")}</textarea>
         `,
 
-    finalReferencePriorityPoints:
-        patent => `
+    finalReferencePriorityPoints: (patent) => `
             <input
                 type="number"
                 min="0"
@@ -309,13 +244,14 @@ const COLUMN_RENDERERS = {
                 class="patentFieldControl patentFinalReferencePriorityInput"
                 data-field="finalReferencePriorityPoints"
                 data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
-                value="${escapeAttribute(normalizePriorityPoints(patent.finalReferencePriorityPoints))}"
+                value="${escapeAttribute(
+                    normalizePriorityPoints(patent.finalReferencePriorityPoints)
+                )}"
                 title="Points added to this patent's concept score"
             >
         `,
 
-    citationResearchSelected:
-        patent => `
+    citationResearchSelected: (patent) => `
             <input
                 type="checkbox"
                 class="patentFieldControl patentCitationResearchCheckbox"
@@ -326,8 +262,7 @@ const COLUMN_RENDERERS = {
             >
         `,
 
-    citationResearchReason:
-        patent => `
+    citationResearchReason: (patent) => `
             <textarea
                 class="patentFieldControl patentCitationResearchReasonTextarea"
                 data-field="citationResearchReason"
@@ -336,24 +271,20 @@ const COLUMN_RENDERERS = {
             >${escapeHtml(patent.citationResearchReason || "")}</textarea>
         `,
 
-    overlap:
-        patent => {
+    overlap: (patent) => {
+        const value = patent.overlap || "None";
 
-            const value =
-                patent.overlap || "None";
+        const options = ["None", "Low", "Medium", "High", "Very High"];
 
-            const options = ["None","Low","Medium","High", "Very High"];
-
-            return `
+        return `
                 <select
                     class="patentFieldControl patentOverlapSelect"
                     data-field="overlap"
                     data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
                 >
-                    ${
-                        options
-                            .map(
-                                option => `
+                    ${options
+                        .map(
+                            (option) => `
                                     <option
                                         value="${escapeAttribute(option)}"
                                         ${option === value ? "selected" : ""}
@@ -361,15 +292,13 @@ const COLUMN_RENDERERS = {
                                         ${option}
                                     </option>
                                 `
-                            )
-                            .join("")
-                    }
+                        )
+                        .join("")}
                 </select>
             `;
-        },
+    },
 
-    whyItMatters:
-        patent => `
+    whyItMatters: (patent) => `
             <textarea
                 class="patentFieldControl patentWhyItMattersTextarea"
                 data-field="whyItMatters"
@@ -377,8 +306,7 @@ const COLUMN_RENDERERS = {
             >${escapeHtml(patent.whyItMatters || "")}</textarea>
         `,
 
-    claims:
-        patent => `
+    claims: (patent) => `
             <textarea
                 class="patentFieldControl patentClaimsTextarea"
                 data-field="claims"
@@ -386,68 +314,39 @@ const COLUMN_RENDERERS = {
             >${escapeHtml(patent.claims || "")}</textarea>
         `,
 
-    challengingClaimNumbers:
-        patent => `
+    challengingClaimNumbers: (patent) => `
             <textarea
                 class="patentFieldControl patentChallengeClaimsTextarea"
                 data-field="challengingClaimNumbers"
                 data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
             >${escapeHtml(patent.challengingClaimNumbers || "")}</textarea>
-        `
+        `,
 };
 
-function truncate(
-    text,
-    maxLength
-) {
-
+function truncate(text, maxLength) {
     if (!text) {
-
         return "";
     }
 
-    return text.length >
-        maxLength
-
-        ? text.slice(
-            0,
-            maxLength
-          ) + "..."
-
-        : text;
+    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
 }
 
-export function renderHeaders(
-    columnOrder,
-    options = {}
-) {
-
-    const headerRow =
-        document.getElementById(
-            "headerRow"
-        );
+export function renderHeaders(columnOrder, options = {}) {
+    const headerRow = document.getElementById("headerRow");
 
     headerRow.innerHTML = "";
 
-    const allSelected =
-        options.allSelected ?? true;
+    const allSelected = options.allSelected ?? true;
 
-    const allReviewSelected =
-        options.allReviewSelected ?? false;
+    const allReviewSelected = options.allReviewSelected ?? false;
 
-    const someReviewSelected =
-        options.someReviewSelected ?? false;
+    const someReviewSelected = options.someReviewSelected ?? false;
 
-    const reviewConcepts =
-        options.reviewConcepts || [];
+    const reviewConcepts = options.reviewConcepts || [];
 
-    const scoreSortDirection =
-        options.scoreSortDirection ||
-        null;
+    const scoreSortDirection = options.scoreSortDirection || null;
 
-    const finalReferenceSelectedCount =
-        options.finalReferenceSelectedCount ||
-        0;
+    const finalReferenceSelectedCount = options.finalReferenceSelectedCount || 0;
 
     headerRow.innerHTML = `
         <th class="patentSelectionHeader">
@@ -461,16 +360,8 @@ export function renderHeaders(
         </th>
     `;
 
-    for (
-        const column
-        of columnOrder
-    ) {
-
-        if (
-            column ===
-            "universeReviewSelected"
-        ) {
-
+    for (const column of columnOrder) {
+        if (column === "universeReviewSelected") {
             headerRow.innerHTML += `
 
                 <th
@@ -485,10 +376,7 @@ export function renderHeaders(
                         ${allReviewSelected ? "checked" : ""}
                     >
                     <span>
-                        ${getColumnLabel(
-                            column,
-                            reviewConcepts
-                        )}
+                        ${getColumnLabel(column, reviewConcepts)}
                     </span>
                 </th>
             `;
@@ -496,17 +384,8 @@ export function renderHeaders(
             continue;
         }
 
-        if (
-            isReviewConceptColumn(
-                column
-            )
-        ) {
-
-            const concept =
-                getReviewConceptForColumn(
-                    column,
-                    reviewConcepts
-                );
+        if (isReviewConceptColumn(column)) {
+            const concept = getReviewConceptForColumn(column, reviewConcepts);
 
             headerRow.innerHTML += `
 
@@ -518,23 +397,14 @@ export function renderHeaders(
                     class="patentReviewConceptHeader"
                     title="${escapeAttribute(getConceptHeaderTitle(concept))}"
                 >
-                    ${
-                        getColumnLabel(
-                            column,
-                            reviewConcepts
-                        )
-                    }
+                    ${getColumnLabel(column, reviewConcepts)}
                 </th>
             `;
 
             continue;
         }
 
-        if (
-            column ===
-            "finalReferenceSelected"
-        ) {
-
+        if (column === "finalReferenceSelected") {
             headerRow.innerHTML += `
 
                 <th
@@ -549,19 +419,13 @@ export function renderHeaders(
             continue;
         }
 
-        if (
-            column ===
-            "bullseyeScore"
-        ) {
-
+        if (column === "bullseyeScore") {
             const sortIndicator =
-                scoreSortDirection ===
-                    "descending"
+                scoreSortDirection === "descending"
                     ? " ▼"
-                    : scoreSortDirection ===
-                        "ascending"
-                        ? " ▲"
-                        : "";
+                    : scoreSortDirection === "ascending"
+                    ? " ▲"
+                    : "";
 
             headerRow.innerHTML += `
 
@@ -571,12 +435,7 @@ export function renderHeaders(
                     class="patentScoreHeader"
                     title="Sort patents by score"
                 >
-                    ${
-                        getColumnLabel(
-                            column,
-                            reviewConcepts
-                        )
-                    }${sortIndicator}
+                    ${getColumnLabel(column, reviewConcepts)}${sortIndicator}
                 </th>
             `;
 
@@ -589,81 +448,38 @@ export function renderHeaders(
                 draggable="true"
                 data-column="${column}"
             >
-                ${
-                    getColumnLabel(
-                        column,
-                        reviewConcepts
-                    )
-                }
+                ${getColumnLabel(column, reviewConcepts)}
             </th>
         `;
     }
 }
 
-export function renderPatentTable(
-    patents,
-    columnOrder,
-    options = {}
-){
+export function renderPatentTable(patents, columnOrder, options = {}) {
+    const compactTitle = options.compactTitle ?? false;
 
-    const compactTitle =
-		options.compactTitle ?? false;
-	
-    const compactAbstract =
-		options.compactAbstract ?? false;
+    const compactAbstract = options.compactAbstract ?? false;
 
     const selectedPatentIds =
-        options.selectedPatentIds ||
-        new Set(
-            patents.map(
-                getPatentSelectionId
-            )
-        );
+        options.selectedPatentIds || new Set(patents.map(getPatentSelectionId));
 
-    const referenceIdRenderer =
-        options.referenceIdRenderer ||
-        (
-            patent =>
-                patent.referenceId
-        );
+    const referenceIdRenderer = options.referenceIdRenderer || ((patent) => patent.referenceId);
 
-    const reviewConcepts =
-        options.reviewConcepts || [];
-    
-    columnOrder =
-        columnOrder ||
-        DEFAULT_COLUMNS;
-        
-    const tbody =
-        document.querySelector(
-            "#patentTable tbody"
-        );
+    const reviewConcepts = options.reviewConcepts || [];
+
+    columnOrder = columnOrder || DEFAULT_COLUMNS;
+
+    const tbody = document.querySelector("#patentTable tbody");
 
     tbody.innerHTML = "";
 
-    patents.forEach(
-        (
-            patent,
-            index
-        ) => {
+    patents.forEach((patent, index) => {
+        const row = document.createElement("tr");
 
-            const row =
-                document.createElement(
-                    "tr"
-                );
+        const selectionId = getPatentSelectionId(patent);
 
-            const selectionId =
-                getPatentSelectionId(
-                    patent
-                );
+        const displayReferenceId = referenceIdRenderer(patent, index);
 
-            const displayReferenceId =
-                referenceIdRenderer(
-                    patent,
-                    index
-                );
-
-            let html = `
+        let html = `
 			
 				<td
                     class="patentReferenceCell"
@@ -690,132 +506,72 @@ export function renderPatentTable(
 			
 				</td>
 			`;
-			
-			for (
-					const column
-					of columnOrder
-				) {
-				
-					const value =
-							getColumnRenderer(
-                                column,
-                                reviewConcepts
-                            )(
-								patent,
-								{
-									compactTitle,
-									compactAbstract
-								}
-							);
-				
-					html += `
+
+        for (const column of columnOrder) {
+            const value = getColumnRenderer(column, reviewConcepts)(patent, {
+                compactTitle,
+                compactAbstract,
+            });
+
+            html += `
 				
 						<td>
 							${value}
 						</td>
 					`;
-				}
-				
-			row.innerHTML = html;
-
-            tbody.appendChild(
-                row
-            );
         }
-    );
+
+        row.innerHTML = html;
+
+        tbody.appendChild(row);
+    });
 }
 
-export function getReviewConceptColumnKey(
-    conceptId
-) {
-
+export function getReviewConceptColumnKey(conceptId) {
     return `${REVIEW_CONCEPT_COLUMN_PREFIX}${conceptId}`;
 }
 
-function getColumnLabel(
-    column,
-    reviewConcepts
-) {
-
-    if (
-        isReviewConceptColumn(
-            column
-        )
-    ) {
-
-        const concept =
-            getReviewConceptForColumn(
-                column,
-                reviewConcepts
-            );
+function getColumnLabel(column, reviewConcepts) {
+    if (isReviewConceptColumn(column)) {
+        const concept = getReviewConceptForColumn(column, reviewConcepts);
 
         return concept?.label || "Concept";
     }
 
-    return COLUMN_DEFINITIONS[
-        column
-    ]?.label || column;
+    return COLUMN_DEFINITIONS[column]?.label || column;
 }
 
-function getColumnRenderer(
-    column,
-    reviewConcepts
-) {
+function getColumnRenderer(column, reviewConcepts) {
+    if (isReviewConceptColumn(column)) {
+        const concept = getReviewConceptForColumn(column, reviewConcepts);
 
-    if (
-        isReviewConceptColumn(
-            column
-        )
-    ) {
-
-        const concept =
-            getReviewConceptForColumn(
-                column,
-                reviewConcepts
-            );
-
-        return patent => {
-
-            const conceptId =
-                concept?.id;
+        return (patent) => {
+            const conceptId = concept?.id;
 
             const value =
-                patent.conceptScores?.[
-                    conceptId
-                ] ??
-                (
-                    patent.conceptCoverage?.[
-                        conceptId
-                    ]
-                        ? "2"
-                        : "0"
-                );
+                patent.conceptScores?.[conceptId] ??
+                (patent.conceptCoverage?.[conceptId] ? "2" : "0");
 
             const scoreOptions = [
                 {
                     value: "2",
                     label: "Red",
-                    color: "red"
+                    color: "red",
                 },
                 {
                     value: "1",
                     label: "Yellow",
-                    color: "yellow"
+                    color: "yellow",
                 },
                 {
                     value: "0",
                     label: "Green",
-                    color: "green"
-                }
+                    color: "green",
+                },
             ];
 
             const selectedColor =
-                scoreOptions.find(
-                    option =>
-                        option.value ===
-                        String(value)
-                )?.color ||
-                "green";
+                scoreOptions.find((option) => option.value === String(value))?.color || "green";
 
             return `
                 <select
@@ -823,13 +579,15 @@ function getColumnRenderer(
                     data-field="conceptScores"
                     data-concept-id="${escapeAttribute(conceptId || "")}"
                     data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
-                    aria-label="${scoreOptions.find(option => option.value === String(value))?.label || "Green"} concept score"
+                    aria-label="${
+                        scoreOptions.find((option) => option.value === String(value))?.label ||
+                        "Green"
+                    } concept score"
                     title="${escapeAttribute(getConceptCellTitle(concept))}"
                 >
-                    ${
-                        scoreOptions
-                            .map(
-                                option => `
+                    ${scoreOptions
+                        .map(
+                            (option) => `
                                     <option
                                         value="${option.value}"
                                         class="patentConceptScoreOption-${option.color}"
@@ -839,245 +597,117 @@ function getColumnRenderer(
                                         ${option.label}
                                     </option>
                                 `
-                            )
-                            .join("")
-                    }
+                        )
+                        .join("")}
                 </select>
             `;
         };
     }
 
-    if (
-        column ===
-        "bullseyeScore"
-    ) {
+    if (column === "bullseyeScore") {
+        return (patent) => {
+            const conceptScore = getBullseyeScore(patent, reviewConcepts);
 
-        return patent => {
-
-            const conceptScore =
-                getBullseyeScore(
-                    patent,
-                    reviewConcepts
-                );
-
-            const priorityBonus =
-                normalizePriorityPoints(
-                    patent.finalReferencePriorityPoints
-                );
+            const priorityBonus = normalizePriorityPoints(patent.finalReferencePriorityPoints);
 
             return `
-                <span title="Concept score ${conceptScore}${priorityBonus ? ` + additional points ${priorityBonus}` : ""}">
+                <span title="Concept score ${conceptScore}${
+                priorityBonus ? ` + additional points ${priorityBonus}` : ""
+            }">
                     ${conceptScore + priorityBonus}
                 </span>
             `;
         };
     }
 
-    if (
-        column ===
-        "bullseye"
-    ) {
-
-        return patent =>
-            getBullseyeLabel(
-                getBullseyeScore(
-                    patent,
-                    reviewConcepts
-                )
-            );
+    if (column === "bullseye") {
+        return (patent) => getBullseyeLabel(getBullseyeScore(patent, reviewConcepts));
     }
 
     return COLUMN_RENDERERS[column];
 }
 
-function isReviewConceptColumn(
-    column
-) {
-
-    return column.startsWith(
-        REVIEW_CONCEPT_COLUMN_PREFIX
-    );
+function isReviewConceptColumn(column) {
+    return column.startsWith(REVIEW_CONCEPT_COLUMN_PREFIX);
 }
 
-function getReviewConceptForColumn(
-    column,
-    reviewConcepts
-) {
-
-    return reviewConcepts.find(
-        candidate =>
-            getReviewConceptColumnKey(
-                candidate.id
-            ) === column
-    );
+function getReviewConceptForColumn(column, reviewConcepts) {
+    return reviewConcepts.find((candidate) => getReviewConceptColumnKey(candidate.id) === column);
 }
 
-function getConceptHeaderTitle(
-    concept
-) {
-
-    const definition =
-        concept?.definition
-            ?.trim();
+function getConceptHeaderTitle(concept) {
+    const definition = concept?.definition?.trim();
 
     return definition
         ? `${definition}\nClick to define or delete this concept column`
         : "Click to define or delete this concept column";
 }
 
-function getConceptCellTitle(
-    concept
-) {
+function getConceptCellTitle(concept) {
+    const definition = concept?.definition?.trim();
 
-    const definition =
-        concept?.definition
-            ?.trim();
+    const scoring = concept?.scoring || {};
 
-    const scoring =
-        concept?.scoring || {};
-
-    const scoringText =
-        [
-            scoring["2"]
-                ? `Red (Score 2): ${scoring["2"]}`
-                : "",
-            scoring["1"]
-                ? `Yellow (Score 1): ${scoring["1"]}`
-                : "",
-            scoring["0"]
-                ? `Green (Score 0): ${scoring["0"]}`
-                : ""
-        ]
-            .filter(Boolean)
-            .join("\n");
-
-    return [
-        definition,
-        scoringText
+    const scoringText = [
+        scoring["2"] ? `Red (Score 2): ${scoring["2"]}` : "",
+        scoring["1"] ? `Yellow (Score 1): ${scoring["1"]}` : "",
+        scoring["0"] ? `Green (Score 0): ${scoring["0"]}` : "",
     ]
         .filter(Boolean)
-        .join("\n\n") ||
-        "Score this concept";
+        .join("\n");
+
+    return [definition, scoringText].filter(Boolean).join("\n\n") || "Score this concept";
 }
 
-export function getBullseyeScore(
-    patent,
-    reviewConcepts
-) {
+export function getBullseyeScore(patent, reviewConcepts) {
+    return reviewConcepts.reduce((total, concept) => {
+        const conceptId = concept?.id;
 
-    return reviewConcepts.reduce(
-        (
-            total,
-            concept
-        ) => {
+        const score =
+            patent.conceptScores?.[conceptId] ?? (patent.conceptCoverage?.[conceptId] ? "2" : "0");
 
-            const conceptId =
-                concept?.id;
+        return total + (Number.parseInt(score, 10) || 0);
+    }, 0);
+}
 
-            const score =
-                patent.conceptScores?.[
-                    conceptId
-                ] ??
-                (
-                    patent.conceptCoverage?.[
-                        conceptId
-                    ]
-                        ? "2"
-                        : "0"
-                );
-
-            return total +
-                (
-                    Number.parseInt(
-                        score,
-                        10
-                    ) ||
-                    0
-                );
-        },
-        0
+export function getPatentReviewScore(patent, reviewConcepts) {
+    return (
+        getBullseyeScore(patent, reviewConcepts) +
+        normalizePriorityPoints(patent.finalReferencePriorityPoints)
     );
 }
 
-export function getPatentReviewScore(
-    patent,
-    reviewConcepts
-) {
+function normalizePriorityPoints(value) {
+    const points = Number.parseInt(value, 10);
 
-    return getBullseyeScore(
-        patent,
-        reviewConcepts
-    ) + normalizePriorityPoints(
-        patent.finalReferencePriorityPoints
-    );
+    return Number.isFinite(points) ? Math.max(0, points) : 0;
 }
 
-function normalizePriorityPoints(
-    value
-) {
-
-    const points =
-        Number.parseInt(
-            value,
-            10
-        );
-
-    return Number.isFinite(points)
-        ? Math.max(0, points)
-        : 0;
-}
-
-function getBullseyeLabel(
-    score
-) {
-
-    if (
-        score >= 12
-    ) {
-
+function getBullseyeLabel(score) {
+    if (score >= 12) {
         return "Bullseye";
     }
 
-    if (
-        score >= 9
-    ) {
-
+    if (score >= 9) {
         return "Inner Ring";
     }
 
-    if (
-        score >= 6
-    ) {
-
+    if (score >= 6) {
         return "Middle Ring";
     }
 
-    if (
-        score >= 3
-    ) {
-
+    if (score >= 3) {
         return "Outer Ring";
     }
 
     return "Miss";
 }
 
-function getPatentSelectionId(
-    patent
-) {
-
-    return String(
-        patent.patentNumber ||
-        patent.applicationNumber ||
-        patent.referenceId ||
-        ""
-    );
+function getPatentSelectionId(patent) {
+    return String(patent.patentNumber || patent.applicationNumber || patent.referenceId || "");
 }
 
-function escapeAttribute(
-    value
-) {
-
+function escapeAttribute(value) {
     return String(value)
         .replace(/&/g, "&amp;")
         .replace(/"/g, "&quot;")
@@ -1085,12 +715,6 @@ function escapeAttribute(
         .replace(/>/g, "&gt;");
 }
 
-function escapeHtml(
-    value
-) {
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+function escapeHtml(value) {
+    return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }

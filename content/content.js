@@ -1,6 +1,4 @@
-console.log(
-    "Classification Discovery Tool Loaded"
-);
+console.log("Classification Discovery Tool Loaded");
 //
 // Examiner Validation
 //
@@ -12,140 +10,88 @@ let currentExaminerIndex = 0;
 // ====================================
 
 function extractPatentNumber() {
+    const match = location.pathname.match(/\/([^\/]+)\.html$/i);
 
-    const match =
-        location.pathname.match(
-            /\/([^\/]+)\.html$/i
-        );
-
-    return match
-        ? match[1]
-        : "";
+    return match ? match[1] : "";
 }
 
 function extractTitle() {
-
-    const titleElement =
-        document.querySelector(
-            ".page-header h4"
-        );
+    const titleElement = document.querySelector(".page-header h4");
 
     if (!titleElement) {
-
         return "";
     }
 
-    const title =
-        titleElement.childNodes[0];
+    const title = titleElement.childNodes[0];
 
-    return title
-        ? title.textContent.trim()
-        : "";
+    return title ? title.textContent.trim() : "";
 }
 // ====================================
 // Patent Builder
 // ====================================
 
 function extractPatent() {
+    const cpc = extractCpc();
 
-    const cpc =
-        extractCpc();
-
-    const uspc =
-        extractUspc();
+    const uspc = extractUspc();
 
     return {
+        patentNumber: extractPatentNumber(),
 
-        patentNumber:
-            extractPatentNumber(),
+        title: extractTitle(),
 
-        title:
-            extractTitle(),
+        url: location.href,
 
-        url:
-            location.href,
+        abstract: extractAbstract(),
 
-        abstract:
-            extractAbstract(),
+        claims: getClaimsInputValue(),
 
-        claims:
-            getClaimsInputValue(),
+        assignee: extractAssignee(),
 
-        assignee:
-            extractAssignee(),
-            
-        inventorName:
-			extractInventorName(),
-		
-		applicationNumber:
-			extractApplicationNumber(),
-		
-		filingDate:
-			extractFilingDate(),
-		
-		publicationDate:
-			extractPublicationDate(),
+        inventorName: extractInventorName(),
 
-        imageCount:
-            document.images.length,
+        applicationNumber: extractApplicationNumber(),
+
+        filingDate: extractFilingDate(),
+
+        publicationDate: extractPublicationDate(),
+
+        imageCount: document.images.length,
 
         cpc,
 
         primaryCpc: [],
 
         uspc,
-        
-        primaryClass:
-			uspc?.[0] ||
-			"",
-		
-        otherClasses:
-            [...new Set(
-                uspc.filter(
-                    classification =>
-                        classification !==
-                        uspc[0]
-                )
-            )],
 
-        classifications:
-            buildClassifications(
-                cpc,
-                uspc
-            ),
+        primaryClass: uspc?.[0] || "",
 
-        savedDate:
-            new Date()
-                .toISOString()
+        otherClasses: [...new Set(uspc.filter((classification) => classification !== uspc[0]))],
+
+        classifications: buildClassifications(cpc, uspc),
+
+        savedDate: new Date().toISOString(),
     };
 }
 
-function buildClassifications(
-    cpc,
-    uspc
-) {
-
+function buildClassifications(cpc, uspc) {
     const classes = [];
 
     for (const code of cpc) {
-
         classes.push({
-
             type: "CPC",
 
             code,
 
-            primary: false
+            primary: false,
         });
     }
 
     for (const code of uspc) {
-
         classes.push({
-
             type: "USPC",
 
-            code
+            code,
         });
     }
 
@@ -157,12 +103,8 @@ function buildClassifications(
 // ====================================
 
 function createLandscapePanel() {
+    const panel = document.createElement("div");
 
-    const panel =
-        document.createElement(
-            "div"
-        );
-        
     panel.id = "classificationToolPanel";
 
     panel.innerHTML = `
@@ -222,37 +164,25 @@ function createLandscapePanel() {
     `;
 
     panel.style.position = "fixed";
-	panel.style.bottom = "20px";
-	panel.style.right = "20px";
-	panel.style.zIndex = "999999";
-	panel.style.background = "white";
-	panel.style.padding = "10px";
-	panel.style.border = "1px solid #ccc";
-	
-	document.body.appendChild(
-		panel
-	);
+    panel.style.bottom = "20px";
+    panel.style.right = "20px";
+    panel.style.zIndex = "999999";
+    panel.style.background = "white";
+    panel.style.padding = "10px";
+    panel.style.border = "1px solid #ccc";
+
+    document.body.appendChild(panel);
 
     return panel;
 }
 
 function getClaimsInputValue() {
-
-    return document
-        .getElementById(
-            "claimsInput"
-        )
-        ?.value
-        .trim() || "";
+    return document.getElementById("claimsInput")?.value.trim() || "";
 }
 
 function createReferenceListPanel() {
+    const panel = document.createElement("div");
 
-    const panel =
-        document.createElement(
-            "div"
-        );
-        
     panel.id = "classificationToolPanel";
 
     panel.innerHTML = `
@@ -321,42 +251,29 @@ function createReferenceListPanel() {
 
     `;
 
-    panel.style.position =
-        "fixed";
+    panel.style.position = "fixed";
 
-    panel.style.bottom =
-        "20px";
+    panel.style.bottom = "20px";
 
-    panel.style.right =
-        "20px";
+    panel.style.right = "20px";
 
-    panel.style.zIndex =
-        "999999";
+    panel.style.zIndex = "999999";
 
-    panel.style.background =
-        "white";
+    panel.style.background = "white";
 
-    panel.style.padding =
-        "10px";
+    panel.style.padding = "10px";
 
-    panel.style.border =
-        "1px solid #ccc";
+    panel.style.border = "1px solid #ccc";
 
-    document.body.appendChild(
-        panel
-    );
+    document.body.appendChild(panel);
 
     return panel;
 }
 
-
 function createExaminerValidationPanel() {
+    const panel = document.createElement("div");
 
-    const panel =
-        document.createElement("div");
-
-    panel.id =
-        "examinerValidationPanel";
+    panel.id = "examinerValidationPanel";
 
     panel.innerHTML = `
 
@@ -444,491 +361,256 @@ function createExaminerValidationPanel() {
 
     panel.style.zIndex = "999999";
 
-    panel.style.border =
-        "1px solid #ccc";
+    panel.style.border = "1px solid #ccc";
 
     document.body.appendChild(panel);
 
     return panel;
 }
 
-
 function extractAbstract() {
-
-    const abstractNode =
-        document.querySelector(
-            "#abstract_content [p-id]"
-        );
+    const abstractNode = document.querySelector("#abstract_content [p-id]");
 
     if (abstractNode) {
-
         return abstractNode.textContent.trim();
     }
 
-    const abstractContainer =
-        document.querySelector(
-            "#abstract_content"
-        );
+    const abstractContainer = document.querySelector("#abstract_content");
 
-    return abstractContainer
-        ? abstractContainer.innerText.trim()
-        : "";
+    return abstractContainer ? abstractContainer.innerText.trim() : "";
 }
 
 function extractAssignee() {
+    const text = document.body.innerText;
 
-    const text =
-        document.body.innerText;
+    const match = text.match(/Assignee:\s*([^\n]+)/i);
 
-    const match =
-        text.match(
-            /Assignee:\s*([^\n]+)/i
-        );
-
-    return match
-        ? match[1].trim()
-        : "";
+    return match ? match[1].trim() : "";
 }
 
 function extractInventorName() {
+    const text = document.body.innerText;
 
-    const text =
-        document.body.innerText;
+    const match = text.match(/Inventor[s]?:\s*([^\n]+)/i);
 
-    const match =
-        text.match(
-            /Inventor[s]?:\s*([^\n]+)/i
-        );
-
-    return match
-        ? match[1].trim()
-        : "";
+    return match ? match[1].trim() : "";
 }
 
 function extractApplicationNumber() {
+    const text = document.body.innerText;
 
-    const text =
-        document.body.innerText;
+    const match = text.match(/App Num:\s*([^\n]+)/i);
 
-    const match =
-        text.match(
-            /App Num:\s*([^\n]+)/i
-        );
-
-    return match
-        ? match[1].trim()
-        : "";
+    return match ? match[1].trim() : "";
 }
 
 function extractFilingDate() {
+    const text = document.body.innerText;
 
-    const text =
-        document.body.innerText;
+    const match = text.match(/File Date:\s*([^\n]+)/i);
 
-    const match =
-        text.match(
-            /File Date:\s*([^\n]+)/i
-        );
-
-    return match
-        ? match[1].trim()
-        : "";
+    return match ? match[1].trim() : "";
 }
 
 function extractPublicationDate() {
+    const text = document.body.innerText;
 
-    const text =
-        document.body.innerText;
+    const match = text.match(/Pub Date:\s*([^\n]+)/i);
 
-    const match =
-        text.match(
-            /Pub Date:\s*([^\n]+)/i
-        );
-
-    return match
-        ? match[1].trim()
-        : "";
+    return match ? match[1].trim() : "";
 }
 
 function extractCpc() {
+    const text = document.body.innerText;
 
-    const text =
-        document.body.innerText;
+    const matches = text.match(/[A-HY]\d{2}[A-Z]\d+\/\d+/g);
 
-    const matches =
-        text.match(
-            /[A-HY]\d{2}[A-Z]\d+\/\d+/g
-        );
-
-    return [
-        ...new Set(
-            matches || []
-        )
-    ];
+    return [...new Set(matches || [])];
 }
 
 function extractInternationalClasses() {
+    const row = [...document.querySelectorAll(".row-fluid")].find(
+        (candidate) =>
+            candidate.querySelector(".muted")?.textContent.trim().toLowerCase() === "intl. classes:"
+    );
 
-    const row =
-        [
-            ...document.querySelectorAll(
-                ".row-fluid"
-            )
-        ].find(
-            candidate =>
-                candidate
-                    .querySelector(
-                        ".muted"
-                    )
-                    ?.textContent
-                    .trim()
-                    .toLowerCase() ===
-                "intl. classes:"
-        );
-
-    const value =
-        row
-            ?.querySelector(
-                ".span9"
-            )
-            ?.textContent
-            .trim() ||
-        "";
+    const value = row?.querySelector(".span9")?.textContent.trim() || "";
 
     return value
         .split(/[;,]/)
-        .map(
-            className =>
-                className.trim()
-        )
+        .map((className) => className.trim())
         .filter(Boolean);
 }
 
 function extractUspc() {
+    const text = document.body.innerText;
 
-    const text =
-        document.body.innerText;
+    const classes = [];
 
-    const classes =
-        [];
-
-    const primaryMatch =
-        text.match(
-            /Primary Class:\s*([^\n]+)/i
-        );
+    const primaryMatch = text.match(/Primary Class:\s*([^\n]+)/i);
 
     if (primaryMatch) {
-
-        classes.push(
-            primaryMatch[1].trim()
-        );
+        classes.push(primaryMatch[1].trim());
     }
 
-    const otherMatch =
-        text.match(
-            /Other Classes:\s*([^\n]+)/i
-        );
+    const otherMatch = text.match(/Other Classes:\s*([^\n]+)/i);
 
     if (otherMatch) {
-
         classes.push(
             ...otherMatch[1]
                 .split(/[;,]/)
-                .map(
-                    value =>
-                        value.trim()
-                )
+                .map((value) => value.trim())
                 .filter(Boolean)
         );
     }
 
-    return [
-        ...new Set(classes)
-    ];
+    return [...new Set(classes)];
 }
 
 // ====================================
 // storage
 // ====================================
-async function savePatent(
-    patent
-) {
+async function savePatent(patent) {
+    const result = await chrome.storage.local.get(["patents", "projects", "currentProjectId"]);
 
-    const result =
-        await chrome.storage.local.get([
-            "patents",
-            "projects",
-            "currentProjectId"
-        ]);
+    const patentLibrary = result.patents || {};
 
-    const patentLibrary =
-        result.patents || {};
+    const existingPatent = patentLibrary[patent.patentNumber] || {};
 
-    const existingPatent =
-        patentLibrary[
-            patent.patentNumber
-        ] || {};
-
-    patentLibrary[
-        patent.patentNumber
-    ] = {
+    patentLibrary[patent.patentNumber] = {
         ...existingPatent,
         ...patent,
-        claims:
-            patent.claims ||
-            existingPatent.claims ||
-            ""
+        claims: patent.claims || existingPatent.claims || "",
     };
 
-    const projects =
-        result.projects || [];
-        
-    if (
-		projects.length === 0
-	) {
-	
-		projects.push({
-	
-			id: "default",
-	
-			name:
-				"Default Project",
-				
-			workflow: {
-		
-				currentStage:
-					"landscapeScan"
-			},
-	
-			stages: {
-	
-				landscapeScan: [],
-	
-				referenceList: [],
-	
-				classificationAnalysis: {
-	
-					selectedClasses: [],
-					selectedSubclasses: []
-				},
-	
-				universe: [],
-	
-				universeReview: {
-	
-					excludedPatentIds: [],
-					notes: "",
-                    concepts: []
-				},
-	
-				finalReferences: [],
+    const projects = result.projects || [];
 
-				citationResearch: []
-			}
-		});
-	
-		result.currentProjectId =
-			"default";
-	}
+    if (projects.length === 0) {
+        projects.push({
+            id: "default",
 
-    const project =
-        projects.find(
-            p =>
-                p.id ===
-                result.currentProjectId
-        );
+            name: "Default Project",
+
+            workflow: {
+                currentStage: "landscapeScan",
+            },
+
+            stages: {
+                landscapeScan: [],
+
+                referenceList: [],
+
+                classificationAnalysis: {
+                    selectedClasses: [],
+                    selectedSubclasses: [],
+                },
+
+                universe: [],
+
+                universeReview: {
+                    excludedPatentIds: [],
+                    notes: "",
+                    concepts: [],
+                },
+
+                finalReferences: [],
+
+                citationResearch: [],
+            },
+        });
+
+        result.currentProjectId = "default";
+    }
+
+    const project = projects.find((p) => p.id === result.currentProjectId);
 
     if (!project) {
-
         return;
     }
 
-    if (
-        !project.stages
-            .landscapeScan
-            .includes(
-                patent.patentNumber
-            )
-    ) {
-
-        project.stages
-            .landscapeScan
-            .push(
-                patent.patentNumber
-            );
+    if (!project.stages.landscapeScan.includes(patent.patentNumber)) {
+        project.stages.landscapeScan.push(patent.patentNumber);
     }
 
     await chrome.storage.local.set({
+        patents: patentLibrary,
 
-        patents:
-            patentLibrary,
-
-        projects
+        projects,
     });
 }
 
 async function getPatents() {
+    const result = await chrome.storage.local.get(["patents", "projects", "currentProjectId"]);
 
-    const result =
-        await chrome.storage.local.get([
-            "patents",
-            "projects",
-            "currentProjectId"
-        ]);
+    const patentLibrary = result.patents || {};
 
-    const patentLibrary =
-        result.patents || {};
-
-    const currentProject =
-        (
-            result.projects || []
-        ).find(
-            project =>
-                project.id ===
-                result.currentProjectId
-        );
+    const currentProject = (result.projects || []).find(
+        (project) => project.id === result.currentProjectId
+    );
 
     if (!currentProject) {
-
         return [];
     }
 
-    return (
-        currentProject.stages
-            .landscapeScan || []
-    )
-        .map(
-            patentNumber =>
-                patentLibrary[
-                    patentNumber
-                ]
-        )
+    return (currentProject.stages.landscapeScan || [])
+        .map((patentNumber) => patentLibrary[patentNumber])
         .filter(Boolean);
 }
 
-async function deletePatent(
-    patentNumber
-) {
+async function deletePatent(patentNumber) {
+    const result = await chrome.storage.local.get(["patents", "projects", "currentProjectId"]);
 
-    const result =
-        await chrome.storage.local.get([
-            "patents",
-            "projects",
-            "currentProjectId"
-        ]);
+    const patentLibrary = result.patents || {};
 
-    const patentLibrary =
-        result.patents || {};
+    delete patentLibrary[patentNumber];
 
-    delete patentLibrary[
-        patentNumber
-    ];
-
-    const currentProject =
-        (
-            result.projects || []
-        ).find(
-            project =>
-                project.id ===
-                result.currentProjectId
-        );
+    const currentProject = (result.projects || []).find(
+        (project) => project.id === result.currentProjectId
+    );
 
     if (currentProject) {
-
-        currentProject.stages
-            .landscapeScan =
-            currentProject.stages
-                .landscapeScan
-                .filter(
-                    id =>
-                        id !==
-                        patentNumber
-                );
+        currentProject.stages.landscapeScan = currentProject.stages.landscapeScan.filter(
+            (id) => id !== patentNumber
+        );
     }
 
     await chrome.storage.local.set({
+        patents: patentLibrary,
 
-        patents:
-            patentLibrary,
-
-        projects:
-            result.projects
+        projects: result.projects,
     });
 }
 
 async function getCurrentStage() {
+    const result = await chrome.storage.local.get(["projects", "currentProjectId"]);
 
-    const result =
-        await chrome.storage.local.get([
-            "projects",
-            "currentProjectId"
-        ]);
-
-    const project =
-        (
-            result.projects || []
-        ).find(
-            project =>
-                project.id ===
-                result.currentProjectId
-        );
-
-    return (
-        project?.workflow
-            ?.currentStage
-        ||
-        "landscapeScan"
+    const project = (result.projects || []).find(
+        (project) => project.id === result.currentProjectId
     );
+
+    return project?.workflow?.currentStage || "landscapeScan";
 }
 
-function getClassificationFamily(
-    code
-) {
-
-    if (
-        /^[A-HY]/.test(
-            code
-        )
-    ) {
-
-        return code.match(
-            /^[A-HY]\d{2}[A-Z]\d+/
-        )[0];
+function getClassificationFamily(code) {
+    if (/^[A-HY]/.test(code)) {
+        return code.match(/^[A-HY]\d{2}[A-Z]\d+/)[0];
     }
 
-    return code.split(
-        "/"
-    )[0];
+    return code.split("/")[0];
 }
 
 function getCurrentClassificationFamily() {
+    const hash = decodeURIComponent(location.hash);
 
-    const hash =
-        decodeURIComponent(
-            location.hash
-        );
+    const cpcMatch = hash.match(/([A-HY]\d{2}[A-Z]\d+)/);
 
-    const cpcMatch =
-        hash.match(
-            /([A-HY]\d{2}[A-Z]\d+)/
-        );
-
-    if (
-        cpcMatch
-    ) {
-
+    if (cpcMatch) {
         return cpcMatch[1];
     }
 
-    const uspcMatch =
-        location.pathname.match(
-            /uspc(\d+)/i
-        );
+    const uspcMatch = location.pathname.match(/uspc(\d+)/i);
 
-    if (
-        uspcMatch
-    ) {
-
+    if (uspcMatch) {
         return uspcMatch[1];
     }
 
@@ -936,499 +618,231 @@ function getCurrentClassificationFamily() {
 }
 
 async function getAvailableClasses() {
+    const patents = await getPatents();
 
-    const patents =
-        await getPatents();
+    const uspc = new Set();
 
-    const uspc =
-        new Set();
+    const cpc = new Set();
 
-    const cpc =
-        new Set();
-
-    for (
-        const patent
-        of patents
-    ) {
-
-        for (
-            const code
-            of patent.uspc || []
-        ) {
-
-            uspc.add(
-                getClassificationFamily(
-                    code
-                )
-            );
+    for (const patent of patents) {
+        for (const code of patent.uspc || []) {
+            uspc.add(getClassificationFamily(code));
         }
 
-        for (
-            const code
-            of patent.cpc || []
-        ) {
-
-            cpc.add(
-                getClassificationFamily(
-                    code
-                )
-            );
+        for (const code of patent.cpc || []) {
+            cpc.add(getClassificationFamily(code));
         }
     }
 
     return {
+        uspc: [...uspc].sort(),
 
-        uspc:
-            [...uspc].sort(),
-
-        cpc:
-            [...cpc].sort()
+        cpc: [...cpc].sort(),
     };
 }
 
+async function getClassificationsForFamily(family) {
+    const patents = await getPatents();
 
-async function getClassificationsForFamily(
-    family
-) {
+    const classifications = new Set();
 
-    const patents =
-        await getPatents();
-
-    const classifications =
-        new Set();
-
-    for (
-        const patent
-        of patents
-    ) {
-
-        for (
-            const code
-            of [
-                ...(patent.uspc || []),
-                ...(patent.cpc || [])
-            ]
-        ) {
-
-            if (
-                getClassificationFamily(
-                    code
-                ) === family
-            ) {
-
-                classifications.add(
-                    code
-                );
+    for (const patent of patents) {
+        for (const code of [...(patent.uspc || []), ...(patent.cpc || [])]) {
+            if (getClassificationFamily(code) === family) {
+                classifications.add(code);
             }
         }
     }
 
-    return [...classifications]
-        .sort();
+    return [...classifications].sort();
 }
 
-async function getFamilyLookupStatus(
-    family,
-    classifications
-) {
+async function getFamilyLookupStatus(family, classifications) {
+    const symbols = await getClassificationsForFamily(family);
 
-    const symbols =
-        await getClassificationsForFamily(
-            family
-        );
+    let hasFailure = false;
 
-    let hasFailure =
-        false;
+    for (const symbol of symbols) {
+        const record = classifications[symbol];
 
-    for (
-        const symbol
-        of symbols
-    ) {
-
-        const record =
-            classifications[
-                symbol
-            ];
-
-        if (
-			!record
-			||
-			record.status ===
-				"pending"
-		) {
-		
-			return "pending";
-		}
-
-        if (
-			record.status ===
-			"failed"
-		) {
-		
-			hasFailure = true;
-		}
-    }
-
-    return hasFailure
-        ? "failed"
-        : "complete";
-}
-
-
-async function populateClassDropdown() {
-
-    const families =
-        await getAvailableClasses();
-
-    const select =
-        document.getElementById(
-            "classificationFamily"
-        );
-
-    select.innerHTML = "";
-    
-    const storage =
-		await chrome.storage.local.get(
-			"classifications"
-		);
-	
-	const classifications =
-		storage.classifications
-		|| {};
-		
-	let updated = false;
-	
-	for (
-		const record
-		of Object.values(
-			classifications
-		)
-	) {
-	
-		if (
-			record.status
-		) {
-	
-			continue;
-		}
-	
-		updated =
-			true;
-	
-		if (
-			!record.classTitle
-		) {
-	
-			record.status =
-				"pending";
-		}
-	
-		else if (
-			record.classTitle ===
-				"Classification not found"
-			||
-			record.classTitle ===
-				"Unable to parse title"
-		) {
-	
-			record.status =
-				"failed";
-		}
-	
-		else {
-	
-			record.status =
-				"complete";
-		}
-	}
-	
-	if (
-		updated
-	) {
-	
-		await chrome.storage.local.set({
-	
-			classifications
-		});
-	}
-    
-    const currentFamily = getCurrentClassificationFamily();
-
-    const addGroup =
-		async (
-			label,
-			values
-		) => {
-
-        const group =
-            document.createElement(
-                "optgroup"
-            );
-
-        group.label =
-            label;
-
-        for (
-            const value
-            of values
-        ) {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-				value;
-			
-			const status =
-				await getFamilyLookupStatus(
-					value,
-					classifications
-				);
-			
-			const icon =
-				status === "complete"
-			
-					? "✓"
-			
-					: status === "failed"
-			
-						? "⚠"
-			
-						: "⏳";
-			
-			option.textContent =
-				`${icon} ${value}`;
-
-            group.appendChild(
-                option
-            );
+        if (!record || record.status === "pending") {
+            return "pending";
         }
 
-        select.appendChild(
-            group
-        );
-    };
+        if (record.status === "failed") {
+            hasFailure = true;
+        }
+    }
 
-    await addGroup(
-        "USPC",
-        families.uspc
-    );
-
-    await addGroup(
-        "CPC",
-        families.cpc
-    );
-    
-    if (
-		currentFamily
-	) {
-	
-		select.value =
-			currentFamily;
-	}
+    return hasFailure ? "failed" : "complete";
 }
 
+async function populateClassDropdown() {
+    const families = await getAvailableClasses();
+
+    const select = document.getElementById("classificationFamily");
+
+    select.innerHTML = "";
+
+    const storage = await chrome.storage.local.get("classifications");
+
+    const classifications = storage.classifications || {};
+
+    let updated = false;
+
+    for (const record of Object.values(classifications)) {
+        if (record.status) {
+            continue;
+        }
+
+        updated = true;
+
+        if (!record.classTitle) {
+            record.status = "pending";
+        } else if (
+            record.classTitle === "Classification not found" ||
+            record.classTitle === "Unable to parse title"
+        ) {
+            record.status = "failed";
+        } else {
+            record.status = "complete";
+        }
+    }
+
+    if (updated) {
+        await chrome.storage.local.set({
+            classifications,
+        });
+    }
+
+    const currentFamily = getCurrentClassificationFamily();
+
+    const addGroup = async (label, values) => {
+        const group = document.createElement("optgroup");
+
+        group.label = label;
+
+        for (const value of values) {
+            const option = document.createElement("option");
+
+            option.value = value;
+
+            const status = await getFamilyLookupStatus(value, classifications);
+
+            const icon = status === "complete" ? "✓" : status === "failed" ? "⚠" : "⏳";
+
+            option.textContent = `${icon} ${value}`;
+
+            group.appendChild(option);
+        }
+
+        select.appendChild(group);
+    };
+
+    await addGroup("USPC", families.uspc);
+
+    await addGroup("CPC", families.cpc);
+
+    if (currentFamily) {
+        select.value = currentFamily;
+    }
+}
 
 async function populateClassificationTextarea() {
+    const family = document.getElementById("classificationFamily").value;
 
-    const family =
-        document
-            .getElementById(
-                "classificationFamily"
-            )
-            .value;
+    const textarea = document.getElementById("classificationInput");
 
-    const textarea =
-        document
-            .getElementById(
-                "classificationInput"
-            );
-
-    if (
-        !family
-    ) {
-
+    if (!family) {
         textarea.value = "";
 
         return;
     }
 
-    const subclasses =
-        await getClassificationsForFamily(
-            family
-        );
+    const subclasses = await getClassificationsForFamily(family);
 
-    textarea.value =
-        subclasses.join(
-            "\n"
-        );
+    textarea.value = subclasses.join("\n");
 }
 
-
 async function initializeExaminerValidation() {
+    examinerArtUnits = await getExaminerValidationArtUnits();
 
-    examinerArtUnits =
-        await getExaminerValidationArtUnits();
-        
-    console.log(
-		examinerArtUnits
-	);
+    console.log(examinerArtUnits);
 
     currentExaminerIndex = 0;
 
-    if (
-		examinerArtUnits.length === 0
-	) {
-	
-		document.getElementById(
-			"currentArtUnit"
-		).textContent =
-			"No Art Units";
-	
-		return;
-	}
-	
-	await loadCurrentArtUnit();
-
-    wireExaminerButtons();
-}
-
-
-async function loadCurrentArtUnit() {
-
-    const group =
-        examinerArtUnits[
-            currentExaminerIndex
-        ];
-
-    if (!group) {
+    if (examinerArtUnits.length === 0) {
+        document.getElementById("currentArtUnit").textContent = "No Art Units";
 
         return;
     }
 
-    document.getElementById(
-        "currentArtUnit"
-    ).textContent =
-        group.artUnit;
+    await loadCurrentArtUnit();
 
-    document.getElementById(
-        "currentClassifications"
-    ).innerHTML =
-        group.codes.join("<br>");
+    wireExaminerButtons();
+}
 
-    const storage =
-        await chrome.storage.local.get(
-            "classifications"
-        );
+async function loadCurrentArtUnit() {
+    const group = examinerArtUnits[currentExaminerIndex];
 
-    const record =
-		storage.classifications[
-			group.codes[0]
-		] || {};
+    if (!group) {
+        return;
+    }
 
-    document.getElementById(
-        "employeeInput"
-    ).value =
-        record.employee || "";
+    document.getElementById("currentArtUnit").textContent = group.artUnit;
 
-    document.getElementById(
-        "phoneInput"
-    ).value =
-        record.phone || "";
+    document.getElementById("currentClassifications").innerHTML = group.codes.join("<br>");
 
-    document.getElementById(
-        "commentInput"
-    ).value =
-        record.comment || "";
+    const storage = await chrome.storage.local.get("classifications");
+
+    const record = storage.classifications[group.codes[0]] || {};
+
+    document.getElementById("employeeInput").value = record.employee || "";
+
+    document.getElementById("phoneInput").value = record.phone || "";
+
+    document.getElementById("commentInput").value = record.comment || "";
 
     updateProgress();
 }
 
-
 function updateProgress() {
-
-    document.getElementById(
-        "examinerProgress"
-    ).textContent =
-
-        `Art Unit ${currentExaminerIndex + 1} of ${examinerArtUnits.length}`;
-
+    document.getElementById("examinerProgress").textContent = `Art Unit ${
+        currentExaminerIndex + 1
+    } of ${examinerArtUnits.length}`;
 }
 
-
 async function saveCurrentArtUnit() {
+    const group = examinerArtUnits[currentExaminerIndex];
 
-    const group =
-        examinerArtUnits[
-            currentExaminerIndex
-        ];
+    const storage = await chrome.storage.local.get("classifications");
 
-    const storage =
-        await chrome.storage.local.get(
-            "classifications"
-        );
+    const classifications = storage.classifications;
 
-    const classifications =
-        storage.classifications;
+    const employee = document.getElementById("employeeInput").value.trim();
 
-    const employee =
-        document.getElementById(
-            "employeeInput"
-        ).value.trim();
+    const phone = document.getElementById("phoneInput").value.trim();
 
-    const phone =
-        document.getElementById(
-            "phoneInput"
-        ).value.trim();
+    const comment = document.getElementById("commentInput").value.trim();
 
-    const comment =
-        document.getElementById(
-            "commentInput"
-        ).value.trim();
+    for (const code of group.codes) {
+        classifications[code].employee = employee;
 
-    for (
-        const code
-        of group.codes
-    ) {
+        classifications[code].phone = phone;
 
-        classifications[
-            code
-        ].employee =
-            employee;
-
-        classifications[
-            code
-        ].phone =
-            phone;
-
-        classifications[
-            code
-        ].comment =
-            comment;
+        classifications[code].comment = comment;
     }
 
     await chrome.storage.local.set({
-
-        classifications
-
+        classifications,
     });
 
     await nextArtUnit();
 }
 
-
 async function nextArtUnit() {
-
-    if (
-        currentExaminerIndex >=
-        examinerArtUnits.length - 1
-    ) {
-
-        alert(
-            "All Art Units completed."
-        );
+    if (currentExaminerIndex >= examinerArtUnits.length - 1) {
+        alert("All Art Units completed.");
 
         return;
     }
@@ -1438,405 +852,179 @@ async function nextArtUnit() {
     await loadCurrentArtUnit();
 }
 
-
 async function previousArtUnit() {
-
-    if (
-
-        currentExaminerIndex >
-
-        0
-
-    ) {
-
+    if (currentExaminerIndex > 0) {
         currentExaminerIndex--;
 
         await loadCurrentArtUnit();
-
     }
-
 }
-
 
 function wireExaminerButtons() {
+    document.getElementById("saveExaminer").onclick = saveCurrentArtUnit;
 
-    document.getElementById(
-        "saveExaminer"
-    ).onclick =
-        saveCurrentArtUnit;
+    document.getElementById("nextArtUnit").onclick = nextArtUnit;
 
-    document.getElementById(
-        "nextArtUnit"
-    ).onclick =
-        nextArtUnit;
-
-    document.getElementById(
-        "previousArtUnit"
-    ).onclick =
-        previousArtUnit;
-
+    document.getElementById("previousArtUnit").onclick = previousArtUnit;
 }
 
-
 async function getExaminerValidationArtUnits() {
+    const storage = await chrome.storage.local.get("classifications");
 
-    const storage =
-        await chrome.storage.local.get(
-            "classifications"
-        );
-
-    const classifications =
-        storage.classifications || {};
+    const classifications = storage.classifications || {};
 
     const groups = {};
 
-    for (
-        const [code, record]
-        of Object.entries(classifications)
-    ) {
-
-        if (
-            !record.pickArtUnit
-        ) {
-
+    for (const [code, record] of Object.entries(classifications)) {
+        if (!record.pickArtUnit) {
             continue;
         }
 
         if (/^[A-HY]/.test(code)) {
-
             continue;
         }
 
-        const artUnit =
-            record.artUnit || "";
+        const artUnit = record.artUnit || "";
 
-        if (
-            !artUnit
-            ||
-            artUnit === "Not Found"
-        ) {
-
+        if (!artUnit || artUnit === "Not Found") {
             continue;
         }
 
         groups[artUnit] ??= {
-
             artUnit,
 
-            codes: []
-
+            codes: [],
         };
 
-        groups[artUnit]
-            .codes
-            .push(code);
+        groups[artUnit].codes.push(code);
     }
 
-    const artUnits =
-		Object.values(groups);
-		
-	console.log(
-		groups
-	);
-	
-	artUnits.sort(
-		(a, b) =>
-			Number(a.artUnit) -
-			Number(b.artUnit)
-	);
-	
-	return artUnits;
+    const artUnits = Object.values(groups);
+
+    console.log(groups);
+
+    artUnits.sort((a, b) => Number(a.artUnit) - Number(b.artUnit));
+
+    return artUnits;
 }
 
+function extractUspcClassTitle(html) {
+    const match = html.match(/Class Definition for Class \d+\s*-\s*([^<]+)/i);
 
-function extractUspcClassTitle(
-    html
-) {
-
-    const match =
-        html.match(
-            /Class Definition for Class \d+\s*-\s*([^<]+)/i
-        );
-
-    return match
-        ? match[1].trim()
-        : "";
+    return match ? match[1].trim() : "";
 }
 
-function extractUspcSubclassTitle(
-    html,
-    classNumber,
-    subclassNumber
-) {
+function extractUspcSubclassTitle(html, classNumber, subclassNumber) {
+    const cleanTitle = (title) => title.replace(/\*/g, "").replace(/\s+/g, " ").trim();
 
-    const cleanTitle =
-        title =>
-            title
-                .replace(/\*/g, "")
-                .replace(/\s+/g, " ")
-                .trim();
+    const cleanParsedTitle = (title) =>
+        cleanTitle(title)
+            .replace(/:$/, "")
+            .replace(/\s*\(EPO\)$/, " (EPO)");
 
-    const cleanParsedTitle =
-        title =>
-            cleanTitle(
-                title
-            )
-                .replace(
-                    /:$/,
-                    ""
-                )
-                .replace(
-                    /\s*\(EPO\)$/,
-                    " (EPO)"
-                );
-
-    const document =
-        new DOMParser()
-            .parseFromString(
-                html,
-                "text/html"
-            );
+    const document = new DOMParser().parseFromString(html, "text/html");
 
     // Ordinary USPC subclasses use a generated anchor name followed by
     // a bolded title in the form: <b>Title:</b>.
-    const numericSubclass =
-        Number(
-            subclassNumber
+    const numericSubclass = Number(subclassNumber);
+
+    if (Number.isFinite(numericSubclass)) {
+        const anchorNumber = Math.round(numericSubclass * 1000)
+            .toString()
+            .padStart(6, "0");
+
+        const anchorId = `C${classNumber}S${anchorNumber}`;
+
+        const anchor = document.getElementsByName(anchorId)[0];
+
+        if (!anchor) {
+            return "";
+        }
+
+        const titleElement = [...document.querySelectorAll("b")].find(
+            (element) => anchor.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING
         );
 
-    if (
-        Number.isFinite(
-            numericSubclass
-        )
-    ) {
-
-        const anchorNumber =
-            Math.round(
-                numericSubclass * 1000
-            )
-            .toString()
-            .padStart(
-                6,
-                "0"
-            );
-
-        const anchorId =
-            `C${classNumber}S${anchorNumber}`;
-
-        const anchor =
-            document.getElementsByName(
-                anchorId
-            )[0];
-
-        if (
-            !anchor
-        ) {
-
+        if (!titleElement) {
             return "";
         }
 
-        const titleElement =
-            [
-                ...document.querySelectorAll(
-                    "b"
-                )
-            ]
-                .find(
-                    element =>
-                        anchor.compareDocumentPosition(
-                            element
-                        )
-                        &
-                        Node.DOCUMENT_POSITION_FOLLOWING
-                );
+        const match = titleElement.textContent.match(/^([^:<]+):/i);
 
-        if (
-            !titleElement
-        ) {
-
-            return "";
-        }
-
-        const match =
-            titleElement
-                .textContent
-                .match(
-                    /^([^:<]+):/i
-                );
-
-        return match
-            ? cleanTitle(
-                match[1]
-              )
-            : "";
+        return match ? cleanTitle(match[1]) : "";
     }
 
     // E subclasses may put the subclass number in the anchor href while
     // using the anchor text itself as the subclass title.
-    const eSubclassAnchors =
-        [
-            ...document.querySelectorAll(
-                "a"
-            )
-        ];
+    const eSubclassAnchors = [...document.querySelectorAll("a")];
 
-    const titledAnchor =
-        eSubclassAnchors
-            .find(
-                anchor => {
+    const titledAnchor = eSubclassAnchors.find((anchor) => {
+        const anchorTitle = cleanTitle(anchor.textContent);
 
-                    const anchorTitle =
-                        cleanTitle(
-                            anchor.textContent
-                        );
-
-                    return anchorTitle
-                        &&
-                        anchorTitle !== subclassNumber
-                        &&
-                        anchor
-                            .getAttribute(
-                                "href"
-                            )
-                            ?.includes(
-                                subclassNumber
-                            );
-                }
-            );
-
-    if (
-        titledAnchor
-    ) {
-
-        return cleanParsedTitle(
-            titledAnchor.textContent
+        return (
+            anchorTitle &&
+            anchorTitle !== subclassNumber &&
+            anchor.getAttribute("href")?.includes(subclassNumber)
         );
+    });
+
+    if (titledAnchor) {
+        return cleanParsedTitle(titledAnchor.textContent);
     }
 
-    const eSubclassAnchor =
-        eSubclassAnchors
-            .find(
-                anchor =>
-                    cleanTitle(
-                        anchor.textContent
-                    ) === subclassNumber
-                    ||
-                    anchor
-                        .getAttribute(
-                            "href"
-                        )
-                        ?.includes(
-                            subclassNumber
-                        )
-            );
+    const eSubclassAnchor = eSubclassAnchors.find(
+        (anchor) =>
+            cleanTitle(anchor.textContent) === subclassNumber ||
+            anchor.getAttribute("href")?.includes(subclassNumber)
+    );
 
-    if (
-        !eSubclassAnchor
-        ||
-        !eSubclassAnchor.parentNode
-    ) {
-
+    if (!eSubclassAnchor || !eSubclassAnchor.parentNode) {
         return "";
     }
 
-    const anchorTitle =
-        cleanTitle(
-            eSubclassAnchor.textContent
-        );
+    const anchorTitle = cleanTitle(eSubclassAnchor.textContent);
 
-    if (
-        anchorTitle
-        &&
-        anchorTitle !== subclassNumber
-    ) {
-
+    if (anchorTitle && anchorTitle !== subclassNumber) {
         return anchorTitle;
     }
 
-    const titleParts =
-        [];
+    const titleParts = [];
 
-    let afterAnchor =
-        false;
+    let afterAnchor = false;
 
-    for (
-        const node
-        of eSubclassAnchor.parentNode.childNodes
-    ) {
-
-        if (
-            node === eSubclassAnchor
-        ) {
-
-            afterAnchor =
-                true;
+    for (const node of eSubclassAnchor.parentNode.childNodes) {
+        if (node === eSubclassAnchor) {
+            afterAnchor = true;
 
             continue;
         }
 
-        if (
-            afterAnchor
-            &&
-            node.nodeType === Node.TEXT_NODE
-        ) {
+        if (afterAnchor && node.nodeType === Node.TEXT_NODE) {
+            titleParts.push(node.textContent);
 
-            titleParts.push(
-                node.textContent
-            );
-
-            if (
-                node.textContent.includes(
-                    ":"
-                )
-            ) {
-
+            if (node.textContent.includes(":")) {
                 break;
             }
         }
     }
 
-    const title =
-        cleanTitle(
-            titleParts.join(
-                " "
-            )
-        );
+    const title = cleanTitle(titleParts.join(" "));
 
-    const match =
-        title.match(
-            /^(.+?):/
-        );
+    const match = title.match(/^(.+?):/);
 
-    const parsedTitle =
-        match
-            ? match[1]
-            : title;
+    const parsedTitle = match ? match[1] : title;
 
-    return cleanParsedTitle(
-        parsedTitle
-    );
+    return cleanParsedTitle(parsedTitle);
 }
 
-function buildUspcDefinitionUrl(
-    classNumber
-) {
-
+function buildUspcDefinitionUrl(classNumber) {
     return `https://www.uspto.gov/web/patents/classification/uspc${classNumber}/defs${classNumber}.htm`;
 }
 
-function buildCpcDefinitionUrl(
-    symbol
-) {
+function buildCpcDefinitionUrl(symbol) {
+    const section = getCpcGrandParent(symbol);
 
-    const section =
-        getCpcGrandParent(
-            symbol
-        );
-
-    if (
-        !section
-    ) {
-
+    if (!section) {
         return "";
     }
 
@@ -1844,924 +1032,428 @@ function buildCpcDefinitionUrl(
 }
 
 function isCpcDefinitionPage() {
-
-    return location.hostname ===
-        "www.uspto.gov"
-        &&
-        location.pathname.startsWith(
-            "/web/patents/classification/cpc/html/cpc-"
-        )
-        &&
-        location.pathname.endsWith(
-            ".html"
-        );
+    return (
+        location.hostname === "www.uspto.gov" &&
+        location.pathname.startsWith("/web/patents/classification/cpc/html/cpc-") &&
+        location.pathname.endsWith(".html")
+    );
 }
 
 function getCurrentCpcPageClass() {
+    const match = location.pathname.match(/\/cpc-([A-HY]\d{2}[A-Z])\.html$/i);
 
-    const match =
-        location.pathname.match(
-            /\/cpc-([A-HY]\d{2}[A-Z])\.html$/i
-        );
-
-    return match
-        ? match[1].toUpperCase()
-        : "";
+    return match ? match[1].toUpperCase() : "";
 }
 
-async function getClassificationsForCpcPageClass(
-    pageClass
-) {
+async function getClassificationsForCpcPageClass(pageClass) {
+    const patents = await getPatents();
 
-    const patents =
-        await getPatents();
+    const classifications = new Set();
 
-    const classifications =
-        new Set();
-
-    for (
-        const patent
-        of patents
-    ) {
-
-        for (
-            const code
-            of patent.cpc || []
-        ) {
-
-            if (
-                getCpcGrandParent(
-                    code
-                ) === pageClass
-            ) {
-
-                classifications.add(
-                    code
-                );
+    for (const patent of patents) {
+        for (const code of patent.cpc || []) {
+            if (getCpcGrandParent(code) === pageClass) {
+                classifications.add(code);
             }
         }
     }
 
-    return [...classifications].sort(
-        (
-            a,
-            b
-        ) =>
-            a.localeCompare(
-                b,
-                undefined,
-                {
-                    numeric: true
-                }
-            )
+    return [...classifications].sort((a, b) =>
+        a.localeCompare(b, undefined, {
+            numeric: true,
+        })
     );
 }
 
 async function lookupCurrentCpcPageClassifications() {
+    const pageClass = getCurrentCpcPageClass();
 
-    const pageClass =
-        getCurrentCpcPageClass();
+    const symbols = await getClassificationsForCpcPageClass(pageClass);
 
-    const symbols =
-        await getClassificationsForCpcPageClass(
-            pageClass
-        );
-
-    if (
-        symbols.length === 0
-    ) {
-
-        alert(
-            "No CPC symbols found for this CPC page in the current project."
-        );
+    if (symbols.length === 0) {
+        alert("No CPC symbols found for this CPC page in the current project.");
 
         return;
     }
 
-    document
-        .getElementById(
-            "classificationInput"
-        )
-        .value =
-        symbols.join(
-            "\n"
-        );
+    document.getElementById("classificationInput").value = symbols.join("\n");
 
     await lookupClassifications();
     await populateClassDropdown();
 
-    alert(
-        `${symbols.length} CPC symbols looked up for ${pageClass}.`
-    );
+    alert(`${symbols.length} CPC symbols looked up for ${pageClass}.`);
 }
-	
+
 async function lookupClassifications() {
-    
-    const symbols =
-        document
-            .getElementById(
-                "classificationInput"
-            )
-            .value
-            .split("\n")
-            .map(
-                value =>
-                    value.trim()
-            )
-            .filter(Boolean);
+    const symbols = document
+        .getElementById("classificationInput")
+        .value.split("\n")
+        .map((value) => value.trim())
+        .filter(Boolean);
 
-    const result =
-        await chrome.storage.local.get(
-            "classifications"
-        );
+    const result = await chrome.storage.local.get("classifications");
 
-    const classifications =
-        result.classifications
-        || {};
+    const classifications = result.classifications || {};
 
-    const htmlCache =
-        {};
+    const htmlCache = {};
 
-    for (
-        const symbol
-        of symbols
-    ) {
+    for (const symbol of symbols) {
+        const isCpc = /^[A-HY]/.test(symbol);
 
-        const isCpc =
-			/^[A-HY]/.test(
-				symbol
-			);
-			
-		const [
-            classNumber,
-            subclassNumber
-        ] =
-            symbol.split("/");
-            
-        if (
-			isCpc
-		) {
-		
-            const definitionUrl =
-                buildCpcDefinitionUrl(
-                    symbol
-                );
+        const [classNumber, subclassNumber] = symbol.split("/");
 
-			let html =
-				htmlCache[definitionUrl];
-		
-			if (
-				!html
-			) {
-		
-				const response =
-					await fetch(
-						definitionUrl
-					);
-		
-				if (
-					!response.ok
-				) {
-		
-					continue;
-				}
-		
-				html =
-					await response.text();
-		
-				htmlCache[
-					definitionUrl
-				] = html;
-			}
-		
-			const classTitle =
-				extractCpcTitle(
-					html,
-					isCpcParent(
-						symbol
-					)
-			
-						? getCpcGrandParent(
-							symbol
-						  )
-			
-						: getCpcParent(
-							symbol
-						  )
-				);
-		
-			const subclassTitle =
-				extractCpcTitle(
-					html,
-					symbol
-				);
-		
-			classifications[symbol] = {
-			
-				classTitle,
-			
-				subclassTitle,
-				
-				artUnit:
-					classifications[symbol]?.artUnit
-					?? "",
+        if (isCpc) {
+            const definitionUrl = buildCpcDefinitionUrl(symbol);
 
-				artUnitReason:
-					classifications[symbol]?.artUnitReason
-					?? "",
+            let html = htmlCache[definitionUrl];
 
-				pickArtUnit:
-					classifications[symbol]?.pickArtUnit
-					?? false,
-			
-				status:
-					classTitle === "Classification not found"
-					||
-					classTitle === "Unable to parse title"
-			
-						? "failed"
-			
-						: "complete",
-			
-				keep:
-					classifications[symbol]?.keep
-					?? false,
-					
-				confidence:
-					classifications[symbol]?.confidence
-					?? "None",
-				
-				researchTier:
-					classifications[symbol]?.researchTier
-					?? "None",
-				
-				reason:
-					classifications[symbol]?.reason
-					?? ""
-			};
-			
-			const parent =
-				getCpcParent(
-					symbol
-				)
-					.replace(
-						"/00",
-						""
-					);
-			
-			if (
-				!classifications[parent]
-			) {
-			
-				classifications[parent] = {
-				
-					classTitle,
-				
-					subclassTitle: "",
-					
-					artUnit:
-						classifications[parent]?.artUnit
-						?? "",
+            if (!html) {
+                const response = await fetch(definitionUrl);
 
-					artUnitReason:
-						classifications[parent]?.artUnitReason
-						?? "",
+                if (!response.ok) {
+                    continue;
+                }
 
-					pickArtUnit:
-						classifications[parent]?.pickArtUnit
-						?? false,
-				
-					status:
-						classTitle === "Classification not found"
-						||
-						classTitle === "Unable to parse title"
-				
-							? "failed"
-				
-							: "complete",
-				
-					keep:
-						classifications[parent]?.keep
-						?? false,
-					
-					confidence:
-						classifications[parent]?.confidence
-						?? "None",
-					
-					researchTier:
-						classifications[parent]?.researchTier
-						?? "None",
-					
-					reason:
-						classifications[parent]?.reason
-						?? ""
-				};
-			}
-		
-			continue;
-		}
+                html = await response.text();
 
-        let html =
-            htmlCache[
-                classNumber
-            ];
+                htmlCache[definitionUrl] = html;
+            }
 
-        const uspcDefinitionUrl =
-            buildUspcDefinitionUrl(
-                classNumber
+            const classTitle = extractCpcTitle(
+                html,
+                isCpcParent(symbol) ? getCpcGrandParent(symbol) : getCpcParent(symbol)
             );
 
-        if (
-            !html
-        ) {
+            const subclassTitle = extractCpcTitle(html, symbol);
 
-            const response =
-                await fetch(
-                    uspcDefinitionUrl
-                );
+            classifications[symbol] = {
+                classTitle,
 
-            if (
-                !response.ok
-            ) {
+                subclassTitle,
 
-                console.error(
-                    `Failed to load class ${classNumber}`
-                );
+                artUnit: classifications[symbol]?.artUnit ?? "",
+
+                artUnitReason: classifications[symbol]?.artUnitReason ?? "",
+
+                pickArtUnit: classifications[symbol]?.pickArtUnit ?? false,
+
+                status:
+                    classTitle === "Classification not found" ||
+                    classTitle === "Unable to parse title"
+                        ? "failed"
+                        : "complete",
+
+                keep: classifications[symbol]?.keep ?? false,
+
+                confidence: classifications[symbol]?.confidence ?? "None",
+
+                researchTier: classifications[symbol]?.researchTier ?? "None",
+
+                reason: classifications[symbol]?.reason ?? "",
+            };
+
+            const parent = getCpcParent(symbol).replace("/00", "");
+
+            if (!classifications[parent]) {
+                classifications[parent] = {
+                    classTitle,
+
+                    subclassTitle: "",
+
+                    artUnit: classifications[parent]?.artUnit ?? "",
+
+                    artUnitReason: classifications[parent]?.artUnitReason ?? "",
+
+                    pickArtUnit: classifications[parent]?.pickArtUnit ?? false,
+
+                    status:
+                        classTitle === "Classification not found" ||
+                        classTitle === "Unable to parse title"
+                            ? "failed"
+                            : "complete",
+
+                    keep: classifications[parent]?.keep ?? false,
+
+                    confidence: classifications[parent]?.confidence ?? "None",
+
+                    researchTier: classifications[parent]?.researchTier ?? "None",
+
+                    reason: classifications[parent]?.reason ?? "",
+                };
+            }
+
+            continue;
+        }
+
+        let html = htmlCache[classNumber];
+
+        const uspcDefinitionUrl = buildUspcDefinitionUrl(classNumber);
+
+        if (!html) {
+            const response = await fetch(uspcDefinitionUrl);
+
+            if (!response.ok) {
+                console.error(`Failed to load class ${classNumber}`);
 
                 continue;
             }
 
-            html =
-                await response.text();
+            html = await response.text();
 
-            htmlCache[
-                classNumber
-            ] =
-                html;
+            htmlCache[classNumber] = html;
         }
-                
-            const classTitle =
-				extractUspcClassTitle(
-					html
-				) || "";
-			
-			const subclassTitle =
-				extractUspcSubclassTitle(
-					html,
-					classNumber,
-					subclassNumber
-				) || "";
 
-			classifications[symbol] = {
-		
-			classTitle,
-		
-			subclassTitle,
-			
-			artUnit:
-				classifications[symbol]?.artUnit
-				?? "",
+        const classTitle = extractUspcClassTitle(html) || "";
 
-			artUnitReason:
-				classifications[symbol]?.artUnitReason
-				?? "",
+        const subclassTitle = extractUspcSubclassTitle(html, classNumber, subclassNumber) || "";
 
-			pickArtUnit:
-				classifications[symbol]?.pickArtUnit
-				?? false,
-		
-			status:
-				classTitle === "Classification not found"
-				||
-				classTitle === "Unable to parse title"
-		
-					? "failed"
-		
-					: "complete",
-		
-			keep:
-				classifications[symbol]?.keep
-				?? false,
-				
-			confidence:
-				classifications[symbol]?.confidence
-				?? "None",
-			
-			researchTier:
-				classifications[symbol]?.researchTier
-				?? "None",
-			
-			reason:
-				classifications[symbol]?.reason
-				?? ""
-		};
-        
-        if (
-			!classifications[classNumber]
-		) {
-		
-			classifications[classNumber] = {
-		
-				classTitle,
-		
-				subclassTitle: "",
-				
-				artUnit:
-					classifications[classNumber]?.artUnit
-					?? "",
-				
-				artUnitReason:
-					classifications[classNumber]?.artUnitReason
-					?? "",
+        classifications[symbol] = {
+            classTitle,
 
-				pickArtUnit:
-					classifications[classNumber]?.pickArtUnit
-					?? false,
+            subclassTitle,
 
-				status:
-					classTitle === "Classification not found"
-					||
-					classTitle === "Unable to parse title"
-			
-						? "failed"
-			
-						: "complete",
-		
-				keep:
-					classifications[classNumber]?.keep
-					?? false,
-				
-				confidence:
-					classifications[classNumber]?.confidence
-					?? "None",
-				
-				researchTier:
-					classifications[classNumber]?.researchTier
-					?? "None",
-				
-				reason:
-					classifications[classNumber]?.reason
-					?? ""
-			};
-		}
-    }  // <-- closes the for loop
+            artUnit: classifications[symbol]?.artUnit ?? "",
+
+            artUnitReason: classifications[symbol]?.artUnitReason ?? "",
+
+            pickArtUnit: classifications[symbol]?.pickArtUnit ?? false,
+
+            status:
+                classTitle === "Classification not found" || classTitle === "Unable to parse title"
+                    ? "failed"
+                    : "complete",
+
+            keep: classifications[symbol]?.keep ?? false,
+
+            confidence: classifications[symbol]?.confidence ?? "None",
+
+            researchTier: classifications[symbol]?.researchTier ?? "None",
+
+            reason: classifications[symbol]?.reason ?? "",
+        };
+
+        if (!classifications[classNumber]) {
+            classifications[classNumber] = {
+                classTitle,
+
+                subclassTitle: "",
+
+                artUnit: classifications[classNumber]?.artUnit ?? "",
+
+                artUnitReason: classifications[classNumber]?.artUnitReason ?? "",
+
+                pickArtUnit: classifications[classNumber]?.pickArtUnit ?? false,
+
+                status:
+                    classTitle === "Classification not found" ||
+                    classTitle === "Unable to parse title"
+                        ? "failed"
+                        : "complete",
+
+                keep: classifications[classNumber]?.keep ?? false,
+
+                confidence: classifications[classNumber]?.confidence ?? "None",
+
+                researchTier: classifications[classNumber]?.researchTier ?? "None",
+
+                reason: classifications[classNumber]?.reason ?? "",
+            };
+        }
+    } // <-- closes the for loop
 
     await chrome.storage.local.set({
-
-        classifications
+        classifications,
     });
 }
 
-function isCpcParent(
-    symbol
-) {
-
-    return /\/00$/.test(
-        symbol
-    );
+function isCpcParent(symbol) {
+    return /\/00$/.test(symbol);
 }
 
-function getCpcGrandParent(
-    symbol
-) {
+function getCpcGrandParent(symbol) {
+    const match = symbol.match(/^([A-HY]\d{2}[A-Z])/);
 
-    const match =
-        symbol.match(
-            /^([A-HY]\d{2}[A-Z])/
-        );
-
-    return match
-        ? match[1]
-        : "";
+    return match ? match[1] : "";
 }
 
-function getCpcParent(
-    symbol
-) {
+function getCpcParent(symbol) {
+    const match = symbol.match(/^([A-HY]\d{2}[A-Z]\d+)/);
 
-    const match =
-        symbol.match(
-            /^([A-HY]\d{2}[A-Z]\d+)/
-        );
-
-    return match
-        ? `${match[1]}/00`
-        : "";
+    return match ? `${match[1]}/00` : "";
 }
 
-function extractCpcTitle(
-    html,
-    symbol
-) {
+function extractCpcTitle(html, symbol) {
+    const document = new DOMParser().parseFromString(html, "text/html");
 
-    const document =
-        new DOMParser()
-            .parseFromString(
-                html,
-                "text/html"
-            );
+    const classification = document.getElementById(symbol);
 
-    const classification =
-        document.getElementById(
-            symbol
-        );
-
-    if (
-        !classification
-    ) {
-
+    if (!classification) {
         return "Classification not found";
     }
 
     const titleBlock =
-        classification.closest(
-            ".class-title"
-        )
-        ||
-        classification.querySelector(
-            ".class-title"
-        )
-        ||
-        classification.parentElement?.querySelector(
-            ".class-title"
-        );
+        classification.closest(".class-title") ||
+        classification.querySelector(".class-title") ||
+        classification.parentElement?.querySelector(".class-title");
 
-    if (
-        !titleBlock
-    ) {
-
+    if (!titleBlock) {
         return "Unable to parse title";
     }
 
-    const titleElements =
-    [
-        ...titleBlock.querySelectorAll(
-            ".ipc-text, .cpc-text"
-        )
-    ];
+    const titleElements = [...titleBlock.querySelectorAll(".ipc-text, .cpc-text")];
 
-    const titles =
-        titleElements
-            .map(
-                element =>
-                    element.textContent
-                        .replace(
-                            /\s+/g,
-                            " "
-                        )
-                        .trim()
-            )
-            .filter(Boolean);
+    const titles = titleElements
+        .map((element) => element.textContent.replace(/\s+/g, " ").trim())
+        .filter(Boolean);
 
-    if (
-        !titles.length
-    ) {
-
+    if (!titles.length) {
         return "Unable to parse title";
     }
 
-    return titles.join(
-        "; "
-    );
+    return titles.join("; ");
 }
-
 
 // ====================================
 // Main
 // ====================================
 
-async function savePatentWithRelevance(
-    relevance
-) {
+async function savePatentWithRelevance(relevance) {
+    const patent = extractPatent();
 
-    const patent =
-			extractPatent();
-	
-		patent.relevance =
-			relevance;
-	
-		await savePatent(
-			patent
-		);
-	
-		alert(
-			`${relevance} Saved`
-		);
-	}
+    patent.relevance = relevance;
+
+    await savePatent(patent);
+
+    alert(`${relevance} Saved`);
+}
 
 async function savePatentClaims() {
+    const patentNumber = extractPatentNumber();
 
-    const patentNumber =
-        extractPatentNumber();
+    const claims = getClaimsInputValue();
 
-    const claims =
-        getClaimsInputValue();
+    const result = await chrome.storage.local.get("patents");
 
-    const result =
-        await chrome.storage.local.get(
-            "patents"
-        );
+    const patentLibrary = result.patents || {};
 
-    const patentLibrary =
-        result.patents || {};
-
-    const existingPatent =
-        patentLibrary[
-            patentNumber
-        ];
+    const existingPatent = patentLibrary[patentNumber];
 
     if (!existingPatent) {
-
-        alert(
-            "Patent record not found. Save the patent before adding claims."
-        );
+        alert("Patent record not found. Save the patent before adding claims.");
 
         return;
     }
 
-    patentLibrary[
-        patentNumber
-    ] = {
+    patentLibrary[patentNumber] = {
         ...existingPatent,
-        claims
+        claims,
     };
 
     await chrome.storage.local.set({
-        patents:
-            patentLibrary
+        patents: patentLibrary,
     });
 
-    alert(
-        "Claims Saved"
-    );
+    alert("Claims Saved");
 }
-	
+
 async function renderPanel() {
-	
-		document
-			.getElementById(
-				"classificationToolPanel"
-			)
-			?.remove();
-		
-		document
-			.getElementById(
-				"examinerValidationPanel"
-			)
-			?.remove();
+    document.getElementById("classificationToolPanel")?.remove();
 
-		const stage =
-			await getCurrentStage();
-			
-		const isClassificationPage =
-				location.hostname ===
-					"www.uspto.gov"
-				&&
-				location.pathname.startsWith(
-					"/web/patents/classification"
-				);
-				
-				const isEmployeeSearchPage =
-		
-			location.hostname ===
-				"portal.uspto.gov"
-		
-			&&
-		
-			location.pathname.startsWith(
-				"/EmployeeSearch"
-			);
-		
-		if (
-		
-			stage ===
-				"examinerValidation"
-		
-			&&
-		
-			isEmployeeSearchPage
-		
-		) {
-		
-			createExaminerValidationPanel();
-		
-			await initializeExaminerValidation();
-			
-			console.log(
-				"Examiner Validation detected"
-			);
-		
-			return;
-		
-		}
+    document.getElementById("examinerValidationPanel")?.remove();
 
+    const stage = await getCurrentStage();
 
-		if (
-			stage === "referenceList"
-			&&
-			isClassificationPage
-		) {
-	
-			createReferenceListPanel();
-			
-			await populateClassDropdown();
-			
-			await populateClassificationTextarea();
-			
-			document
-					.getElementById(
-						"classificationFamily"
-					)
-					.onchange =
-					populateClassificationTextarea;
-			
-			document
-			.getElementById(
-				"lookupClassifications"
-			)
-			.onclick =
-			lookupClassifications;
+    const isClassificationPage =
+        location.hostname === "www.uspto.gov" &&
+        location.pathname.startsWith("/web/patents/classification");
 
-            const bulkCpcButton =
-                document.getElementById(
-                    "lookupAllCpcClassifications"
-                );
+    const isEmployeeSearchPage =
+        location.hostname === "portal.uspto.gov" && location.pathname.startsWith("/EmployeeSearch");
 
-            if (
-                isCpcDefinitionPage()
-            ) {
+    if (stage === "examinerValidation" && isEmployeeSearchPage) {
+        createExaminerValidationPanel();
 
-                bulkCpcButton.style.display =
-                    "";
+        await initializeExaminerValidation();
 
-                bulkCpcButton.onclick =
-                    lookupCurrentCpcPageClassifications;
-            }
-			
-			document
-			.getElementById(
-				"openDashboard"
-			)
-			.onclick =
-			() => {
-			
-				window.open(
-					chrome.runtime.getURL(
-						"dashboard/dashboard.html"
-					),
-					"_blank"
-				);
-			};
-	
-			return;
-		}
-	
-		createLandscapePanel();
+        console.log("Examiner Validation detected");
 
-        if (
-            stage ===
-            "universeReview"
-            &&
-            location.hostname ===
-            "www.freepatentsonline.com"
-        ) {
-
-            document
-                .getElementById(
-                    "claimsInputContainer"
-                )
-                .style.display =
-                "";
-
-            document
-                .getElementById(
-                    "saveStrong"
-                )
-                .style.display =
-                "none";
-
-            document
-                .getElementById(
-                    "savePartial"
-                )
-                .style.display =
-                "none";
-
-            document
-                .getElementById(
-                    "saveWeak"
-                )
-                .style.display =
-                "none";
-
-            document
-                .getElementById(
-                    "submitClaims"
-                )
-                .style.display =
-                "";
-        }
-	
-		document
-			.getElementById(
-				"saveStrong"
-			)
-			.onclick =
-			() =>
-				savePatentWithRelevance(
-					"strong"
-				);
-	
-		document
-			.getElementById(
-				"savePartial"
-			)
-			.onclick =
-			() =>
-				savePatentWithRelevance(
-					"partial"
-				);
-	
-		document
-			.getElementById(
-				"saveWeak"
-			)
-			.onclick =
-			() =>
-				savePatentWithRelevance(
-					"weak"
-				);
-
-        document
-            .getElementById(
-                "submitClaims"
-            )
-            .onclick =
-            savePatentClaims;
-	
-		document
-			.getElementById(
-				"openDashboard"
-			)
-			.onclick =
-			() => {
-	
-				window.open(
-					chrome.runtime.getURL(
-						"dashboard/dashboard.html"
-					),
-					"_blank"
-				);
-			};
-	}
-	
-	renderPanel();
-		
-	chrome.storage.onChanged.addListener(
-
-    async (
-        changes,
-        area
-    ) => {
-
-        if (
-            area !== "local"
-        ) {
-
-            return;
-        }
-
-        if (
-            changes.projects
-        ) {
-
-            renderPanel();
-
-            return;
-        }
-
-        if (
-			changes.classifications
-		) {
-		
-			if (
-				document.getElementById(
-					"classificationFamily"
-				)
-			) {
-		
-				await populateClassDropdown();
-				await populateClassificationTextarea();
-			}
-		
-			if (
-				document.getElementById(
-					"examinerValidationPanel"
-				)
-			) {
-		
-				await loadCurrentArtUnit();
-			}
-		}
+        return;
     }
-);
+
+    if (stage === "referenceList" && isClassificationPage) {
+        createReferenceListPanel();
+
+        await populateClassDropdown();
+
+        await populateClassificationTextarea();
+
+        document.getElementById("classificationFamily").onchange = populateClassificationTextarea;
+
+        document.getElementById("lookupClassifications").onclick = lookupClassifications;
+
+        const bulkCpcButton = document.getElementById("lookupAllCpcClassifications");
+
+        if (isCpcDefinitionPage()) {
+            bulkCpcButton.style.display = "";
+
+            bulkCpcButton.onclick = lookupCurrentCpcPageClassifications;
+        }
+
+        document.getElementById("openDashboard").onclick = () => {
+            window.open(chrome.runtime.getURL("dashboard/dashboard.html"), "_blank");
+        };
+
+        return;
+    }
+
+    createLandscapePanel();
+
+    if (stage === "universeReview" && location.hostname === "www.freepatentsonline.com") {
+        document.getElementById("claimsInputContainer").style.display = "";
+
+        document.getElementById("saveStrong").style.display = "none";
+
+        document.getElementById("savePartial").style.display = "none";
+
+        document.getElementById("saveWeak").style.display = "none";
+
+        document.getElementById("submitClaims").style.display = "";
+    }
+
+    document.getElementById("saveStrong").onclick = () => savePatentWithRelevance("strong");
+
+    document.getElementById("savePartial").onclick = () => savePatentWithRelevance("partial");
+
+    document.getElementById("saveWeak").onclick = () => savePatentWithRelevance("weak");
+
+    document.getElementById("submitClaims").onclick = savePatentClaims;
+
+    document.getElementById("openDashboard").onclick = () => {
+        window.open(chrome.runtime.getURL("dashboard/dashboard.html"), "_blank");
+    };
+}
+
+renderPanel();
+
+chrome.storage.onChanged.addListener(async (changes, area) => {
+    if (area !== "local") {
+        return;
+    }
+
+    if (changes.projects) {
+        renderPanel();
+
+        return;
+    }
+
+    if (changes.classifications) {
+        if (document.getElementById("classificationFamily")) {
+            await populateClassDropdown();
+            await populateClassificationTextarea();
+        }
+
+        if (document.getElementById("examinerValidationPanel")) {
+            await loadCurrentArtUnit();
+        }
+    }
+});

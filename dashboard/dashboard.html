@@ -1,207 +1,124 @@
 <!DOCTYPE html>
 
 <html>
+    <head>
+        <title>Classification Discovery Tool</title>
+        <link rel="stylesheet" href="dashboard.css" />
+    </head>
 
-	<head>
-		<title>
-			Classification Discovery Tool
-		</title>
-		<link
-			rel="stylesheet"
-			href="dashboard.css"
-		>
-	</head>
-	
-		<body>
-			<div id="histogramControls">
-			
-				<label>
-					<input
-						type="checkbox"
-						id="showFullClasses"
-						checked
-					>
-					Show Full Classes
-				</label>
-			
-			</div>
-		
-			<div id="summary"></div>
-			
-			<div id="projectBar">
-			
-				<select id="projectSelector">
-				</select>
-			
-				<button id="newProject">
-					New Project
-				</button>
-			
-				<button id="deleteProject">
-					Delete Project
-				</button>
+    <body>
+        <div id="histogramControls">
+            <label>
+                <input type="checkbox" id="showFullClasses" checked />
+                Show Full Classes
+            </label>
+        </div>
 
-				<button id="exportData">
-					Export
-				</button>
+        <div id="summary"></div>
 
-				<button id="importData">
-					Import
-				</button>
+        <div id="projectBar">
+            <select id="projectSelector"></select>
 
-				<input
-					type="file"
-					id="importDataFile"
-					accept=".json,.txt,application/json,text/plain"
-					hidden
-				>
-			
-			</div>
-			
-			<div id="workflowBar">
-			
-				<label>
-			
-					Stage:
-			
-					<select
-						id="workflowSelector"
-					>
-					</select>
-			
-				</label>
-				
-				<div
-					id="workflowDescription"
-				></div>
-			
-			</div>
-			
-			<div id="workflowContent">
-			</div>
-			
-			<button id="referencesTab">
-				References
-			</button>
-			
-			<button id="cpcTab">
-				CPC Histogram
-			</button>
-			
-			<button id="primaryUspcTab">
-				Primary USPC
-			</button>
-			
-			<button id="allUspcTab">
-				Other USPC
-			</button>
-			
-			<button id="classificationTab">
-				Classification
-			</button>
-			
-			<div id="content"></div>
-			
-				<button id="clearClassificationFilter">
-					Show All References
-				</button>
-			
-				<div id="histogramOutput"></div>
-				<div id="patentTableControls">
-				
-					<label>
-				
-						<input
-							type="checkbox"
-							id="compactPatentTitle"
-							checked
-						>
-				
-						Title
-				
-					</label>
-				
-					<label class="controlSpacing">
-				
-						<input
-							type="checkbox"
-							id="compactPatentAbstract"
-							checked
-						>
-				
-						Abstract
-				
-					</label>
-				
-					<button
-						id="openColumnDialog"
-					>
-						Columns
-					</button>
+            <button id="newProject">New Project</button>
 
-					<button
-						id="copyPatentTable"
-					>
-						Copy
-					</button>
-				
-				</div>
+            <button id="deleteProject">Delete Project</button>
 
-				<dialog id="columnDialog">
-					<h3>Arrange columns</h3>
-					<p>Check columns to show them. Select a column and use L or R, or drag columns into place.</p>
-					<label class="selectAllColumnsLabel">
-						<input id="selectAllColumns" type="checkbox">
-						Show all columns
-					</label>
-					<div id="columnOrderList"></div>
-					<div class="columnDialogActions">
-						<button id="moveColumnLeft" type="button" title="Move column left">L</button>
-						<button id="moveColumnRight" type="button" title="Move column right">R</button>
-						<button id="resetColumnOrder" type="button">Reset</button>
-					</div>
-				</dialog>
-				
-				<div id="tableContainer">
-				
-					<table id="patentTable">
-				
-						<thead>
-							<tr id="headerRow"></tr>
-						</thead>
-				
-						<tbody></tbody>
-				
-					</table>
-				
-				</div>
-			<div
-				id="editPatentDialog"
-			>
-			
-				<h3>Edit Patent</h3>
-				
-				<div id="editPatentFields"></div>
-			
-				<button id="savePatentChanges">
-					Save Changes
-				</button>
-			
-				<button id="deletePatentRecord">
-					Delete Patent
-				</button>
-			
-				<button id="cancelPatentEdit">
-					Cancel
-				</button>
-			
-			</div>	
-		
-			<script
-				type="module"
-				src="dashboard.js">
-			</script>
-		
-		</body>
+            <button id="exportData">Export</button>
 
+            <button id="importData">Import</button>
+
+            <input
+                type="file"
+                id="importDataFile"
+                accept=".json,.txt,application/json,text/plain"
+                hidden
+            />
+        </div>
+
+        <div id="workflowBar">
+            <label>
+                Stage:
+
+                <select id="workflowSelector"></select>
+            </label>
+
+            <div id="workflowDescription"></div>
+        </div>
+
+        <div id="workflowContent"></div>
+
+        <button id="referencesTab">References</button>
+
+        <button id="cpcTab">CPC Histogram</button>
+
+        <button id="primaryUspcTab">Primary USPC</button>
+
+        <button id="allUspcTab">Other USPC</button>
+
+        <button id="classificationTab">Classification</button>
+
+        <div id="content"></div>
+
+        <button id="clearClassificationFilter">Show All References</button>
+
+        <div id="histogramOutput"></div>
+        <div id="patentTableControls">
+            <label>
+                <input type="checkbox" id="compactPatentTitle" checked />
+
+                Title
+            </label>
+
+            <label class="controlSpacing">
+                <input type="checkbox" id="compactPatentAbstract" checked />
+
+                Abstract
+            </label>
+
+            <button id="openColumnDialog">Columns</button>
+
+            <button id="copyPatentTable">Copy</button>
+        </div>
+
+        <dialog id="columnDialog">
+            <h3>Arrange columns</h3>
+            <p>
+                Check columns to show them. Select a column and use L or R, or drag columns into
+                place.
+            </p>
+            <label class="selectAllColumnsLabel">
+                <input id="selectAllColumns" type="checkbox" />
+                Show all columns
+            </label>
+            <div id="columnOrderList"></div>
+            <div class="columnDialogActions">
+                <button id="moveColumnLeft" type="button" title="Move column left">L</button>
+                <button id="moveColumnRight" type="button" title="Move column right">R</button>
+                <button id="resetColumnOrder" type="button">Reset</button>
+            </div>
+        </dialog>
+
+        <div id="tableContainer">
+            <table id="patentTable">
+                <thead>
+                    <tr id="headerRow"></tr>
+                </thead>
+
+                <tbody></tbody>
+            </table>
+        </div>
+        <div id="editPatentDialog">
+            <h3>Edit Patent</h3>
+
+            <div id="editPatentFields"></div>
+
+            <button id="savePatentChanges">Save Changes</button>
+
+            <button id="deletePatentRecord">Delete Patent</button>
+
+            <button id="cancelPatentEdit">Cancel</button>
+        </div>
+
+        <script type="module" src="dashboard.js"></script>
+    </body>
 </html>
