@@ -2237,6 +2237,34 @@ function setupColumnDialog() {
     });
 }
 
+function getPatentTableCellCopyValue(cell) {
+    const select = cell.querySelector("select");
+
+    if (select) {
+        return select.selectedOptions[0]?.textContent?.trim() || select.value;
+    }
+
+    const textarea = cell.querySelector("textarea");
+
+    if (textarea) {
+        return textarea.value;
+    }
+
+    const input = cell.querySelector('input:not([type="checkbox"])');
+
+    if (input) {
+        return input.value;
+    }
+
+    const checkbox = cell.querySelector('input[type="checkbox"]');
+
+    if (checkbox) {
+        return checkbox.checked ? "☑" : "☐";
+    }
+
+    return cell.innerText;
+}
+
 function enableHistogramDragDrop() {
     const headers = document.querySelectorAll("#histogramHeaderRow th");
 
@@ -2330,7 +2358,9 @@ async function init() {
 
                 const column = columnOrder[cellIndex - 1];
 
-                let value = cell.innerText;
+                const isHeader = row.parentElement?.tagName === "THEAD";
+
+                let value = isHeader ? cell.innerText : getPatentTableCellCopyValue(cell);
 
                 if (patent && cellIndex === 0) {
                     value = cell.dataset.referenceId || patent.referenceId;
