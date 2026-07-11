@@ -1947,33 +1947,6 @@ function setupPatentFieldControls() {
 
                         if (
                             field ===
-                                "finalReferenceSelected"
-                            &&
-                            event.target.checked
-                            &&
-                            patents.filter(
-                                candidate =>
-                                    candidate !==
-                                        patent
-                                    &&
-                                    candidate
-                                        .finalReferenceSelected ===
-                                        true
-                            ).length >= 20
-                        ) {
-
-                            event.target.checked =
-                                false;
-
-                            alert(
-                                "You can select a maximum of 20 Final References."
-                            );
-
-                            return;
-                        }
-
-                        if (
-                            field ===
                             "conceptCoverage"
                             ||
                             field ===

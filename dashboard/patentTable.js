@@ -276,7 +276,7 @@ const COLUMN_RENDERERS = {
                 data-field="finalReferenceSelected"
                 data-patent-id="${escapeAttribute(getPatentSelectionId(patent))}"
                 ${patent.finalReferenceSelected ? "checked" : ""}
-                title="Select for Final References (maximum 20)"
+                title="Select for Final References"
             >
         `,
 
@@ -540,9 +540,9 @@ export function renderHeaders(
                 <th
                     draggable="true"
                     data-column="${column}"
-                    title="Select up to 20 patents for Final References"
+                    title="Select patents for Final References"
                 >
-                    Final (${finalReferenceSelectedCount}/20)
+                    Final (${finalReferenceSelectedCount})
                 </th>
             `;
 
