@@ -10,6 +10,7 @@ export const DEFAULT_COLUMNS = [
     "publicationDate",
     "primaryClass",
     "otherClasses",
+    "cpc",
     "relevance",
     "universeReviewSelected",
     "finalReferenceSelected",
@@ -69,6 +70,10 @@ export const COLUMN_DEFINITIONS = {
 
     otherClasses: {
         label: "Other Classes"
+    },
+
+    cpc: {
+        label: "CPC"
     },
 
     relevance: {
@@ -210,6 +215,13 @@ const COLUMN_RENDERERS = {
                         classification !==
                         patent.primaryClass
                 )
+                .join(", "),
+
+    cpc:
+        patent =>
+            [...new Set(
+                patent.cpc || []
+            )]
                 .join(", "),
 
     relevance:

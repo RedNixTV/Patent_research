@@ -3039,8 +3039,13 @@ async function getStageColumnOrder() {
         await getCurrentProject();
 
     return getPatentColumnOrderForStage(
-        result.columnOrder ||
-        DEFAULT_COLUMNS,
+        normalizeColumnOrder(
+            result.columnOrder ||
+            DEFAULT_COLUMNS,
+            getUniverseReviewConceptColumns(
+                project
+            )
+        ),
         project?.workflow?.currentStage,
         getUniverseReviewConceptColumns(
             project
@@ -6816,7 +6821,6 @@ async function renderEditFields() {
     const extraFields = [
 		
 			"url",
-			"cpc",
 			"uspc"
 		];
 		
