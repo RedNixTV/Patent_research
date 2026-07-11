@@ -4045,11 +4045,13 @@ async function init() {
 					
 				const patent =
 					editButton
-						? patents[
-							Number(
-								editButton.dataset.index
-							)
-						  ]
+						? patents.find(
+							patent =>
+								getPatentSelectionId(
+									patent
+								) ===
+								editButton.dataset.patentId
+						  )
 						: null;
 	
 				for (
@@ -6522,9 +6524,25 @@ function setupEditButtons() {
                     () => {
 
                         currentPatentIndex =
-                            Number(
-                                button.dataset.index
+                            patents.findIndex(
+                                patent =>
+                                    getPatentSelectionId(
+                                        patent
+                                    ) ===
+                                    button.dataset.patentId
                             );
+
+                        if (
+                            currentPatentIndex < 0
+                        ) {
+
+                            console.error(
+                                "Unable to find patent selected for editing.",
+                                button.dataset.patentId
+                            );
+
+                            return;
+                        }
 
                         const patent =
                             patents[
@@ -6709,7 +6727,7 @@ async function renderEditFields() {
     container.innerHTML = "";
 
     const columnOrder =
-        await getColumnOrder();
+        await getStageColumnOrder();
 
     for (
         const column

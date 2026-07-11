@@ -662,10 +662,7 @@ export function renderPatentTable(
 			
 					<span
 						class="editPatent"
-						data-index="${
-							patent.originalIndex ??
-							index
-						}"
+						data-patent-id="${escapeAttribute(selectionId)}"
 						title="Edit Patent"
 					>
 						✏️
