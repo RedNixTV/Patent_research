@@ -477,6 +477,8 @@ export function renderPatentTable(patents, columnOrder, options = {}) {
 
         const selectionId = getPatentSelectionId(patent);
 
+        row.dataset.patentId = selectionId;
+
         const displayReferenceId = referenceIdRenderer(patent, index);
 
         let html = `

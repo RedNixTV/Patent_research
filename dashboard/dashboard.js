@@ -37,6 +37,7 @@ let artUnits = {};
 const artUnitCache = new Map();
 let patents = [];
 let selectedPatentIds = new Set();
+let highlightedPatentId = null;
 let currentTablePatents = [];
 let currentView = "references";
 let currentPatentIndex = null;
@@ -349,6 +350,33 @@ async function renderCurrentPatentTable(tablePatents = currentTablePatents) {
     setupPatentFieldControls();
     setupReviewConceptColumnControls();
     setupPatentScoreSortControl();
+    setupPatentRowHighlighting();
+}
+
+function setupPatentRowHighlighting() {
+    const rows = document.querySelectorAll("#patentTable tbody tr");
+
+    const updateHighlight = () => {
+        rows.forEach((row) => {
+            const highlighted = row.dataset.patentId === highlightedPatentId;
+
+            row.classList.toggle("patentRowHighlighted", highlighted);
+            row.setAttribute("aria-selected", String(highlighted));
+        });
+    };
+
+    rows.forEach((row) => {
+        row.onclick = (event) => {
+            if (event.target.closest("input, select, textarea, button, a, .editPatent")) {
+                return;
+            }
+
+            highlightedPatentId = row.dataset.patentId;
+            updateHighlight();
+        };
+    });
+
+    updateHighlight();
 }
 
 function setupPatentScoreSortControl() {
