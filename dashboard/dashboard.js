@@ -2241,6 +2241,10 @@ function getPatentTableCellCopyValue(cell) {
     const select = cell.querySelector("select");
 
     if (select) {
+        if (select.dataset.field === "conceptScores") {
+            return select.value;
+        }
+
         return select.selectedOptions[0]?.textContent?.trim() || select.value;
     }
 
