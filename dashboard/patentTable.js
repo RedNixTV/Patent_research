@@ -462,7 +462,8 @@ export function renderPatentTable(patents, columnOrder, options = {}) {
     const selectedPatentIds =
         options.selectedPatentIds || new Set(patents.map(getPatentSelectionId));
 
-    const referenceIdRenderer = options.referenceIdRenderer || ((patent) => patent.referenceId);
+    const referenceIdRenderer =
+        options.referenceIdRenderer || ((patent, index) => patent.referenceId ?? index + 1);
 
     const reviewConcepts = options.reviewConcepts || [];
 

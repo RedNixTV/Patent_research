@@ -257,7 +257,9 @@ export async function getPatents() {
             patents: patentLibrary,
         });
 
-        return Object.values(result.patents);
+        return Object.values(result.patents).filter(
+            (patent) => patent && typeof patent === "object" && patent.patentNumber
+        );
     }
 
     if (!result.projects || result.projects.length === 0) {
@@ -366,7 +368,7 @@ export async function getPatents() {
 
     return (currentProject?.stages?.landscapeScan || [])
         .map((patentNumber) => patentLibrary[patentNumber])
-        .filter(Boolean);
+        .filter((patent) => patent && typeof patent === "object" && patent.patentNumber);
 }
 
 async function saveToCurrentProject(patents) {

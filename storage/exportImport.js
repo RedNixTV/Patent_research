@@ -44,6 +44,10 @@ export async function exportData(
 
         "Publication Date": patent.publicationDate,
 
+        Overlap: patent.overlap || "None",
+
+        "Why It Matters": patent.whyItMatters || "",
+
         ...Object.fromEntries(
             reviewConcepts.map((concept) => [
                 concept.label,
@@ -140,6 +144,10 @@ export function importData(text, existingPatents = [], reviewConcepts = []) {
         importField(row, "Filing Date", patent, "filingDate");
 
         importField(row, "Publication Date", patent, "publicationDate");
+
+        importField(row, "Overlap", patent, "overlap");
+
+        importField(row, "Why It Matters", patent, "whyItMatters");
 
         const conceptScores = {
             ...existingPatent.conceptScores,

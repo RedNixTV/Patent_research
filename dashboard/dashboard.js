@@ -340,7 +340,7 @@ async function renderCurrentPatentTable(tablePatents = currentTablePatents) {
 
         referenceIdRenderer: renumberReferences
             ? (patent, index) => index + 1
-            : (patent) => patent.referenceId,
+            : (patent, index) => patent.referenceId ?? index + 1,
 
         reviewConcepts,
     });
@@ -1793,7 +1793,7 @@ async function getPatentsForCurrentStage() {
     }
 
     if (stageId === "universeReview") {
-        return patents.filter((patent) => patent.universeReviewSelected !== false);
+        return patents.filter((patent) => patent.universeReviewSelected === true);
     }
 
     return patents;
