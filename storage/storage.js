@@ -390,21 +390,29 @@ async function saveToCurrentProject(patents) {
 export async function savePatent(patent) {
     await ensureClassificationsExist(patent);
 
-    const library = await getPatentLibrary();
+    const result = await chrome.storage.local.get(["patents", "projects", "currentProjectId"]);
+
+    const library = result.patents || {};
 
     library[patent.patentNumber] = patent;
 
-    await savePatentLibrary(library);
+    const projects = result.projects || [];
 
-    const project = await getCurrentProject();
+    const project = projects.find((candidate) => candidate.id === result.currentProjectId);
+
+    if (!project) {
+        return;
+    }
+
+    project.stages ??= {};
+    project.stages.landscapeScan ??= [];
 
     if (!project.stages.landscapeScan.includes(patent.patentNumber)) {
         project.stages.landscapeScan.push(patent.patentNumber);
     }
 
-    const projects = await getProjects();
-
     await chrome.storage.local.set({
+        patents: library,
         projects,
     });
 }

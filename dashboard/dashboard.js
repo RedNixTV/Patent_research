@@ -1785,10 +1785,10 @@ async function getPatentsForCurrentStage() {
         Array.isArray(project?.stages?.[stageId]) &&
         project.stages[stageId].length > 0
     ) {
-        const patentLibrary = await getPatentLibrary();
+        const patentsByNumber = new Map(patents.map((patent) => [patent.patentNumber, patent]));
 
         return project.stages[stageId]
-            .map((patentNumber) => patentLibrary[patentNumber])
+            .map((patentNumber) => patentsByNumber.get(patentNumber))
             .filter(Boolean);
     }
 
@@ -3884,7 +3884,7 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
         await refreshCurrentView();
     }
 
-    if (changes.patents) {
+    if (changes.patents || changes.projects) {
         await refreshCurrentPatentTableFromStorage();
     }
 });
